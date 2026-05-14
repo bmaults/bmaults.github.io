@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Bevin Maultsby, Teaching Professor in the Department of Mathematics at NC State University.">
+  <meta name="author" content="Bevin Maultsby">
+
+  <meta property="og:title" content="Bevin Maultsby">
+  <meta property="og:description" content="Teaching Professor in Mathematics at NC State University. Online teaching, course design, alternative assessment, and generative AI in mathematics teaching.">
+  <meta property="og:type" content="website">
+
+  <title>Bevin Maultsby | Mathematics Teaching and Scholarship</title>
+
+  <style>
+    :root {
+      --red: #cc0000;
+      --red-dark: #990000;
+      --ink: #222222;
+      --muted: #5f6368;
+      --line: #dddddd;
+      --soft: #f7f7f7;
+      --soft-red: #fff4f4;
+      --white: #ffffff;
+      --max-width: 1120px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--white);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 17px;
+      line-height: 1.6;
+    }
+
+    a {
+      color: var(--red-dark);
+      text-decoration-thickness: 0.08em;
+      text-underline-offset: 0.16em;
+    }
+
+    a:hover,
+    a:focus {
+      color: var(--red);
+    }
+
+    .skip-link {
+      position: absolute;
+      left: -999px;
+      top: 0;
+      z-index: 100;
+      padding: 0.75rem 1rem;
+      background: var(--white);
+      color: var(--red-dark);
+      border: 2px solid var(--red-dark);
+    }
+
+    .skip-link:focus {
+      left: 1rem;
+      top: 1rem;
+    }
+
+    header.site-header {
+      border-bottom: 1px solid var(--line);
+      background: var(--white);
+    }
+
+    .topbar {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .site-name {
+      margin: 0;
+      font-size: clamp(1.5rem, 3vw, 2.2rem);
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+    }
+
+    .site-name a {
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    .site-subtitle {
+      margin: 0.25rem 0 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      margin: 0;
+      padding: 0;
+    }
+
+    nav a {
+      display: inline-block;
+      padding: 0.45rem 0.7rem;
+      color: var(--ink);
+      text-decoration: none;
+      border-radius: 999px;
+    }
+
+    nav a:hover,
+    nav a:focus {
+      background: var(--soft-red);
+      color: var(--red-dark);
+    }
+
+    .hero-wrap {
+      background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .hero {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: clamp(2rem, 5vw, 4rem) 1.25rem;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 280px;
+      gap: clamp(1.5rem, 4vw, 3rem);
+      align-items: center;
+    }
+
+    .hero h2 {
+      margin: 0 0 1rem;
+      font-size: clamp(2rem, 5vw, 4rem);
+      line-height: 1.05;
+      letter-spacing: -0.05em;
+    }
+
+    .hero p {
+      max-width: 68ch;
+      margin: 0 0 1rem;
+      font-size: 1.08rem;
+    }
+
+    .hero-card {
+      padding: 1rem;
+      border: 1px solid var(--line);
+      border-radius: 1rem;
+      background: var(--white);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+    }
+
+    .hero-card img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 0.8rem;
+      border: 1px solid var(--line);
+    }
+
+    .contact-card {
+      margin-top: 1rem;
+      font-size: 0.96rem;
+    }
+
+    .contact-card p {
+      margin: 0.45rem 0;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      margin-top: 1.5rem;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 2.6rem;
+      padding: 0.55rem 0.9rem;
+      border: 1px solid var(--red-dark);
+      border-radius: 999px;
+      background: var(--red-dark);
+      color: var(--white);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .button:hover,
+    .button:focus {
+      background: var(--red);
+      color: var(--white);
+    }
+
+    .button.secondary {
+      background: var(--white);
+      color: var(--red-dark);
+    }
+
+    .button.secondary:hover,
+    .button.secondary:focus {
+      background: var(--soft-red);
+      color: var(--red-dark);
+    }
+
+    main {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 2rem 1.25rem 4rem;
+    }
+
+    section {
+      padding: 2rem 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    section:last-child {
+      border-bottom: 0;
+    }
+
+    h2,
+    h3,
+    h4 {
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+    }
+
+    h2 {
+      margin: 0 0 1rem;
+      font-size: clamp(1.7rem, 3vw, 2.4rem);
+    }
+
+    h3 {
+      margin: 1.5rem 0 0.5rem;
+      font-size: 1.25rem;
+    }
+
+    h4 {
+      margin: 1rem 0 0.25rem;
+      font-size: 1.05rem;
+    }
+
+    .section-intro {
+      max-width: 72ch;
+      color: var(--muted);
+      margin-top: -0.25rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+      margin-top: 1.25rem;
+    }
+
+    .grid.two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 1rem;
+      padding: 1.1rem;
+      background: var(--white);
+    }
+
+    .card h3 {
+      margin-top: 0;
+    }
+
+    .card p:last-child,
+    .card ul:last-child {
+      margin-bottom: 0;
+    }
+
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      list-style: none;
+      margin: 1rem 0 0;
+      padding: 0;
+    }
+
+    .tag-list li {
+      padding: 0.25rem 0.55rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--soft);
+      font-size: 0.92rem;
+    }
+
+    .plain-list {
+      padding-left: 1.2rem;
+    }
+
+    .plain-list li {
+      margin-bottom: 0.45rem;
+    }
+
+    .compact-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .compact-list li {
+      padding: 0.45rem 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .compact-list li:last-child {
+      border-bottom: 0;
+    }
+
+    .course-columns {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1.5rem;
+    }
+
+    .callout {
+      border-left: 5px solid var(--red);
+      background: var(--soft-red);
+      padding: 1rem 1.2rem;
+      border-radius: 0.75rem;
+      margin: 1.25rem 0;
+    }
+
+    footer {
+      border-top: 1px solid var(--line);
+      background: var(--soft);
+      color: var(--muted);
+    }
+
+    .footer-inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem;
+      font-size: 0.95rem;
+    }
+
+    .footer-inner p {
+      margin: 0.25rem 0;
+    }
+
+    @media (max-width: 850px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-card {
+        max-width: 360px;
+      }
+
+      .grid,
+      .grid.two,
+      .course-columns {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  <header class="site-header">
+    <div class="topbar">
+      <div>
+        <h1 class="site-name"><a href="index.html">Bevin Maultsby</a></h1>
+        <p class="site-subtitle">Teaching Professor, Department of Mathematics, NC State University</p>
+      </div>
+
+      <nav aria-label="Main navigation">
+        <ul>
+          <li><a href="#projects">Projects</a></li>
+          <li><a href="#teaching">Teaching</a></li>
+          <li><a href="#publications">Publications</a></li>
+          <li><a href="#bio">Bio</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <div class="hero-wrap">
+    <div class="hero">
+      <div>
+        <h2>Mathematics teaching, online learning, and useful educational technology.</h2>
+        <p>I am a Teaching Professor in the Department of Mathematics at NC State University and the coordinator for Distance Education in the Mathematics department.</p>
+        <p>My work centers on online teaching and course creation, course design, alternative assessments, inquiry-based learning, and using generative AI in the classroom. My mathematical background is in applied dynamical systems.</p>
+        <p>I co-organize the biweekly national seminar <a href="https://teaching-math-with-gen-ai.github.io/">Teaching Mathematics with Generative AI</a> with Feryal Alayont, Rachael Lund, and Lew Ludwig.</p>
+
+        <div class="button-row" aria-label="Featured links">
+          <a class="button" href="https://teaching-math-with-gen-ai.github.io/">Teaching Math with Generative AI</a>
+          <a class="button secondary" href="https://www.youtube.com/@bevinmaultsby">YouTube Channel</a>
+          <a class="button secondary" href="#projects">Projects and Repositories</a>
+        </div>
+      </div>
+
+      <aside class="hero-card" id="contact" aria-label="Contact information">
+        <!-- Save your headshot as assets/bevin-maultsby.jpg and replace the src below. -->
+        <img src="assets/bevin-maultsby.jpg" alt="Dr. Bevin Maultsby from NC State University">
+        <div class="contact-card">
+          <p><strong>Dr. Bevin Maultsby</strong> <br>(she/her/hers)</p>
+          <p>Alumni Distinguished Undergraduate Professor</p>
+          <p><a href="mailto:bmaults@ncsu.edu">bmaults@ncsu.edu</a><br>919-515-1876<br>SAS 3230</p>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <main id="main-content">
+    <section id="projects" aria-labelledby="projects-heading">
+      <h2 id="projects-heading">Projects and repositories</h2>
+      <p class="section-intro">This is the section I would use to make the GitHub version of the site feel natural. Repositories can live here beside teaching projects, seminar pages, and public course materials.</p>
+
+      <div class="grid">
+        <article class="card">
+          <h3>Teaching Mathematics with Generative AI</h3>
+          <p>A biweekly national seminar for mathematics instructors using or studying generative AI in teaching.</p>
+          <p><a href="https://teaching-math-with-gen-ai.github.io/">Visit the seminar site</a></p>
+        </article>
+
+        <article class="card">
+          <h3>Accessible dissertation template</h3>
+          <p>A LaTeX template project focused on accessible PDFs, structured documents, and practical checks with tools like VeraPDF.</p>
+          <p><a href="#">Repository link coming soon</a></p>
+        </article>
+
+        <article class="card">
+          <h3>Course websites and syllabi</h3>
+          <p>Static course materials, syllabi, calendars, and supporting resources for online and distance education courses.</p>
+          <p><a href="#">Repository link coming soon</a></p>
+        </article>
+
+        <article class="card">
+          <h3>Multivariable Calculus materials</h3>
+          <p>Lecture notes, videos, visualizations, and course resources for multivariable calculus.</p>
+          <p><a href="https://www.youtube.com/playlist?list=PLBEl4BT8wUgOqJCBijQxClMIuumgtMinc">Course video playlist</a></p>
+        </article>
+
+        <article class="card">
+          <h3>Single Variable Calculus II materials</h3>
+          <p>Video lessons and course resources for integration techniques, applications, sequences and series, Taylor series, and differential equations.</p>
+          <p><a href="https://www.youtube.com/playlist?list=PLBEl4BT8wUgPasvgpQZ2ustikfBCbavYd">Course video playlist</a></p>
+        </article>
+
+        <article class="card">
+          <h3>Real Analysis materials</h3>
+          <p>Course materials and expository writing connected to analysis, computability, and mathematical storytelling.</p>
+          <p><a href="https://www.youtube.com/playlist?list=PLBEl4BT8wUgNKTl0bgy6BMQXAShRZor5l">Course video playlist</a></p>
+        </article>
+      </div>
+    </section>
+
+    <section id="teaching" aria-labelledby="teaching-heading">
+      <h2 id="teaching-heading">Teaching</h2>
+      <p class="section-intro">I teach a range of undergraduate and graduate mathematics courses, with a particular emphasis on online course design and student-centered assessment.</p>
+
+      <div class="course-columns">
+        <div>
+          <h3>Courses at NC State</h3>
+          <h4>Undergraduate</h4>
+          <ul class="plain-list">
+            <li>MA 116: Introduction to Scientific Programming (MATLAB)</li>
+            <li>MA 241: Single Variable Calculus II | <a href="https://www.youtube.com/playlist?list=PLBEl4BT8wUgPasvgpQZ2ustikfBCbavYd">Course Video Playlist</a></li>
+            <li>MA 242: Multivariable Calculus | <a href="https://www.youtube.com/playlist?list=PLBEl4BT8wUgOqJCBijQxClMIuumgtMinc">Course Video Playlist</a></li>
+            <li>MA 305: Introductory Linear Algebra and Matrices</li>
+            <li>MA 341: Applied Differential Equations I | <a href="https://www.youtube.com/playlist?list=PLBEl4BT8wUgPhwFSs23BTSMLfNKT6Wics">Laplace Transforms Playlist</a></li>
+            <li>MA 425: Mathematical Analysis I</li>
+            <li>MA 426: Mathematical Analysis II | <a href="https://www.youtube.com/playlist?list=PLBEl4BT8wUgNKTl0bgy6BMQXAShRZor5l">Course Video Playlist</a></li>
+          </ul>
+
+          <h4>Graduate</h4>
+          <ul class="plain-list">
+            <li>MA 501: Advanced Mathematics for Engineers and Scientists I (PDEs)</li>
+            <li>MA 507: Survey of Real Analysis</li>
+            <li><a href="https://www.youtube.com/playlist?list=PLBEl4BT8wUgPAC_m-QsbzrHR9nUIn4Lla">MA 510: Selected Topics in Mathematics for Secondary Teachers (Modeling)</a></li>
+            <li>MA 511: Advanced Calculus I</li>
+            <li>MA 523: Linear Transformations and Matrix Theory</li>
+          </ul>
+        </div>
+
+        <div>
+          <h3>Teaching interests</h3>
+          <ul class="tag-list" aria-label="Teaching interests">
+            <li>Online teaching</li>
+            <li>Course design</li>
+            <li>Alternative assessment</li>
+            <li>Mastery-based grading</li>
+            <li>Standards-based grading</li>
+            <li>Ungrading</li>
+            <li>Inquiry-based learning</li>
+            <li>Generative AI</li>
+          </ul>
+
+          <div class="callout">
+            <p>I am always happy to talk with students interested in <a href="https://studyabroad.ncsu.edu/">Study Abroad</a>.</p>
+          </div>
+
+          <h3>Previous teaching</h3>
+          <ul class="plain-list">
+            <li>University of Minnesota: Calculus I, Calculus III, Linear Algebra, Differential Equations with Applications</li>
+            <li>UNC-Chapel Hill: College Algebra, Selected Topics in Mathematics, Calculus I, Calculus II, Multivariable Calculus III, Advanced Calculus/Real Analysis</li>
+            <li>Duke University TIP: Topology</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="publications" aria-labelledby="publications-heading">
+      <h2 id="publications-heading">Publications and writing</h2>
+      <ul class="compact-list">
+        <li>B. Maultsby, <a href="https://mathvoices.ams.org/featurecolumn/2025/05/01/primitive-recursion-and-the-disappearing-guests/">Primitive Recursion and the Disappearing Guests</a>, <em>American Mathematical Society Feature Column</em>, May 2025.</li>
+        <li>B. Maultsby, Settling a Tomoe-sen: Wrestling with chip firing, <em>MAA Math Horizons</em>, 31(1), September 2023. DOI: <a href="https://doi.org/10.1080/10724117.2023.2224671">10.1080/10724117.2023.2224671</a>.</li>
+        <li>C.K.R.T. Jones and B. Maultsby, A dynamical approach to phytoplankton blooms, <em>Discrete and Continuous Dynamical Systems</em>, 37(2): 859-878, November 2016. DOI: <a href="https://doi.org/10.3934/dcds.2017035">10.3934/dcds.2017035</a>.</li>
+        <li>B. Maultsby, Uniqueness of solutions to singular p-Laplacian equations with subcritical nonlinearity, <em>Advances in Nonlinear Analysis</em>, 6(1), 2016, 37-59. DOI: <a href="https://doi.org/10.1515/anona-2015-0161">10.1515/anona-2015-0161</a>.</li>
+        <li>B. Maultsby, <em>The Geometry of Radial States in Nonlinear Elliptic Problems</em>, Ph.D. thesis, 2014.</li>
+        <li>B. Maultsby, 2:1 spatial resonance in Langmuir circulation, <em>Proceedings of the 2012 Program in Geophysical Fluid Dynamics</em>, 2012, 334-361.</li>
+      </ul>
+
+      <h3>NC State news articles</h3>
+      <ul class="plain-list">
+        <li><a href="https://news.delta.ncsu.edu/2023/02/18/intelliboard-encourages-faculty-intervention/">IntelliBoard Encourages Faculty Intervention</a></li>
+        <li><a href="https://delta.ncsu.edu/news/2022/10/27/top-five-reasons-to-embrace-moodle-4-0/">Top Five Reasons to Embrace Moodle 4.0</a></li>
+        <li><a href="https://delta.ncsu.edu/news/2022/05/19/early-adopters-of-moodle-4-share-experiences/">Early Adopters of Moodle 4 Share Experiences</a></li>
+        <li><a href="https://delta.ncsu.edu/news/2022/04/19/meet-delta-faculty-fellow-bevin-maultsby/">Meet DELTA Faculty Fellow Bevin Maultsby</a></li>
+        <li><a href="https://delta.ncsu.edu/news/2022/03/15/utilizing-activity-completion-and-restrict-access-in-moodle/">Utilizing Activity Completion and Restrict Access in Moodle</a></li>
+        <li><a href="https://teaching-resources.delta.ncsu.edu/helping-students-get-started/">Helping Students Get Started in an Online Class</a></li>
+        <li><a href="https://news.delta.ncsu.edu/2019/10/02/traveling-and-need-to-teach-check-out-my-mediasite/">Traveling and Need to Teach? Check Out My Mediasite</a></li>
+      </ul>
+    </section>
+
+    <section id="bio" aria-labelledby="bio-heading">
+      <h2 id="bio-heading">Bio</h2>
+      <div class="grid two">
+        <div class="card">
+          <h3>Positions held</h3>
+          <ul class="plain-list">
+            <li>2025-present, Teaching Professor, Department of Mathematics, NC State University</li>
+            <li>2020-2025, Teaching Associate Professor, Department of Mathematics, NC State University</li>
+            <li>2016-2020, Teaching Assistant Professor, Department of Mathematics, NC State University</li>
+            <li>Summer 2016, Instructor for Duke University Talent Identification Program</li>
+            <li>2014-2016, MathCEP Postdoctoral Fellow, School of Mathematics, University of Minnesota</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Education</h3>
+          <ul class="plain-list">
+            <li>2014, Ph.D. in Mathematics, University of North Carolina at Chapel Hill. Advisor: Dr. Christopher K.R.T. Jones. Thesis: <em>The geometry of radial states in nonlinear elliptic problems</em>.</li>
+            <li>2009, B.S. in Mathematics and B.A. in French, with highest distinction, University of North Carolina at Chapel Hill.</li>
+          </ul>
+          <p>My education included a full year at Université de Montpellier III in France and a semester in Kenya and Tanzania. I also spent a summer at the Woods Hole Oceanographic Institution as a Geophysical Fluid Dynamics fellow. Recently, I spent a semester in Cambridge, UK.</p>
+        </div>
+      </div>
+
+      <h3>Honors and awards</h3>
+      <ul class="plain-list">
+        <li>Alumni Distinguished Undergraduate Professor Award, NC State University (2026)</li>
+        <li>Outstanding Teacher Award, NC State University (2024)</li>
+        <li>DELTA Faculty Fellow, NC State University (2021-2022, 2022-2023)</li>
+        <li>Thank a Teacher Award, NC State University (2021, 2022)</li>
+        <li>John Franke Faculty Award for Excellence in Teaching, NC State University Department of Mathematics (2021)</li>
+        <li>Certificate of Reflective Teaching, NC State University (2020)</li>
+        <li>The Linker Award for excellence in teaching by a graduate student, UNC-Chapel Hill (2014)</li>
+        <li>WHOI Geophysical Fluid Dynamics Fellow, Woods Hole Oceanographic Institution (2012)</li>
+        <li>The Alfred Brauer Award for Algebra and Number Theory, UNC-Chapel Hill Department of Mathematics (2009)</li>
+        <li>Chancellor’s Award, Jacques Hardré Prize, UNC-Chapel Hill (2009)</li>
+      </ul>
+
+      <p><a href="cv/">Full CV</a></p>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <p><strong>Bevin Maultsby</strong></p>
+      <p>The views and opinions expressed on this site are those of the page author. They have not been reviewed or approved by North Carolina State University.</p>
+      <p>&copy; 2026 Bevin Maultsby.</p>
+    </div>
+  </footer>
+</body>
+</html>
