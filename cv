@@ -748,7 +748,7 @@ a:focus-visible { outline: 3px solid #000; outline-offset: 2px; }
       <span class="date">
        2017&ndash;present
       </span>
-      <span class="detail">
+      <span class="detail subheading">
        Other Course Developments, NC State University
       </span>
      </li>
@@ -940,17 +940,7 @@ a:focus-visible { outline: 3px solid #000; outline-offset: 2px; }
      <li class="subitem">
       <span class="date">
       </span>
-      <span class="detail">
-       <em>
-        B. Maultsby. Geometric Uniqueness of Positive Radial Solutions for Singular p-Laplacian Equations on Annuli. Submitted, 2026.
-       </em>
-      </span>
-     </li>
-     <li class="subitem">
-      <span class="date">
-      </span>
-      <span class="detail">
-       B. Maultsby. Effects of Subscore-Based Testing on Student Stress and Success in Online Calculus Courses. In progress.
+        B. Maultsby. Geometric Uniqueness of Positive Radial Solutions for Singular p-Laplacian Equations on Annuli, submitted, 2026.
       </span>
      </li>
      <li class="subitem">
