@@ -13,23 +13,19 @@
       --accent: #263746;
       --link: #0b57a4;
       --bg: #ffffff;
-      --max: 52rem;
+      --max: 56rem;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
-    html {
-      background: var(--bg);
-    }
+    html { background: var(--bg); }
 
     body {
       margin: 0;
       color: var(--text);
       background: var(--bg);
       font-family: Georgia, "Times New Roman", serif;
-      line-height: 1.6;
+      line-height: 1.62;
     }
 
     .skip-link {
@@ -59,9 +55,7 @@
       border-bottom: 1px solid var(--rule);
     }
 
-    h1,
-    h2,
-    nav {
+    h1, h2, h3, nav {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
@@ -95,7 +89,7 @@
     }
 
     section {
-      margin-top: 2.2rem;
+      margin-top: 2.3rem;
     }
 
     section:first-child {
@@ -103,12 +97,19 @@
     }
 
     h2 {
-      margin: 0 0 0.75rem;
+      margin: 0 0 0.8rem;
       padding-bottom: 0.25rem;
       color: var(--accent);
-      font-size: 1.15rem;
+      font-size: 1.18rem;
       font-weight: 650;
       border-bottom: 1px solid var(--rule);
+    }
+
+    h3 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--accent);
+      font-size: 1rem;
+      font-weight: 650;
     }
 
     p {
@@ -121,7 +122,7 @@
     }
 
     li {
-      margin: 0.28rem 0;
+      margin: 0.3rem 0;
     }
 
     a {
@@ -139,8 +140,18 @@
       outline-offset: 3px;
     }
 
+    .compact li {
+      margin: 0.2rem 0;
+    }
+
     .muted {
       color: var(--muted);
+    }
+
+    .cv-link {
+      margin-top: 1rem;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-weight: 600;
     }
 
     footer {
@@ -152,9 +163,7 @@
     }
 
     @media (max-width: 36rem) {
-      .page {
-        padding-top: 2rem;
-      }
+      .page { padding-top: 2rem; }
 
       nav a {
         display: inline-block;
@@ -176,65 +185,205 @@
       </p>
 
       <nav aria-label="Primary">
-        <a href="cv.html">Curriculum Vitae</a>
-        <a href="https://maultsby.wordpress.ncsu.edu/">NC State page</a>
-        <a href="https://www.youtube.com/@bevinmaultsby">YouTube</a>
+        <a href="#about">About</a>
+        <a href="#bio">Bio</a>
+        <a href="#teaching">Teaching</a>
+        <a href="#publications">Publications</a>
+        <a href="cv.html">Full CV</a>
         <a href="mailto:bmaults@ncsu.edu">Email</a>
       </nav>
     </header>
 
     <main id="main">
-      <section aria-labelledby="about">
-        <h2 id="about">About</h2>
+      <section id="about" aria-labelledby="about-heading">
+        <h2 id="about-heading">About</h2>
+
         <p>
-          I am a mathematician and mathematics educator at NC State University. My work
-          centers on undergraduate mathematics teaching, online and hybrid course design,
-          accessibility, assessment, instructional technology, and the changing role of
-          generative AI in mathematics education and research.
+          I am a Teaching Professor in the Department of Mathematics at NC State University
+          and coordinate Distance Education for the department.
+        </p>
+
+        <p>
+          I am broadly interested in the scholarship of teaching and learning. My interests
+          include online teaching and course creation, course design, alternative assessment
+          approaches such as mastery-based and standards-based grading, inquiry-based learning,
+          accessibility, and the use of generative AI in teaching and research. My mathematical
+          background is in geometric dynamical systems, with current work on uniqueness problems
+          for singular <em>p</em>-Laplacian equations on annular domains.
+        </p>
+
+        <p>
+          I am a co-organizer of the biweekly national seminar
+          <a href="https://teaching-math-with-gen-ai.github.io/">Teaching Mathematics with Generative AI</a>
+          with
+          <a href="https://faculty.gvsu.edu/alayontf/">Feryal Alayont</a>,
+          <a href="https://directory.natsci.msu.edu/directory/Profiles/Person/101614">Rachael Lund</a>,
+          and
+          <a href="https://denison.edu/people/lew-ludwig">Lew Ludwig</a>.
+          Please contact me if you would like to join or present.
+        </p>
+
+        <p>
+          I also post mathematics lectures and other videos on my
+          <a href="https://www.youtube.com/@bevinmaultsby">YouTube channel</a>.
+          Some are used in my courses; others are simply things I wanted to make.
+        </p>
+
+        <p>
+          <a href="https://maultsby.wordpress.ncsu.edu/statement-on-ai-usage-in-my-courses/">
+            Statement on AI usage in my courses
+          </a>
+        </p>
+
+        <p><a href="cv.html">View my full curriculum vitae</a></p>
+      </section>
+
+      <section id="bio" aria-labelledby="bio-heading">
+        <h2 id="bio-heading">Bio</h2>
+
+        <h3>Positions</h3>
+        <ul class="compact">
+          <li>2025–present, Teaching Professor, Department of Mathematics, NC State University</li>
+          <li>2020–2025, Associate Teaching Professor, Department of Mathematics, NC State University</li>
+          <li>2016–2020, Assistant Teaching Professor, Department of Mathematics, NC State University</li>
+          <li>2014–2016, MathCEP Postdoctoral Fellow, School of Mathematics, University of Minnesota</li>
+        </ul>
+
+        <p>
+          Additional educational work has included the Duke University Talent Identification Program and
+          the University of Minnesota Talented Youth Mathematics Program.
+        </p>
+
+        <h3>Education</h3>
+        <ul class="compact">
+          <li>
+            2014, Ph.D. in Mathematics, University of North Carolina at Chapel Hill.
+            Advisor: Christopher K.R.T. Jones.
+            Dissertation: <em>The Geometry of Radial States in Nonlinear Elliptic Problems</em>.
+          </li>
+          <li>
+            2009, B.S. in Mathematics and B.A. in French and Francophone Studies,
+            with highest distinction, University of North Carolina at Chapel Hill.
+          </li>
+        </ul>
+
+        <p>
+          My education also included a full academic year at Université Paul Valéry Montpellier III
+          in France and a semester in Kenya and Tanzania. I spent a summer at the
+          <a href="https://www.whoi.edu/">Woods Hole Oceanographic Institution</a>
+          as a Geophysical Fluid Dynamics fellow, and more recently spent a semester in Cambridge, UK.
+        </p>
+
+        <p>
+          I am always happy to talk with students interested in
+          <a href="https://studyabroad.ncsu.edu/">Study Abroad</a>.
+        </p>
+
+        <h3>Selected Honors and Awards</h3>
+        <ul class="compact">
+          <li>Alumni Distinguished Undergraduate Professor Award, NC State University, 2026</li>
+          <li>Outstanding Teacher Award, NC State University, 2024</li>
+          <li>DELTA Faculty Fellow, NC State University, 2021–2023</li>
+          <li>John Franke Faculty Award for Excellence in Teaching, NC State Department of Mathematics, 2021</li>
+          <li>Certificate of Reflective Teaching, NC State University, 2020</li>
+          <li>Linker Award for Excellence in Teaching, UNC-Chapel Hill, 2014</li>
+          <li>Geophysical Fluid Dynamics Fellow, Woods Hole Oceanographic Institution, 2012</li>
+          <li>Alfred Brauer Award and Jacques Hardré Prize, UNC-Chapel Hill, 2009</li>
+        </ul>
+      </section>
+
+      <section id="teaching" aria-labelledby="teaching-heading">
+        <h2 id="teaching-heading">Teaching</h2>
+
+        <p>
+          At NC State I teach across the undergraduate and graduate curriculum, including
+          calculus, linear algebra, differential equations, real analysis, mathematical modeling,
+          complex variables, and scientific programming.
+        </p>
+
+        <h3>Selected Course Materials</h3>
+        <ul>
+          <li>
+            MA 241: Single Variable Calculus II —
+            <a href="https://www.youtube.com/playlist?list=PLBEl4BT8wUgPasvgpQZ2ustikfBCbavYd">course video playlist</a>
+          </li>
+          <li>
+            MA 242: Multivariable Calculus —
+            <a href="https://www.youtube.com/playlist?list=PLBEl4BT8wUgOqJCBijQxClMIuumgtMinc">course video playlist</a>
+          </li>
+          <li>
+            MA 341: Applied Differential Equations I —
+            <a href="https://www.youtube.com/playlist?list=PLBEl4BT8wUgPhwFSs23BTSMLfNKT6Wics">Laplace transforms playlist</a>
+          </li>
+          <li>
+            MA 425: Mathematical Analysis I —
+            <a href="https://www.youtube.com/playlist?list=PLBEl4BT8wUgOb0pOEyKQSp_3Hll_kuKgH">course video playlist</a>
+          </li>
+          <li>
+            MA 426: Mathematical Analysis II —
+            <a href="https://www.youtube.com/playlist?list=PLBEl4BT8wUgNKTl0bgy6BMQXAShRZor5l">course video playlist</a>
+          </li>
+          <li>
+            MA 510: Mathematical Modeling for Secondary Teachers —
+            <a href="https://www.youtube.com/playlist?list=PLBEl4BT8wUgPAC_m-QsbzrHR9nUIn4Lla">course video playlist</a>
+          </li>
+        </ul>
+
+        <p class="muted">
+          My full teaching history, including prior teaching at Minnesota, UNC-Chapel Hill,
+          and Duke TIP, is listed in my <a href="cv.html">full CV</a>.
         </p>
       </section>
 
-      <section aria-labelledby="current-work">
-        <h2 id="current-work">Current Work</h2>
-        <ul>
-          <li>
-            <strong>Mathematics education and course design:</strong>
-            developing and coordinating undergraduate and graduate mathematics courses,
-            with particular attention to assessment, accessibility, and sustainable
-            instructional systems.
-          </li>
-          <li>
-            <strong>Generative AI:</strong>
-            studying and presenting on how AI changes mathematical teaching, assessment,
-            research practice, and faculty work.
-          </li>
-          <li>
-            <strong>Mathematical research:</strong>
-           geometric dynamical systems, currently interested in existence and uniqueness questions for singular p-Laplacian equations.
-          </li>
-        </ul>
-      </section>
+      <section id="publications" aria-labelledby="publications-heading">
+        <h2 id="publications-heading">Selected Publications</h2>
 
-      <section aria-labelledby="selected-links">
-        <h2 id="selected-links">Selected Links</h2>
         <ul>
-          <li><a href="cv.html">Curriculum Vitae</a></li>
           <li>
-            <a href="https://groups.google.com/g/teaching-math-with-gen-ai">
-              Teaching Mathematics with Generative AI
-            </a>
+            B. Maultsby.
+            <em>Geometric uniqueness of positive radial solutions for singular p-Laplacian equations on annuli.</em>
+            Submitted.
           </li>
           <li>
-            <a href="https://www.youtube.com/@bevinmaultsby">
-              Mathematics lectures and instructional videos
-            </a>
+            B. Maultsby.
+            <em>Primitive Recursion and the Disappearing Guests.</em>
+            American Mathematical Society Feature Column, May 2025.
+            <a href="https://mathvoices.ams.org/featurecolumn/2025/05/01/primitive-recursion-and-the-disappearing-guests/">Article</a>
+          </li>
+          <li>
+            B. Maultsby.
+            <em>Settling a Tomoe-sen: Wrestling with Chip Firing.</em>
+            Math Horizons 31(1), 2023.
+            <a href="https://doi.org/10.1080/10724117.2023.2224671">DOI</a>
+          </li>
+          <li>
+            C.K.R.T. Jones and B. Maultsby.
+            <em>A dynamical approach to phytoplankton blooms.</em>
+            Discrete and Continuous Dynamical Systems 37(2), 859–878, 2017.
+            <a href="https://doi.org/10.3934/dcds.2017035">DOI</a>
+          </li>
+          <li>
+            B. Maultsby.
+            <em>Uniqueness of solutions to singular p-Laplacian equations with subcritical nonlinearity.</em>
+            Advances in Nonlinear Analysis 6(1), 37–59, 2017.
+            <a href="https://doi.org/10.1515/anona-2015-0161">DOI</a>
+          </li>
+          <li>
+            B. Maultsby.
+            <em>The Geometry of Radial States in Nonlinear Elliptic Problems.</em>
+            Ph.D. thesis, University of North Carolina at Chapel Hill, 2014.
           </li>
         </ul>
+
+        <p class="cv-link"><a href="cv.html">Full publications, talks, service, and professional activity</a></p>
       </section>
     </main>
 
     <footer>
-      <p>Bevin Maultsby · Department of Mathematics · NC State University</p>
+      <p>
+        Bevin Maultsby · Department of Mathematics · NC State University ·
+        <a href="mailto:bmaults@ncsu.edu">bmaults@ncsu.edu</a>
+      </p>
     </footer>
   </div>
 </body>
