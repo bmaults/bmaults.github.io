@@ -1,0 +1,1871 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>
+   Curriculum Vitae &ndash; Bevin Laurel Maultsby
+  </title>
+  <meta content="Curriculum vitae of Bevin Laurel Maultsby, Alumni Distinguished Undergraduate Professor and Teaching Professor of Mathematics at NC State University." name="description"/>
+  <style>
+   :root { color-scheme: light; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Georgia, "Times New Roman", serif; line-height: 1.5; color: #111; background: #fff; }
+.skip-link { position: absolute; left: -9999px; top: 0; background: #fff; color: #000; padding: .6rem; border: 2px solid #000; z-index: 100; }
+.skip-link:focus { left: .5rem; top: .5rem; }
+main { max-width: 72rem; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+header { margin-bottom: 1.5rem; }
+h1 { font-family: system-ui, -apple-system, sans-serif; font-size: 2rem; line-height: 1.15; margin: 0 0 .35rem; }
+h2 { font-family: system-ui, -apple-system, sans-serif; font-size: 1.25rem; line-height: 1.25; color: #263746; border-bottom: 2px solid #9aa9b3; margin: 1.65rem 0 .7rem; padding-bottom: .15rem; }
+.contact { margin: 0; }
+a { color: #0645ad; text-decoration: underline; text-underline-offset: .15em; }
+a:focus-visible { outline: 3px solid #000; outline-offset: 2px; }
+.cv-list { list-style: none; margin: 0; padding: 0; }
+.cv-list > li { display: grid; grid-template-columns: 8.2rem 1fr; gap: .75rem; margin: .22rem 0; align-items: start; }
+.date { font-style: normal; text-align: right; white-space: normal; }
+.detail { min-width: 0; }
+.subitem .detail::before { content: "• "; }
+.subitem .date { visibility: hidden; }
+.note { font-style: italic; }
+@media (max-width: 42rem) {
+  .cv-list > li { grid-template-columns: 1fr; gap: 0; margin: .5rem 0; }
+  .date { text-align: left; font-weight: 600; }
+  .subitem .date { display: none; }
+}
+@media print {
+  a { color: #000; }
+  main { max-width: none; padding: 0; }
+}
+  
+    .teaching-place,
+    .subheading {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-weight: 650;
+      color: var(--accent);
+    }
+  </style>
+ </head>
+ <body>
+  <a class="skip-link" href="#main">
+   Skip to main content
+  </a>
+  <main id="main">
+   <header>
+    <h1>
+     Bevin Laurel Maultsby, Ph.D.
+    </h1>
+    <p class="contact">
+     Alumni Distinguished Undergraduate Professor; Teaching Professor of Mathematics
+     <br/>
+     North Carolina State University
+     <br/>
+     <a href="mailto:bmaults@ncsu.edu">
+      bmaults@ncsu.edu
+     </a>
+     &middot;
+     <a href="https://maultsby.wordpress.ncsu.edu/">
+      maultsby.wordpress.ncsu.edu
+     </a>
+    </p>
+   </header>
+   <section aria-labelledby="employment-history">
+    <h2 id="employment-history">
+     Employment History
+    </h2>
+    <ul class="cv-list">
+     <li class="">
+      <span class="date">
+       2016&ndash;present
+      </span>
+      <span class="detail">
+       North Carolina State University, Department of Mathematics, Raleigh, NC
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Teaching Professor of Mathematics, 2025&ndash;present.
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Associate Teaching Professor of Mathematics, 2020&ndash;2025.
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Assistant Teaching Professor of Mathematics, 2016&ndash;2020.
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Administrator for Online and Distance Education, 2016&ndash;present.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2014&ndash;2016
+      </span>
+      <span class="detail">
+       University of Minnesota, School of Mathematics, Minneapolis, MN
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       MathCEP Assistant Professor (Postdoctoral Fellowship).
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Instruction focused on accelerated mathematics for gifted secondary students in the University of Minnesota Talented Youth Mathematics Program (UMTYMP).
+      </span>
+     </li>
+    </ul>
+   </section>
+   <section aria-labelledby="education">
+    <h2 id="education">
+     Education
+    </h2>
+    <ul class="cv-list">
+     <li class="">
+      <span class="date">
+       2014
+      </span>
+      <span class="detail">
+       Ph.D. in Mathematics, University of North Carolina at Chapel Hill
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Dissertation: The Geometry of Radial States in Nonlinear Elliptic Problems.
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Advisor: Christopher K.R.T. Jones.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2009
+      </span>
+      <span class="detail">
+       B.S. in Mathematics; B.A. in French and Francophone Studies, with highest distinction, University of North Carolina at Chapel Hill
+      </span>
+     </li>
+    </ul>
+   </section>
+   <section aria-labelledby="honors-awards-and-grants">
+    <h2 id="honors-awards-and-grants">
+     Honors, Awards, and Grants
+    </h2>
+    <ul class="cv-list">
+     <li class="">
+      <span class="date">
+       2026
+      </span>
+      <span class="detail">
+       Alumni Distinguished Undergraduate Professor Award, NC State University.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2026
+      </span>
+      <span class="detail">
+       Course Accessibility Express Grant ($2,000), NC State University.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2024&ndash;2025
+      </span>
+      <span class="detail">
+       Scholarship of Teaching &amp; Learning Mini-Grant ($1,250), NC State University.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2024&ndash;2025
+      </span>
+      <span class="detail">
+       Course Quality Faculty Mentor Award ($5,000), NC State University.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2024
+      </span>
+      <span class="detail">
+       Outstanding Teacher Award (university-wide), NC State University.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2024
+      </span>
+      <span class="detail">
+       Multimedia Accessibility Grant ($2,880), NC State University.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2021&ndash;2022
+      </span>
+      <span class="detail">
+       Open Textbook Grant ($2,500), NC State University.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2021&ndash;2022
+      </span>
+      <span class="detail">
+       Multimedia Accessibility Grant ($2,268), NC State University.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2021
+      </span>
+      <span class="detail">
+       John Franke Faculty Award for Excellence in Teaching, NC State Department of Mathematics.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2021, 2022
+      </span>
+      <span class="detail">
+       Thank a Teacher Award, NC State Office of Faculty Excellence.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2018
+      </span>
+      <span class="detail">
+       AMS Award for Exemplary Program or Achievement in a Mathematics Department, University of Minnesota MathCEP team for UMTYMP.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2014
+      </span>
+      <span class="detail">
+       The Linker Award for Excellence in Teaching by a Graduate Student, UNC-Chapel Hill Department of Mathematics.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2012
+      </span>
+      <span class="detail">
+       Geophysical Fluid Dynamics Fellowship, Woods Hole Oceanographic Institution.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2009
+      </span>
+      <span class="detail">
+       Alfred Brauer Award, UNC-Chapel Hill Department of Mathematics.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2009
+      </span>
+      <span class="detail">
+       Jacques Hardr&eacute; Prize, UNC-Chapel Hill Chancellor's Award.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2008
+      </span>
+      <span class="detail">
+       Phi Beta Kappa.
+      </span>
+     </li>
+    </ul>
+   </section>
+   <section aria-labelledby="teaching">
+    <h2 id="teaching">
+     Teaching
+    </h2>
+    <ul class="cv-list">
+     <li class="">
+      <span class="date">
+       2016&ndash;present
+      </span>
+      <span class="teaching-place detail">
+       NC State University
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       16 sections
+      </span>
+      <span class="detail">
+       Introduction to Scientific Programming (MATLAB) (MA 116)
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       8 sections
+      </span>
+      <span class="detail">
+       Single Variable Calculus II (MA 241)
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       17 sections
+      </span>
+      <span class="detail">
+       Multivariable Calculus (MA 242)
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2 sections
+      </span>
+      <span class="detail">
+       Introductory Linear Algebra and Matrices (MA 305)
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2 sections
+      </span>
+      <span class="detail">
+       Applied Differential Equations I (MA 341)
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       5 sections
+      </span>
+      <span class="detail">
+       Mathematical Analysis I (MA 425)
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       13 sections
+      </span>
+      <span class="detail">
+       Mathematical Analysis II (MA 426)
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       1 section
+      </span>
+      <span class="detail">
+       Advanced Mathematics for Engineers &amp; Scientists I (PDEs) (MA 501)
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       4 sections
+      </span>
+      <span class="detail">
+       Survey of Real Analysis for Educators (MA 507)
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       3 sections
+      </span>
+      <span class="detail">
+       Selected Topics in Mathematics (Modeling) for Secondary Teachers (MA 510)
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       12 sections
+      </span>
+      <span class="detail">
+       Advanced Calculus I (MA 511)
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2 sections
+      </span>
+      <span class="detail">
+       Introduction to Complex Variables (MA 513)
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       4 sections
+      </span>
+      <span class="detail">
+       Linear Transformations and Matrix Theory (MA 523)
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       5 sections
+      </span>
+      <span class="detail">
+       Topics in Linear Algebra &amp; Differential Equations (MA 591)
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       Summer 2016
+      </span>
+      <span class="teaching-place detail">
+       Duke University Talent Identification Program (TIP)
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2 sections
+      </span>
+      <span class="detail">
+       Topology
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2014&ndash;2016
+      </span>
+      <span class="teaching-place detail">
+       University of Minnesota
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       1 section
+      </span>
+      <span class="detail">
+       Single Variable Calculus, University of Minnesota Talented Youth Mathematics Program (UMTYMP).
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2 sections
+      </span>
+      <span class="detail">
+       Multivariable Calculus (UMTYMP)
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       1 section
+      </span>
+      <span class="detail">
+       Linear Algebra (UMTYMP).
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2 sections
+      </span>
+      <span class="detail">
+       Differential Equations with Applications (Math 4512).
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2010&ndash;2014
+      </span>
+      <span class="teaching-place detail">
+       UNC&ndash;Chapel Hill, Graduate Teaching Fellow; all courses as sole instructor
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       3 sections
+      </span>
+      <span class="detail">
+       College Algebra (Math 110), including one section for the UNC Summer Bridge Program.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2 sections
+      </span>
+      <span class="detail">
+       Selected Topics in Mathematics (Math 118)
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       1 section
+      </span>
+      <span class="detail">
+       Calculus I (Math 231).
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2 sections
+      </span>
+      <span class="detail">
+       Calculus II (Math 232).
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       1 section
+      </span>
+      <span class="detail">
+       Calculus III (Math 233).
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       1 section
+      </span>
+      <span class="detail">
+       Advanced Calculus (Math 521).
+      </span>
+     </li>
+    </ul>
+   </section>
+   <section aria-labelledby="educational-leadership-and-service">
+    <h2 id="educational-leadership-and-service">
+     Educational Leadership and Service
+    </h2>
+    <ul class="cv-list">
+     <li class="">
+      <span class="date">
+       2026&ndash;present
+      </span>
+      <span class="detail">
+       Accessibility and Inclusive Course Design Leadership, NC State University
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Lead departmental efforts to develop accessible mathematics course materials and improve digital course accessibility in preparation for WCAG 2.1 AA federal requirements.
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Oversaw a team of six graduate student workers auditing and remediating videos, documents, alt text, navigation, and course structures; developed reusable templates and AI-assisted workflows.
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Redesigned and rebuilt NC State's electronic thesis and dissertation template to support accessible, standards-compliant graduate documents.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2026&ndash;present
+      </span>
+      <span class="detail">
+       Moodle-to-Canvas Transition Leadership, NC State University
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       College of Sciences representative for the university-wide transition from Moodle to Canvas and evaluator of emerging instructional technology.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2025&ndash;present
+      </span>
+      <span class="detail">
+       Teaching Mathematics with Generative AI, Co-organizer
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Co-organize a biweekly international online seminar on pedagogical uses of generative AI in mathematics, with more than 200 members and regular attendance of 30&ndash;80 participants.
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Teaching Mathematics with Generative AI group.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2024&ndash;2026
+      </span>
+      <span class="detail">
+       Chair, Department Website Committee, NC State University
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Lead efforts to improve the visibility, clarity, accessibility, and usability of departmental web resources.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2019&ndash;present
+      </span>
+      <span class="detail">
+       Distance Education, Department of Mathematics, NC State University
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Coordinate all undergraduate and graduate distance-education courses in the department.
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Supervise 10&ndash;15 instructors teaching distance-education courses each term.
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Created standardized syllabi, schedules, LMS sites, and instructor guidance for undergraduate and graduate online courses.
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Support consistent course delivery and instructional quality across multiple sections and instructors.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2016&ndash;present
+      </span>
+      <span class="detail">
+       Online Graduate Certificate in Mathematics Coordinator, NC State University
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Coordinate program administration and academic planning for graduate students in the distance-education track; have advised approximately 40 certificate students.
+      </span>
+     </li>
+    </ul>
+   </section>
+   <section aria-labelledby="selected-curriculum-and-course-development">
+    <h2 id="selected-curriculum-and-course-development">
+     Selected Curriculum and Course Development
+    </h2>
+    <ul class="cv-list">
+     <li class="">
+      <span class="date">
+       2017&ndash;present
+      </span>
+      <span class="detail subheading">
+       Distance Education New Course Developments, NC State University
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2022
+      </span>
+      <span class="detail">
+       Single Variable Calculus II (MA 241).
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2020
+      </span>
+      <span class="detail">
+       Multivariable Calculus (MA 242).
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2020&ndash;2021
+      </span>
+      <span class="detail">
+       Survey of Real Analysis for Educators (MA 507), developed according to the Quality Matters Essential Standards Program in the Higher Education rubric.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2021
+      </span>
+      <span class="detail">
+       Selected Topics in Mathematical Modeling (MA 510), designed to increase teacher confidence in using mathematics to study real-world problems.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2018
+      </span>
+      <span class="detail">
+       Advanced Calculus I (MA 511), designed to be accessible for graduate students in other disciplines.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2017
+      </span>
+      <span class="detail">
+       Fundamentals of Linear Algebra and Differential Equations (MA 591), created as a bridge course for post-baccalaureate students returning to advanced mathematics.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2017&ndash;present
+      </span>
+      <span class="detail">
+       Other Course Developments, NC State University
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2024&ndash;present
+      </span>
+      <span class="detail">
+       Real Analysis II (MA 426), hybrid development supporting in-class problem days and oral examinations.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2017&ndash;2021
+      </span>
+      <span class="detail">
+       Introduction to Scientific Programming (MA 116), redesigned around mastery-based grading and explicit content objectives.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2025
+      </span>
+      <span class="detail">
+       Foundations of Data Science M.S. Program, NC State University
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Created preparatory video materials on matrix multiplication, logic, and proof writing for incoming and current students.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2025&ndash;present
+      </span>
+      <span class="detail">
+       AI-Enhanced Instructional Materials and Automation, NC State University
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Developed generative-AI workflows for interactive lecture supplements, including explanations, glossaries, subtitles, summaries, and concept checks.
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Designed and programmed automated systems for standardized, accessible syllabi, calendars, and course infrastructure.
+      </span>
+     </li>
+    </ul>
+   </section>
+   <section aria-labelledby="pedagogical-training-and-professional-development">
+    <h2 id="pedagogical-training-and-professional-development">
+     Pedagogical Training and Professional Development
+    </h2>
+    <ul class="cv-list">
+     <li class="">
+      <span class="date">
+       2025
+      </span>
+      <span class="detail">
+       Global Education Institute Fellow, Office of Global Engagement, NC State University
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Completed workshop series focused on intercultural pedagogy, global classrooms, and teaching in international contexts.
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Erasmus+ funded participant, Global Teaching &amp; Learning International Summer Programme, Universit&eacute; C^ote d'Azur, Nice, France.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2024&ndash;2025
+      </span>
+      <span class="detail">
+       Scholarship of Teaching and Learning (SoTL) Institute, NC State University
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Year-long institute focused on the design, assessment, and dissemination of classroom-based educational research.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2020&ndash;2025
+      </span>
+      <span class="detail">
+       Quality Matters (QM) Program, NC State University
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Course Quality Faculty Mentor, 2024&ndash;2025.
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       QM National Certification awarded for Survey of Real Analysis, 2021.
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Completed national QM Peer Reviewer Course, 2021.
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Completed national Improving Your Online Course program, 2020.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2021&ndash;2023
+      </span>
+      <span class="detail">
+       DELTA Faculty Fellow, NC State University
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Multi-year faculty development program emphasizing evidence-based teaching, reflective practice, inclusive course design, and instructional technology integration.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2019&ndash;2020
+      </span>
+      <span class="detail">
+       Certificate in Reflective Teaching, NC State Office of Faculty Development
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Formal training in reflective teaching practice, student-centered instruction, and continuous course improvement.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2018&ndash;present
+      </span>
+      <span class="detail">
+       Accessibility and Inclusive Design Training, NC State University
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Completed intensive summer course on digital accessibility and inclusive instructional design in 2018; subsequently developed and led departmental accessibility initiatives.
+      </span>
+     </li>
+    </ul>
+   </section>
+   <section aria-labelledby="publications">
+    <h2 id="publications">
+     Publications
+    </h2>
+    <ul class="cv-list">
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       <em>
+        B. Maultsby. Geometric Uniqueness of Positive Radial Solutions for Singular p-Laplacian Equations on Annuli. Submitted, 2026.
+       </em>
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       B. Maultsby. Effects of Subscore-Based Testing on Student Stress and Success in Online Calculus Courses. In progress.
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       B. Maultsby. Primitive Recursions and the Disappearing Guests. AMS Feature Column, American Mathematical Society, 2025.
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       B. Maultsby. Settling a Tomoe-sen: Wrestling with Chip Firing. Math Horizons 31(1), 12&ndash;15, 2023.
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       C.K.R.T. Jones and B. Maultsby. A Dynamical Approach to Phytoplankton Blooms. Discrete and Continuous Dynamical Systems 37(2), 859&ndash;878, 2017.
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       B. Maultsby. Uniqueness of Solutions to Singular p-Laplacian Equations with Subcritical Nonlinearity. Advances in Nonlinear Analysis 6(1), 37&ndash;59, 2017.
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       B. Maultsby. The Geometry of Radial States in Nonlinear Elliptic Problems. Ph.D. thesis, University of North Carolina at Chapel Hill, 2014.
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       B. Maultsby. 2:1 Spatial Resonance in Langmuir Circulation. Proceedings of the 2012 Program in Geophysical Fluid Dynamics, Woods Hole Oceanographic Institution, 2012.
+      </span>
+     </li>
+    </ul>
+   </section>
+   <section aria-labelledby="internal-teaching-articles">
+    <h2 id="internal-teaching-articles">
+     Internal Teaching Articles
+    </h2>
+    <ul class="cv-list">
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       IntelliBoard Encourages Faculty Intervention. NC State DELTA News, contributor, Feb. 2023.
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Top Five Reasons to Embrace Moodle 4.0. NC State DELTA News, contributor, Oct. 2022.
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Early Adopters of Moodle 4 Share Experiences. NC State DELTA News, contributor, May 2022.
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Utilizing Activity Completion and Restrict Access in Moodle. NC State DELTA News, sole author, Mar. 2022.
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Helping Students Get Started in an Online Class. NC State DELTA News, video contributor, Nov. 2020.
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Traveling and Need to Teach? Check Out My Mediasite. NC State DELTA News, contributor, Oct. 2019.
+      </span>
+     </li>
+    </ul>
+   </section>
+   <section aria-labelledby="selected-presentations-2018-present">
+    <h2 id="selected-presentations-2018-present">
+     Selected Presentations, 2018&ndash;present
+    </h2>
+    <ul class="cv-list">
+     <li class="note">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Presentations before 2018 are omitted from this CV.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       Jan. 2027
+      </span>
+      <span class="detail">
+       AI and the Profession (invited panelist), AMS Committee on the Profession, Joint Mathematics Meetings, Washington, DC (scheduled).
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       Aug. 2026
+      </span>
+      <span class="detail">
+       Faculty Workshop on Artificial Intelligence in Teaching (invited facilitator), Winston-Salem State University.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       Aug. 2026
+      </span>
+      <span class="detail">
+       Instructional Automation and Human-Centered Assessment (invited paper session), MAA MathFest, Boston, MA.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       Apr. 2026
+      </span>
+      <span class="detail">
+       Teaching With AI (invited colloquium), Wake Forest University Department of Mathematics.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       Feb. 2026
+      </span>
+      <span class="detail">
+       Using Generative AI to Create Accessible Materials (invited presentation and panel), GenAI in Math and Higher Ed group, UC Santa Cruz / Cal Poly / UC Davis.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       Nov. 2025
+      </span>
+      <span class="detail">
+       Tips to Make Your Courses More Digitally Accessible, special seminar, University of North Carolina at Chapel Hill.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       Oct. 2025
+      </span>
+      <span class="detail">
+       Recent Adventures in AI, RTG: Randomized Numerical Analysis Group, NC State University.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       Oct. 2025
+      </span>
+      <span class="detail">
+       Are You Ready for the New Federal Law? (WCAG 2.1 Compliance), Mathematics Teaching &amp; Learning Seminar, NC State University.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       Aug. 2025
+      </span>
+      <span class="detail">
+       Gradescope Workshop, NC State University Graduate School New TA Workshop.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       Aug. 2025
+      </span>
+      <span class="detail">
+       Designing Real Analysis for Secondary Teachers Using Quality Matters (QM), MAA MathFest, Sacramento, CA.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       Mar. 2025
+      </span>
+      <span class="detail">
+       Investigating the Impact of Subscore-Based Testing on Student Stress and Success in Online Calculus Courses (poster; Honorable Mention), Conference on Faculty Excellence, NC State University.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       Feb. 2025
+      </span>
+      <span class="detail">
+       How I Use Generative AI to Improve My Course Design, Teaching Mathematics with Generative AI online seminar.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       Jan. 2025
+      </span>
+      <span class="detail">
+       Creating Interactive Lecture Supplements with Generative AI (invited), Joint Mathematics Meetings, Seattle, WA.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       Dec. 2024
+      </span>
+      <span class="detail">
+       Moodle Tips and Tricks for Mathematics Instruction (invited), Budapest University of Technology &amp; Economics, Budapest, Hungary.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       Aug. 2024
+      </span>
+      <span class="detail">
+       Using Generative AI to Design Educational Content from Recorded Videos, MAA MathFest, Indianapolis, IN.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       Aug. 2024
+      </span>
+      <span class="detail">
+       Subscore-Based Assessments in Calculus to Improve Understanding and Reduce Anxiety (poster), MAA MathFest, Indianapolis, IN.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       Aug. 2024
+      </span>
+      <span class="detail">
+       Grade Well with Gradescope, NC State University Graduate School New TA Workshop.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       Nov. 2023
+      </span>
+      <span class="detail">
+       Moodle Quiz Workshop, Mathematics Teaching &amp; Learning Seminar, NC State University.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       Oct.&ndash;Nov. 2023
+      </span>
+      <span class="detail">
+       ChatGPT Workshops 1 and 2, RTG: Randomized Numerical Analysis Group, NC State University.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       Aug. 2023
+      </span>
+      <span class="detail">
+       Gradescope Workshop, Mathematics Teaching &amp; Learning Seminar, NC State University.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       May 2023
+      </span>
+      <span class="detail">
+       Estimating &pi; with Darts and Needles, Durham School of the Arts, Durham, NC.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       Apr. 2023
+      </span>
+      <span class="detail">
+       My Favorite Moodle Trick, Mathematics Teaching &amp; Learning Seminar lightning talk, NC State University.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       Apr. 2023
+      </span>
+      <span class="detail">
+       Using Mastery-Based Grading to Motivate Student Success in a Programming Course (poster), UNC Teaching and Learning Symposium, Charlotte, NC.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       Mar. 2023
+      </span>
+      <span class="detail">
+       ChatGPT: Adapt, Reject, or Embrace? (panel), Faculty Excellence Conference, NC State University.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       Oct. 2022
+      </span>
+      <span class="detail">
+       MATLAB Grader Workshop, Mathematics Teaching &amp; Learning Seminar lightning talk, NC State University.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       Aug. 2022
+      </span>
+      <span class="detail">
+       Creating Interactive Lessons with Feedback in Moodle, DELTA Summer Shorts, NC State University.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       Mar. 2022
+      </span>
+      <span class="detail">
+       Utilizing Activity Completion and Restrict Access in Moodle, DELTA News, NC State University.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       Aug. 2021
+      </span>
+      <span class="detail">
+       Using Gradescope Effectively to Assess Student Work, DELTA Summer Shorts, NC State University.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       Mar. 2021
+      </span>
+      <span class="detail">
+       Alternative Assessments, North Carolina Council of Teachers of Mathematics.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       Feb. 2021
+      </span>
+      <span class="detail">
+       Grading for Mastery with Moodle (poster), Teaching and Learning Symposium, NC State University.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       Dec. 2020
+      </span>
+      <span class="detail">
+       Testing with a Mastery-Based Approach (keynote), Mastery-Based Grading Webinar, MAA Project NExT.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       Feb. 2020
+      </span>
+      <span class="detail">
+       Using Mastery Grading to Motivate Students to Become Good Coders (poster), Teaching and Learning Symposium, NC State University.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       Aug. 2018
+      </span>
+      <span class="detail">
+       It's Binary: Using Mastery Grading to Motivate Students to Become Good Coders, MAA MathFest, Denver, CO.
+      </span>
+     </li>
+    </ul>
+   </section>
+   <section aria-labelledby="additional-educational-experience-and-positions">
+    <h2 id="additional-educational-experience-and-positions">
+     Additional Educational Experience and Positions
+    </h2>
+    <ul class="cv-list">
+     <li class="">
+      <span class="date">
+       2025
+      </span>
+      <span class="detail">
+       Visiting Fellowship in Assessment, College Board
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Reviewed AP examinations in Calculus and Precalculus for rigor and alignment with learning objectives.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2020&ndash;present
+      </span>
+      <span class="detail">
+       Instructor for Academic Enrichment Opportunities (AEO) Students, NC State University
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Teach multivariable calculus and other rigorous courses to North Carolina students who have completed the mathematics available at their high schools.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       Summer 2016
+      </span>
+      <span class="detail">
+       Duke University Talent Identification Program (TIP)
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Instructor, Topology, residential summer program for gifted high-school students.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2014&ndash;2016
+      </span>
+      <span class="detail">
+       Academic Director, Girls Excel in Mathematics (GEM), Minneapolis, MN
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       MathCEP program for 4th/5th-grade girls in the Twin Cities area, with yearlong enrichment activities and summer camp.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2014&ndash;2016
+      </span>
+      <span class="detail">
+       Assistant Faculty Coordinator for College in the Schools, University of Minnesota
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Recruited and trained high-school teachers to offer calculus for University of Minnesota college credit.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2013
+      </span>
+      <span class="detail">
+       Summer Bridge Program Instructor, UNC&ndash;Chapel Hill
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Summer residential program supporting incoming first-year students in the transition to college.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2012
+      </span>
+      <span class="detail">
+       Geophysical Fluid Dynamics Fellow, Woods Hole Oceanographic Institution
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Ten-week residential research program.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2011&ndash;2012
+      </span>
+      <span class="detail">
+       Graduate Fellow, Statistical and Applied Mathematical Sciences Institute (SAMSI)
+      </span>
+     </li>
+     <li class="subitem">
+      <span class="date">
+      </span>
+      <span class="detail">
+       Interdisciplinary research fellowship in applied and statistical mathematics.
+      </span>
+     </li>
+    </ul>
+   </section>
+   <section aria-labelledby="mentoring-and-student-support">
+    <h2 id="mentoring-and-student-support">
+     Mentoring and Student Support
+    </h2>
+    <ul class="cv-list">
+     <li class="">
+      <span class="date">
+       Ongoing
+      </span>
+      <span class="detail">
+       Undergraduate advisor for mathematics majors at NC State University.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2016&ndash;present
+      </span>
+      <span class="detail">
+       Advised approximately 40 students in the online Graduate Certificate in Mathematics.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2017&ndash;present
+      </span>
+      <span class="detail">
+       Faculty mentor for 134 graduate teaching assistants.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2017&ndash;2023
+      </span>
+      <span class="detail">
+       Observed and provided feedback to graduate students at the annual TA Teaching Workshop.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2024&ndash;2025
+      </span>
+      <span class="detail">
+       Course Quality Faculty Mentor for NC State faculty improving online courses.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2020&ndash;2023
+      </span>
+      <span class="detail">
+       Mentor to Teaching Assistant Professor Stepan Paul, including peer teaching evaluation.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2020&ndash;2023
+      </span>
+      <span class="detail">
+       Led Moodle and Zoom orientations for new mathematics graduate students.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2014&ndash;2016
+      </span>
+      <span class="detail">
+       Directed five undergraduate research projects, University of Minnesota.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2010&ndash;2011
+      </span>
+      <span class="detail">
+       Coached the UNC Putnam Team.
+      </span>
+     </li>
+     <li>
+      <span class="date">
+       2022&ndash;present
+      </span>
+      <span class="detail">
+       Member of four Ph.D. committees as Graduate School Representative
+      </span>
+     </li>
+     <li>
+      <span class="date">
+       2022
+      </span>
+      <span class="detail">
+       Panelist, Student Engagement Panel, NC State Distance Education Directors and Coordinators Meeting
+      </span>
+     </li>
+     <li>
+      <span class="date">
+       2022
+      </span>
+      <span class="detail">
+       Panelist, Faculty Fellows Panel, DELTA Summer Shorts
+      </span>
+     </li>
+     <li>
+      <span class="date">
+       2019
+      </span>
+      <span class="detail">
+       Panelist, Graduate Training Module on Job Interview Strategies
+      </span>
+     </li>
+     <li>
+      <span class="date">
+       2018
+      </span>
+      <span class="detail">
+       Panelist, Graduate Training Module on Attending Important Conferences
+      </span>
+     </li>
+    </ul>
+   </section>
+   <section aria-labelledby="external-service-and-engagement">
+    <h2 id="external-service-and-engagement">
+     External Service and Engagement
+    </h2>
+    <ul class="cv-list">
+     <li class="">
+      <span class="date">
+       Jan. 2027
+      </span>
+      <span class="detail">
+       Invited panelist, AI and the Profession, AMS Committee on the Profession, Joint Mathematics Meetings, Washington, DC (scheduled).
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2026
+      </span>
+      <span class="detail">
+       Consultant, Budapest Semesters in Mathematics; provided guidance on development of a new program.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2025&ndash;present
+      </span>
+      <span class="detail">
+       Co-organizer, Teaching Mathematics with Generative AI, biweekly international online seminar.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2024
+      </span>
+      <span class="detail">
+       Judge, Undergraduate Poster Session, MAA MathFest, Indianapolis, IN.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2021
+      </span>
+      <span class="detail">
+       External reviewer, proposal for an online M.S. in Mathematics, UNC Charlotte.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2018&ndash;2023
+      </span>
+      <span class="detail">
+       Editorial Board, Minnesota Journal of Undergraduate Mathematics.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2018
+      </span>
+      <span class="detail">
+       Panelist, Association for Women in Mathematics Triangle Conference, UNC&ndash;Chapel Hill.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2016
+      </span>
+      <span class="detail">
+       Panelist, Southeastern Conference for Undergraduate Women in Mathematics, Duke University.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2016
+      </span>
+      <span class="detail">
+       Panelist, Triangle Area Graduate Mathematics Conference, UNC&ndash;Chapel Hill.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2015&ndash;2018
+      </span>
+      <span class="detail">
+       Managing Editor, Minnesota Journal of Undergraduate Mathematics.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2015
+      </span>
+      <span class="detail">
+       Judge, Undergraduate Poster Session, Joint Mathematics Meetings, San Antonio, TX.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2014&ndash;2016
+      </span>
+      <span class="detail">
+       Faculty Sponsor, Peer Mentor Network for high-school girls in mathematics, Minneapolis, MN.
+      </span>
+     </li>
+    </ul>
+   </section>
+   <section aria-labelledby="selected-program-impact-and-public-educational-resources">
+    <h2 id="selected-program-impact-and-public-educational-resources">
+     Selected Program Impact and Public Educational Resources
+    </h2>
+    <ul class="cv-list">
+     <li class="">
+      <span class="date">
+       2019&ndash;present
+      </span>
+      <span class="detail">
+       Volunteer instructor for a special online Multivariable Calculus section serving advanced high-school students, including Cary Academy students.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       Ongoing
+      </span>
+      <span class="detail">
+       Public mathematics YouTube channel with more than 1.2 million views; lectures include calculus, real analysis, mathematical modeling, and differential equations.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2020&ndash;present
+      </span>
+      <span class="detail">
+       Maintain online teaching resources and step-by-step instructor guidance for mathematics faculty and graduate instructors.
+      </span>
+     </li>
+    </ul>
+   </section>
+   <section aria-labelledby="teaching-workshops-and-courses-attended">
+    <h2 id="teaching-workshops-and-courses-attended">
+     Teaching Workshops and Courses Attended
+    </h2>
+    <ul class="cv-list">
+     <li class="">
+      <span class="date">
+       2025
+      </span>
+      <span class="detail">
+       Global Teaching &amp; Learning International Summer Programme, Universit&eacute; C^ote d'Azur, Nice, France.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2023
+      </span>
+      <span class="detail">
+       DELTA: Create Custom Learning Experiences for Students.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2023
+      </span>
+      <span class="detail">
+       Question, Persuade, Refer: Suicide Prevention Training, NC State University.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2022
+      </span>
+      <span class="detail">
+       DELTA Summer Shorts workshops.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2021
+      </span>
+      <span class="detail">
+       DELTA Summer Shorts workshops; Quality Matters Peer Reviewer Course.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2020&ndash;2021
+      </span>
+      <span class="detail">
+       GLBT Advocate Program, NC State University.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2020
+      </span>
+      <span class="detail">
+       DELTA: Creating Online Assignments; Marrying Google Drive and Moodle; Quality Matters Improving Your Online Course.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2019
+      </span>
+      <span class="detail">
+       DELTA Summer Shorts; What's New in Moodle?; Teach Anywhere with Zoom.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2018
+      </span>
+      <span class="detail">
+       DELTA Summer Shorts; Accessibility in the Classroom summer course; Grants Group Consultation; Competency-Based Grading; SoTL and the Teaching Track.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2017
+      </span>
+      <span class="detail">
+       DELTA workshops on online community, engaging video, feedback, Moodle, and grants; MAA mastery-based grading course.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2016
+      </span>
+      <span class="detail">
+       New Faculty Orientation Workshop, NC State University.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       2014
+      </span>
+      <span class="detail">
+       Directing Undergraduate Research Course, Joint Mathematics Meetings.
+      </span>
+     </li>
+    </ul>
+   </section>
+   <section aria-labelledby="professional-associations">
+    <h2 id="professional-associations">
+     Professional Associations
+    </h2>
+    <ul>
+     <li>
+      Academy of Outstanding Teachers, NC State University, 2024&ndash;present
+     </li>
+     <li>
+      American Mathematical Society, 2009&ndash;2016 and 2022&ndash;present
+     </li>
+     <li>
+      Mathematical Association of America, 2017&ndash;2018 and 2022&ndash;present
+     </li>
+     <li>
+      Association for Women in Mathematics, 2009&ndash;2016
+     </li>
+    </ul>
+   </section>
+   <section aria-labelledby="skills">
+    <h2 id="skills">
+     Skills
+    </h2>
+    <ul class="cv-list">
+     <li class="">
+      <span class="date">
+       Languages
+      </span>
+      <span class="detail">
+       English (native); French (C2/fluent); Hungarian (B1/conversational).
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       Coding &amp; Math
+      </span>
+      <span class="detail">
+       HTML, CSS, JavaScript, Python, LaTeX, MATLAB, Mathematica.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       Instructional
+      </span>
+      <span class="detail">
+       Moodle, Canvas, H5P, Panopto, Gradescope, Final Cut Pro, Quality Matters.
+      </span>
+     </li>
+     <li class="">
+      <span class="date">
+       Design
+      </span>
+      <span class="detail">
+       WCAG 2.1 AA accessibility, interactive media, assessment design, instructional automation, online and hybrid course development.
+      </span>
+     </li>
+    </ul>
+   </section>
+  </main>
+ </body>
+</html>
+
