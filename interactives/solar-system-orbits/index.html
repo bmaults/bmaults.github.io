@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Eight Planets and Their Elliptical Orbits</title>
+<style>
+  body { font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; color: #1a1a1a; margin: 0; background: #fff; line-height: 1.45; }
+  main { max-width: 900px; margin: 0 auto; padding: 12px 14px 24px; }
+  h1 { font-size: 1.5rem; margin: 0.2em 0 0.4em; }
+  h2 { font-size: 1.15rem; margin: 1em 0 0.3em; }
+  p { margin: 0.4em 0 0.8em; }
+  canvas { width: 100%; height: auto; display: block; border-radius: 6px; background: #0b1020; cursor: pointer; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; align-items: center; }
+  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 8px 22px; margin: 10px 0; }
+  .controls label { display: block; font-size: 0.95rem; }
+  .controls input[type=range] { width: 100%; }
+  button { font: inherit; padding: 6px 14px; border: 2px solid #1f3a8a; background: #fff; color: #1f3a8a; border-radius: 6px; cursor: pointer; }
+  button:hover { background: #eef2ff; }
+  button[aria-pressed="true"] { background: #1f3a8a; color: #fff; }
+  button:focus-visible, input:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+  .readout { background: #f3f4f6; border-radius: 6px; padding: 8px 12px; margin: 8px 0; font-size: 0.97rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.93rem; }
+  th, td { text-align: right; padding: 4px 8px; border-bottom: 1px solid #d1d5db; }
+  th:first-child, td:first-child { text-align: left; }
+  td button { padding: 2px 10px; font-size: 0.93rem; }
+  tr.sel td { background: #eef2ff; }
+  .dot { display: inline-block; width: 11px; height: 11px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+  .sr { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .tablewrap { overflow-x: auto; }
+</style>
+</head>
+<body>
+<main>
+  <h1>The Eight Planets and Their Elliptical Orbits</h1>
+  <p>Every planet moves on an ellipse with the sun at one focus. This page shows where the planets are on the date displayed and moves them forward in time. The orbital elements are the published values from NASA's Jet Propulsion Laboratory, valid for 1800 to 2050. Click a planet, or its name in the table, to see its numbers.</p>
+
+  <div class="row" role="group" aria-label="Choose a view">
+    <span>View:</span>
+    <button type="button" id="v-all" aria-pressed="true">All eight (distances compressed)</button>
+    <button type="button" id="v-inner" aria-pressed="false">Inner planets (true scale)</button>
+    <button type="button" id="v-outer" aria-pressed="false">Outer planets (true scale)</button>
+  </div>
+
+  <canvas id="cv" width="800" height="640" role="img" aria-label="Top-down view of the solar system showing the planets on their elliptical orbits around the sun."></canvas>
+  <div class="sr" id="status" aria-live="polite"></div>
+
+  <div class="row">
+    <button type="button" id="play">Pause</button>
+    <button type="button" id="today">Go to today</button>
+    <strong id="date" style="margin-left:8px"></strong>
+  </div>
+  <div class="controls">
+    <label>Time passing per second: <output id="spOut"></output>
+      <input type="range" id="speed" min="0" max="8" step="1" value="3"></label>
+    <label><input type="checkbox" id="exag"> Exaggerate the eccentricities (5 times, to make the ellipses easier to see)</label>
+    <label><input type="checkbox" id="lines" checked> Draw the line from the sun to the selected planet</label>
+  </div>
+
+  <p id="viewNote"></p>
+  <div class="readout" id="info"></div>
+
+  <h2>The planets</h2>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th scope="col">Planet</th><th scope="col">Semi-major axis a (AU)</th><th scope="col">Eccentricity e</th><th scope="col">Period (years)</th><th scope="col">Closest to sun (AU)</th><th scope="col">Farthest from sun (AU)</th><th scope="col">Distance now (AU)</th></tr></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+  </div>
+  <p>The period column comes from Kepler's third law, T<sup>2</sup> = a<sup>3</sup>, with T in years and a in astronomical units. Venus has the most circular orbit (e = 0.007) and Mercury has the most eccentric (e = 0.206). The orbits are drawn flat, as seen from above the sun's north pole, and the small tilts of the orbits are ignored. The planets move counterclockwise.</p>
+</main>
+
+<script>
+(function () {
+  var cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+  var W = 800, H = 640, CX = W / 2, CY = H / 2, RAD = Math.PI / 180, TWO = 2 * Math.PI;
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  var $ = function (id) { return document.getElementById(id); };
+
+  // NASA JPL, Keplerian elements for approximate positions, 1800 AD to 2050 AD: [value at J2000, rate per century]
+  var PL = [
+    { n: 'Mercury', a: [0.38709927, 0.00000037], e: [0.20563593, 0.00001906], L: [252.25032350, 149472.67411175], w: [77.45779628, 0.16047689], c: '#d1d5db', r: 3.5 },
+    { n: 'Venus',   a: [0.72333566, 0.00000390], e: [0.00677672, -0.00004107], L: [181.97909950, 58517.81538729], w: [131.60246718, 0.00268329], c: '#fbbf24', r: 5 },
+    { n: 'Earth',   a: [1.00000261, 0.00000562], e: [0.01671123, -0.00004392], L: [100.46457166, 35999.37244981], w: [102.93768193, 0.32327364], c: '#38bdf8', r: 5 },
+    { n: 'Mars',    a: [1.52371034, 0.00001847], e: [0.09339410, 0.00007882], L: [-4.55343205, 19140.30268499], w: [-23.94362959, 0.44441088], c: '#f87171', r: 4 },
+    { n: 'Jupiter', a: [5.20288700, -0.00011607], e: [0.04838624, -0.00013253], L: [34.39644051, 3034.74612775], w: [14.72847983, 0.21252668], c: '#fb923c', r: 8 },
+    { n: 'Saturn',  a: [9.53667594, -0.00125060], e: [0.05386179, -0.00050991], L: [49.95424423, 1222.49362201], w: [92.59887831, -0.41897216], c: '#d6b98c', r: 7 },
+    { n: 'Uranus',  a: [19.18916464, -0.00196176], e: [0.04725744, -0.00004397], L: [313.23810451, 428.48202785], w: [170.95427630, 0.40805281], c: '#5eead4', r: 6 },
+    { n: 'Neptune', a: [30.06992276, 0.00026291], e: [0.00859048, 0.00005105], L: [-55.12002969, 218.45945325], w: [44.96476227, -0.32241464], c: '#818cf8', r: 6 }
+  ];
+  var J2000 = Date.UTC(2000, 0, 1, 12, 0, 0);
+  var SPEEDS = [[1, '1 day'], [7, '1 week'], [30.4375, '1 month'], [91.3125, '3 months'], [365.25, '1 year'], [1826.25, '5 years'], [3652.5, '10 years'], [9131.25, '25 years'], [18262.5, '50 years']];
+  var VIEW_SPEED = { all: 3, inner: 2, outer: 5 };
+  var st = { view: 'all', d: (Date.now() - J2000) / 864e5, play: true, speed: 3, exag: false, lines: true, sel: 2 };
+
+  function solveE(M, e) {
+    M = ((M % TWO) + TWO) % TWO; var E = e > 0.8 ? Math.PI : M;
+    for (var i = 0; i < 40; i++) { var dE = (E - e * Math.sin(E) - M) / (1 - e * Math.cos(E)); E -= dE; if (Math.abs(dE) < 1e-12) break; }
+    return E;
+  }
+  // heliocentric position in the plane of the ecliptic (orbit inclination ignored); exag multiplies e by 5
+  function elements(p, d, exag) {
+    var T = d / 36525, a = p.a[0] + p.a[1] * T, e = p.e[0] + p.e[1] * T, L = p.L[0] + p.L[1] * T, w = p.w[0] + p.w[1] * T;
+    return { a: a, e: exag ? Math.min(0.9, 5 * e) : e, w: w * RAD, M: (L - w) * RAD, ereal: e };
+  }
+  function xy(el, E) {
+    var x = el.a * (Math.cos(E) - el.e), y = el.a * Math.sqrt(1 - el.e * el.e) * Math.sin(E);
+    return [x * Math.cos(el.w) - y * Math.sin(el.w), x * Math.sin(el.w) + y * Math.cos(el.w)];
+  }
+  function toScreen(X, Y) {
+    var r = Math.hypot(X, Y), k;
+    if (st.view === 'all') k = r > 0 ? 285 * Math.log(1 + r / 0.3) / Math.log(1 + 30.6 / 0.3) / r : 0;
+    else if (st.view === 'inner') k = 250 / 1.75;
+    else k = 285 / 30.6;
+    return [CX + X * k, CY - Y * k];
+  }
+  function visible(i) { return st.view === 'all' || (st.view === 'inner' ? i < 4 : i >= 4); }
+
+  var stars = [], seed = 11;
+  function rnd() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
+  for (var i = 0; i < 110; i++) stars.push([rnd() * W, rnd() * H, rnd() * 1.2 + 0.3, rnd() * 0.5 + 0.25]);
+
+  var last = performance.now(), tick = 0, pos = [];
+  function label(t, x, y, color, bold) {
+    ctx.font = (bold ? 'bold ' : '') + '14px system-ui, sans-serif'; ctx.fillStyle = color; ctx.fillText(t, x, y);
+  }
+  function frame(now) {
+    var dt = Math.min(0.05, (now - last) / 1000); last = now;
+    if (st.play) st.d += dt * SPEEDS[st.speed][0];
+    ctx.fillStyle = '#0b1020'; ctx.fillRect(0, 0, W, H);
+    stars.forEach(function (s) { ctx.fillStyle = 'rgba(255,255,255,' + s[3] + ')'; ctx.fillRect(s[0], s[1], s[2], s[2]); });
+
+    // orbits
+    PL.forEach(function (p, i) {
+      if (!visible(i)) return;
+      var el = elements(p, st.d, st.exag);
+      ctx.beginPath();
+      for (var j = 0; j <= 360; j++) {
+        var q = xy(el, TWO * j / 360), s = toScreen(q[0], q[1]);
+        if (j) ctx.lineTo(s[0], s[1]); else ctx.moveTo(s[0], s[1]);
+      }
+      ctx.strokeStyle = p.c; ctx.globalAlpha = i === st.sel ? 0.95 : 0.5; ctx.lineWidth = i === st.sel ? 2.5 : 1.4; ctx.stroke(); ctx.globalAlpha = 1;
+    });
+    // sun
+    var g = ctx.createRadialGradient(CX, CY, 2, CX, CY, 24);
+    g.addColorStop(0, 'rgba(253,224,71,1)'); g.addColorStop(1, 'rgba(253,224,71,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(CX, CY, 24, 0, TWO); ctx.fill();
+    ctx.fillStyle = '#fde047'; ctx.beginPath(); ctx.arc(CX, CY, st.view === 'inner' ? 9 : 6, 0, TWO); ctx.fill();
+
+    // planets
+    PL.forEach(function (p, i) {
+      var el = elements(p, st.d, st.exag), q = xy(el, solveE(el.M, el.e)), s = toScreen(q[0], q[1]);
+      pos[i] = s;
+      if (!visible(i)) return;
+      if (i === st.sel && st.lines) { ctx.beginPath(); ctx.moveTo(CX, CY); ctx.lineTo(s[0], s[1]); ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 1.5; ctx.stroke(); }
+      if (i === st.sel) {
+        var pe = toScreen.apply(null, xy(el, 0)), ap = toScreen.apply(null, xy(el, Math.PI));
+        [[pe, 'closest'], [ap, 'farthest']].forEach(function (m) {
+          ctx.beginPath(); ctx.arc(m[0][0], m[0][1], 4, 0, TWO); ctx.strokeStyle = '#e5e7eb'; ctx.lineWidth = 1.5; ctx.stroke();
+          if (st.view !== 'all') label(m[1], m[0][0] + 7, m[0][1] - 6, '#cbd5e1', false);
+        });
+        ctx.beginPath(); ctx.arc(s[0], s[1], p.r + 6, 0, TWO); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.stroke();
+      }
+      ctx.beginPath(); ctx.arc(s[0], s[1], p.r, 0, TWO); ctx.fillStyle = p.c; ctx.fill();
+      label(p.n, s[0] + p.r + 7, s[1] + 4, '#f1f5f9', i === st.sel);
+    });
+
+    if (++tick % 6 === 0) refresh();
+    requestAnimationFrame(frame);
+  }
+
+  /* ---------- text ---------- */
+  var tb = $('tbody');
+  PL.forEach(function (p, i) {
+    var tr = document.createElement('tr'); tr.id = 'row' + i;
+    tr.innerHTML = '<td><button type="button" data-i="' + i + '"><span class="dot" style="background:' + p.c + '"></span>' + p.n + '</button></td>' +
+      '<td id="ta' + i + '"></td><td id="te' + i + '"></td><td id="tp' + i + '"></td><td id="tq' + i + '"></td><td id="tQ' + i + '"></td><td id="td' + i + '"></td>';
+    tb.appendChild(tr);
+  });
+  tb.addEventListener('click', function (ev) { var b = ev.target.closest('button'); if (b) select(parseInt(b.getAttribute('data-i'), 10)); });
+
+  function real(i) {
+    var el = elements(PL[i], st.d, false), q = xy(el, solveE(el.M, el.e));
+    return { a: el.a, e: el.e, r: Math.hypot(q[0], q[1]) };
+  }
+  function refresh() {
+    var dd = new Date(J2000 + st.d * 864e5);
+    $('date').textContent = dd.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
+    PL.forEach(function (p, i) {
+      var q = real(i), per = Math.pow(q.a, 1.5);
+      $('ta' + i).textContent = q.a.toFixed(3); $('te' + i).textContent = q.e.toFixed(4);
+      $('tp' + i).textContent = per < 1 ? per.toFixed(3) : per.toFixed(2);
+      $('tq' + i).textContent = (q.a * (1 - q.e)).toFixed(3); $('tQ' + i).textContent = (q.a * (1 + q.e)).toFixed(3);
+      $('td' + i).textContent = q.r.toFixed(3);
+      $('row' + i).className = i === st.sel ? 'sel' : '';
+    });
+    var q = real(st.sel), v = 29.7847 * Math.sqrt(2 / q.r - 1 / q.a), per = Math.pow(q.a, 1.5);
+    $('info').textContent = PL[st.sel].n + ': semi-major axis a = ' + q.a.toFixed(3) + ' AU, eccentricity e = ' + q.e.toFixed(4) +
+      ', period ' + (per < 1 ? (per * 365.25).toFixed(1) + ' days' : per.toFixed(2) + ' years') +
+      '. Closest to the sun ' + (q.a * (1 - q.e)).toFixed(3) + ' AU, farthest ' + (q.a * (1 + q.e)).toFixed(3) +
+      ' AU. Right now it is ' + q.r.toFixed(3) + ' AU from the sun and moving at ' + v.toFixed(1) + ' km/s.';
+  }
+  var notes = {
+    all: 'In this view the distance from the sun is compressed (the screen distance grows like the logarithm of the real distance) so that all eight planets fit. The positions are correct, but the compression bends the ellipses. Use the other two views to see the true shapes and sizes.',
+    inner: 'In this view the orbits of Mercury, Venus, Earth, and Mars are drawn to true scale. Mercury’s orbit is clearly off-center from the sun. The orbit of Mars reaches out to about 1.67 AU.',
+    outer: 'In this view the orbits of Jupiter, Saturn, Uranus, and Neptune are drawn to true scale. The four inner planets are inside the sun’s glow at this scale. Neptune’s orbit has a radius of about 30 AU.'
+  };
+  function setView(v) {
+    st.view = v;
+    ['all', 'inner', 'outer'].forEach(function (k) { $('v-' + k).setAttribute('aria-pressed', k === v ? 'true' : 'false'); });
+    st.speed = VIEW_SPEED[v]; $('speed').value = st.speed; speedText();
+    if (!visible(st.sel)) select(v === 'inner' ? 2 : 4); else refresh();
+    $('viewNote').textContent = notes[v];
+  }
+  function select(i) { st.sel = i; $('status').textContent = 'Selected ' + PL[i].n; refresh(); }
+  function speedText() { $('spOut').textContent = SPEEDS[st.speed][1]; }
+
+  ['all', 'inner', 'outer'].forEach(function (k) { $('v-' + k).addEventListener('click', function () { setView(k); }); });
+  $('speed').addEventListener('input', function () { st.speed = parseInt(this.value, 10); speedText(); });
+  $('exag').addEventListener('change', function () { st.exag = this.checked; });
+  $('lines').addEventListener('change', function () { st.lines = this.checked; });
+  $('play').addEventListener('click', function () { st.play = !st.play; this.textContent = st.play ? 'Pause' : 'Play'; });
+  $('today').addEventListener('click', function () { st.d = (Date.now() - J2000) / 864e5; refresh(); });
+  cv.addEventListener('pointerdown', function (ev) {
+    var r = cv.getBoundingClientRect(), x = (ev.clientX - r.left) * W / r.width, y = (ev.clientY - r.top) * H / r.height, best = -1, bd = 26;
+    PL.forEach(function (p, i) { if (!visible(i) || !pos[i]) return; var dd = Math.hypot(pos[i][0] - x, pos[i][1] - y); if (dd < bd) { bd = dd; best = i; } });
+    if (best >= 0) select(best);
+  });
+
+  setView('all');
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
