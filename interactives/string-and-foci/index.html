@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sums and Differences of Distances to the Foci</title>
+<style>
+  body { font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; color: #1a1a1a; margin: 0; background: #fff; line-height: 1.45; }
+  main { max-width: 860px; margin: 0 auto; padding: 12px 14px 24px; }
+  h1 { font-size: 1.5rem; margin: 0.2em 0 0.4em; }
+  p { margin: 0.4em 0 0.8em; }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+  .tabs button { font: inherit; padding: 7px 16px; border: 2px solid #1f3a8a; background: #fff; color: #1f3a8a; border-radius: 6px; cursor: pointer; }
+  .tabs button[aria-pressed="true"] { background: #1f3a8a; color: #fff; }
+  .tabs button:focus-visible, input:focus-visible, canvas:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+  canvas { width: 100%; height: auto; display: block; border: 1px solid #9ca3af; border-radius: 6px; background: #fff; }
+  #cv { touch-action: none; cursor: grab; }
+  #bars { margin-top: 8px; }
+  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px 22px; margin: 12px 0; }
+  .controls label { display: block; font-size: 0.95rem; }
+  .controls input[type=range] { width: 100%; }
+  .readout { background: #f3f4f6; border-radius: 6px; padding: 8px 12px; margin: 8px 0; font-size: 0.97rem; }
+  .legend span { display: inline-block; margin-right: 14px; }
+  .sw { display: inline-block; width: 22px; height: 0; border-top: 4px solid; vertical-align: middle; margin-right: 5px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Sums and Differences of Distances to the Foci</h1>
+  <p>An ellipse is the set of points P for which the sum of the distances to two fixed points F₁ and F₂ (the foci) is a constant, PF₁ + PF₂ = 2a. A hyperbola is the set of points for which the difference of the distances is a constant, |PF₁ − PF₂| = 2a. Drag P and watch the two distances. The bars below the picture show the two distances side by side.</p>
+
+  <div class="tabs" role="group" aria-label="Choose a conic section">
+    <button type="button" id="b-ellipse" aria-pressed="true">Ellipse (sum)</button>
+    <button type="button" id="b-hyperbola" aria-pressed="false">Hyperbola (difference)</button>
+  </div>
+
+  <canvas id="cv" width="800" height="480" tabindex="0" role="img" aria-label="An ellipse with its two foci and a movable point P. Segments join P to each focus."></canvas>
+  <canvas id="bars" width="800" height="110" role="img" aria-label="Bars showing the two distances from P to the foci."></canvas>
+
+  <div class="controls">
+    <label>Half of the constant, a: <output id="aOut"></output>
+      <input type="range" id="a" min="1" max="6" step="0.05" value="4"></label>
+    <label>Eccentricity e = c / a: <output id="eOut"></output>
+      <input type="range" id="e" step="0.01"></label>
+    <label><input type="checkbox" id="snap" checked> Keep P on the curve</label>
+  </div>
+
+  <p class="legend" aria-hidden="true">
+    <span><i class="sw" style="border-color:#c2410c"></i>PF₁</span>
+    <span><i class="sw" style="border-color:#0f766e"></i>PF₂</span>
+    <span><i class="sw" style="border-color:#b91c1c"></i>the constant 2a</span>
+  </p>
+
+  <div class="readout" id="eq" aria-live="polite"></div>
+  <div class="readout" id="info"></div>
+  <p id="note"></p>
+
+  <p>The foci are at (−c, 0) and (c, 0), with c = a · e. For an ellipse, b² = a² − c², and for a hyperbola, b² = c² − a². Turn off "Keep P on the curve" to drag P anywhere in the plane and compare the sum or difference there with the constant 2a.</p>
+
+  <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
+  <ol style="padding-left:1.4em">
+    <li style="margin-bottom:0.6em">In the ellipse view, turn off "Keep P on the curve" and drag P around. When is the sum PF₁ + PF₂ less than 2a, and when is it greater? Explain why that sum is smaller inside the ellipse and larger outside.</li>
+    <li style="margin-bottom:0.6em">Drag P onto the segment joining the two foci. What is the sum there, and why? Is it possible for the sum to be smaller than that anywhere in the plane? (Think about the triangle inequality.) What does this tell you about how large 2a must be compared with 2c for an ellipse to exist?</li>
+    <li style="margin-bottom:0.6em">A gardener drives two stakes 4 feet apart, ties a loop of string 14 feet long around them, and draws with a pencil that keeps the string taut. Explain why the pencil traces an ellipse. Find a, c, and b for this ellipse, and set the sliders to check your answer.</li>
+    <li style="margin-bottom:0.6em">In the ellipse view, move e toward 0, and then toward 1. What happens to the shape, and what happens to the foci? Explain each case using the idea that PF₁ + PF₂ is constant.</li>
+    <li style="margin-bottom:0.6em">Switch to the hyperbola. Drag P to each branch with "Keep P on the curve" on. Which distance is larger on the left branch, and which on the right? What would the difference of distances be on the vertical axis, and why is that axis not part of the hyperbola?</li>
+    <li style="margin-bottom:0.6em">For any point P at all, the triangle inequality gives |PF₁ − PF₂| ≤ 2c. Use this to explain why a hyperbola needs a to be less than c, which is the same as e greater than 1.</li>
+  </ol>
+</main>
+
+<script>
+(function () {
+  var cv = document.getElementById('cv'), ctx = cv.getContext('2d'), bc = document.getElementById('bars'), bx = bc.getContext('2d');
+  var W = 800, H = 480, BH = 110;
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  bc.width = W * dpr; bc.height = BH * dpr; bx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  function $(id) { return document.getElementById(id); }
+  var st = { mode: 'ellipse', a: 4, eE: 0.6, eH: 1.6, snap: true, P: [0, 3.2] }, s = 50;
+  function X(x) { return W / 2 + x * s; }
+  function Y(y) { return H / 2 - y * s; }
+  var f2 = function (x) { return x.toFixed(2); }, f3 = function (x) { return x.toFixed(3); };
+  function e() { return st.mode === 'ellipse' ? st.eE : st.eH; }
+  function geom() {
+    var E = e(), a = st.a, c = a * E, b = Math.sqrt(Math.abs(a * a * (st.mode === 'ellipse' ? 1 - E * E : E * E - 1)));
+    return { a: a, c: c, b: b, e: E };
+  }
+  function samples(g) {
+    var pts = [], i;
+    if (st.mode === 'ellipse') {
+      var one = []; for (i = 0; i < 720; i++) { var t = 2 * Math.PI * i / 720; one.push([g.a * Math.cos(t), g.b * Math.sin(t)]); }
+      one.push(one[0]); pts.push(one);
+    } else {
+      var r = [], l = [];
+      for (i = 0; i <= 800; i++) { var u = -3.6 + 7.2 * i / 800; r.push([g.a * Math.cosh(u), g.b * Math.sinh(u)]); l.push([-g.a * Math.cosh(u), g.b * Math.sinh(u)]); }
+      pts.push(r, l);
+    }
+    return pts;
+  }
+  function setView(g) { var Wv = st.mode === 'ellipse' ? g.a * 1.2 : Math.max(g.c * 1.3, g.a * 1.5); s = Math.min(90, 400 / Wv); }
+  function snapTo(P, g) {
+    var best = 1e18, bp = P, sets = samples(g);
+    sets.forEach(function (c) { c.forEach(function (Q) { var d = (Q[0] - P[0]) * (Q[0] - P[0]) + (Q[1] - P[1]) * (Q[1] - P[1]); if (d < best) { best = d; bp = Q; } }); });
+    return bp.slice();
+  }
+  function dot(x, y, r, col, label, dx, dy) {
+    ctx.beginPath(); ctx.arc(X(x), Y(y), r, 0, 2 * Math.PI); ctx.fillStyle = col; ctx.fill();
+    if (label) { ctx.fillStyle = '#111'; ctx.font = 'bold 15px system-ui, sans-serif'; ctx.textAlign = 'left'; ctx.fillText(label, X(x) + dx, Y(y) + dy); }
+  }
+  function seg(a, b, col, w, dash) {
+    ctx.save(); if (dash) ctx.setLineDash(dash);
+    ctx.beginPath(); ctx.moveTo(X(a[0]), Y(a[1])); ctx.lineTo(X(b[0]), Y(b[1])); ctx.lineWidth = w; ctx.strokeStyle = col; ctx.stroke(); ctx.restore();
+  }
+  function bar(x0, y, len, h, col, label) {
+    bx.fillStyle = col; bx.fillRect(x0, y, Math.max(0, Math.min(len, W - x0 - 4)), h);
+    if (label) { bx.fillStyle = '#fff'; bx.font = '13px system-ui, sans-serif'; bx.textAlign = 'left'; if (len > 60) bx.fillText(label, x0 + 6, y + h - 6); }
+  }
+  function draw() {
+    var g = geom(); setView(g);
+    if (st.snap) st.P = snapTo(st.P, g);
+    ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = '#e5e7eb'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, Y(0)); ctx.lineTo(W, Y(0)); ctx.moveTo(X(0), 0); ctx.lineTo(X(0), H); ctx.stroke();
+    samples(g).forEach(function (c) {
+      ctx.beginPath(); c.forEach(function (Q, i) { if (i) ctx.lineTo(X(Q[0]), Y(Q[1])); else ctx.moveTo(X(Q[0]), Y(Q[1])); });
+      ctx.lineWidth = 3; ctx.strokeStyle = '#1f3a8a'; ctx.stroke();
+    });
+    var F1 = [-g.c, 0], F2 = [g.c, 0], P = st.P;
+    if (st.mode === 'ellipse') seg(F1, F2, '#9ca3af', 2, [6, 5]);
+    seg(P, F1, '#c2410c', 3); seg(P, F2, '#0f766e', 3);
+    dot(F1[0], 0, 6, '#111', 'F₁', -8, 22); dot(F2[0], 0, 6, '#111', 'F₂', -8, 22);
+    dot(P[0], P[1], 7, '#b91c1c', 'P', 9, -9);
+    var d1 = Math.hypot(P[0] - F1[0], P[1] - F1[1]), d2 = Math.hypot(P[0] - F2[0], P[1] - F2[1]), two = 2 * g.a, tol = 0.02;
+    // bars
+    bx.clearRect(0, 0, W, BH); bx.fillStyle = '#fff'; bx.fillRect(0, 0, W, BH);
+    var x0 = 10, k, loc;
+    if (st.mode === 'ellipse') {
+      k = 600 / two;
+      bar(x0, 18, d1 * k, 26, '#c2410c', 'PF₁ = ' + f2(d1)); bar(x0 + d1 * k, 18, d2 * k, 26, '#0f766e', 'PF₂ = ' + f2(d2));
+      bx.strokeStyle = '#b91c1c'; bx.lineWidth = 3; bx.beginPath(); bx.moveTo(x0 + two * k, 8); bx.lineTo(x0 + two * k, 54); bx.stroke();
+      bx.fillStyle = '#b91c1c'; bx.font = '13px system-ui, sans-serif'; bx.textAlign = 'left'; bx.fillText('2a = ' + f2(two), x0 + two * k + 6, 22);
+      bx.fillStyle = '#374151'; bx.fillText('The two bars are placed end to end. The red line marks the constant 2a.', x0, 80);
+      var sum = d1 + d2; loc = Math.abs(sum - two) < tol ? 'on the ellipse' : sum < two ? 'inside the ellipse' : 'outside the ellipse';
+      $('eq').textContent = 'PF₁ = ' + f3(d1) + '    PF₂ = ' + f3(d2) + '    PF₁ + PF₂ = ' + f3(sum) + '    2a = ' + f3(two) + '    P is ' + loc;
+    } else {
+      k = 700 / (3 * g.c);
+      bar(x0, 12, d1 * k, 22, '#c2410c', 'PF₁ = ' + f2(d1)); bar(x0, 40, d2 * k, 22, '#0f766e', 'PF₂ = ' + f2(d2));
+      var big = Math.max(d1, d2), small = Math.min(d1, d2);
+      bar(x0 + small * k, big === d1 ? 12 : 40, (big - small) * k, 22, '#b91c1c', '');
+      bx.fillStyle = '#b91c1c'; bx.font = '13px system-ui, sans-serif'; bx.textAlign = 'left';
+      bx.fillText('red part: |PF₁ − PF₂| = ' + f2(big - small) + '     the constant 2a = ' + f2(two), x0, 86);
+      var df = big - small; loc = Math.abs(df - two) < tol ? 'on the hyperbola' : df > two ? 'inside a branch (on the same side as a focus)' : 'between the branches';
+      $('eq').textContent = 'PF₁ = ' + f3(d1) + '    PF₂ = ' + f3(d2) + '    |PF₁ − PF₂| = ' + f3(df) + '    2a = ' + f3(two) + '    P is ' + loc;
+    }
+    $('aOut').textContent = f2(g.a); $('eOut').textContent = f2(g.e);
+    $('info').textContent = 'a = ' + f2(g.a) + ',  c = ' + f2(g.c) + ',  b = ' + f2(g.b) + ',  ' + (st.mode === 'ellipse' ? 'b² = a² − c²' : 'b² = c² − a²') + ',  e = ' + f2(g.e) + '.';
+    $('note').textContent = st.mode === 'ellipse'
+      ? 'The string picture: put two pins at the foci, loop a string of length 2a + 2c around them, and keep it taut with a pencil. The pencil draws the ellipse because the length PF₁ + PF₂ cannot change.'
+      : 'On the right branch P is closer to F₂, and on the left branch P is closer to F₁. The difference between the two distances stays equal to 2a all along each branch.';
+    $('e').value = e();
+  }
+  function setMode(m) {
+    st.mode = m;
+    $('b-ellipse').setAttribute('aria-pressed', m === 'ellipse' ? 'true' : 'false');
+    $('b-hyperbola').setAttribute('aria-pressed', m === 'hyperbola' ? 'true' : 'false');
+    var el = $('e'); if (m === 'ellipse') { el.min = 0; el.max = 0.95; } else { el.min = 1.05; el.max = 3; }
+    el.value = e();
+    st.P = m === 'ellipse' ? [0, geom().b] : [geom().a * Math.cosh(0.6), geom().b * Math.sinh(0.6)];
+    cv.setAttribute('aria-label', m === 'ellipse' ? 'An ellipse with its two foci and a movable point P. Segments join P to each focus.' : 'A hyperbola with its two foci and a movable point P. Segments join P to each focus.');
+    draw();
+  }
+  var dragging = false;
+  function pointerTo(ev) {
+    var r = cv.getBoundingClientRect(), px = (ev.clientX - r.left) * W / r.width, py = (ev.clientY - r.top) * H / r.height;
+    st.P = [(px - W / 2) / s, (H / 2 - py) / s]; draw();
+  }
+  cv.addEventListener('pointerdown', function (ev) { dragging = true; cv.setPointerCapture(ev.pointerId); cv.style.cursor = 'grabbing'; pointerTo(ev); });
+  cv.addEventListener('pointermove', function (ev) { if (dragging) pointerTo(ev); });
+  cv.addEventListener('pointerup', function () { dragging = false; cv.style.cursor = 'grab'; });
+  cv.addEventListener('keydown', function (ev) {
+    var d = { ArrowLeft: [-0.1, 0], ArrowRight: [0.1, 0], ArrowUp: [0, 0.1], ArrowDown: [0, -0.1] }[ev.key];
+    if (d) { st.P = [st.P[0] + d[0], st.P[1] + d[1]]; draw(); ev.preventDefault(); }
+  });
+  $('a').addEventListener('input', function () { st.a = parseFloat(this.value); draw(); });
+  $('e').addEventListener('input', function () { if (st.mode === 'ellipse') st.eE = parseFloat(this.value); else st.eH = parseFloat(this.value); draw(); });
+  $('snap').addEventListener('change', function () { st.snap = this.checked; draw(); });
+  $('b-ellipse').addEventListener('click', function () { setMode('ellipse'); });
+  $('b-hyperbola').addEventListener('click', function () { setMode('hyperbola'); });
+  setMode('ellipse');
+})();
+</script>
+</body>
+</html>
