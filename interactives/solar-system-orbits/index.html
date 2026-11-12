@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>The Eight Planets and Their Elliptical Orbits</title>
+<title>The Nine Planets and Their Elliptical Orbits</title>
 <style>
   body { font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; color: #1a1a1a; margin: 0; background: #fff; line-height: 1.45; }
   main { max-width: 900px; margin: 0 auto; padding: 12px 14px 24px; }
@@ -32,14 +32,15 @@
 </head>
 <body>
 <main>
-  <h1>The Eight Planets and Their Elliptical Orbits</h1>
-  <p>Every planet moves on an ellipse with the sun at one focus. This page shows where the planets are on the date displayed and moves them forward in time. The orbital elements are the published values from NASA's Jet Propulsion Laboratory, valid for 1800 to 2050. Click a planet, or its name in the table, to see its numbers.</p>
+  <h1>The Nine Planets and Their Elliptical Orbits</h1>
+  <p>Every planet moves on an ellipse with the sun at one focus. This page shows where the planets are on the date displayed and moves them forward in time. Pluto is included as the ninth planet, although since 2006 the International Astronomical Union has classified it as a dwarf planet. The orbital elements for the eight planets are the published values from NASA's Jet Propulsion Laboratory, valid for 1800 to 2050. Pluto uses NASA's mean orbital elements. You can also add Halley's Comet. Click a planet, or its name in the table, to see its numbers.</p>
 
   <div class="row" role="group" aria-label="Choose a view">
     <span>View:</span>
-    <button type="button" id="v-all" aria-pressed="true">All eight (distances compressed)</button>
+    <button type="button" id="v-all" aria-pressed="true">All nine (distances compressed)</button>
     <button type="button" id="v-inner" aria-pressed="false">Inner planets (true scale)</button>
-    <button type="button" id="v-outer" aria-pressed="false">Outer planets (true scale)</button>
+    <button type="button" id="v-outer" aria-pressed="false">Giant planets (true scale)</button>
+    <button type="button" id="v-np" aria-pressed="false">Neptune and Pluto (true scale)</button>
   </div>
 
   <canvas id="cv" width="800" height="640" role="img" aria-label="Top-down view of the solar system showing the planets on their elliptical orbits around the sun."></canvas>
@@ -48,18 +49,25 @@
   <div class="row">
     <button type="button" id="play">Pause</button>
     <button type="button" id="today">Go to today</button>
+    <button type="button" id="j1989">Jump to 1989: Pluto inside Neptune's orbit</button>
     <strong id="date" style="margin-left:8px"></strong>
   </div>
   <div class="controls">
     <label>Time passing per second: <output id="spOut"></output>
       <input type="range" id="speed" min="0" max="8" step="1" value="3"></label>
-    <label><input type="checkbox" id="exag"> Exaggerate the eccentricities (5 times, to make the ellipses easier to see)</label>
+    <label><input type="checkbox" id="exag"> Exaggerate the eccentricities (each e is replaced by its square root, so small values are easier to see)</label>
+    <label><input type="checkbox" id="comet"> Show Halley's Comet</label>
+    <label>Jump to a date (1800 to 2050): <input type="date" id="dateIn" min="1800-01-01" max="2050-12-31"></label>
     <label><input type="checkbox" id="lines" checked> Draw the line from the sun to the selected planet</label>
   </div>
 
   <p id="viewNote"></p>
   <div class="readout" id="info"></div>
 
+  <h2>Do Pluto and Neptune switch places?</h2>
+  <p id="swap" class="readout"></p>
+  <p>Yes. Pluto's orbit is so eccentric (e = 0.249) that near perihelion it carries Pluto closer to the sun than Neptune. Pluto was closer to the sun than Neptune from January 1979 until February 1999, and its perihelion, at about 29.7 AU, came in September 1989. For those twenty years Neptune was the planet farthest from the sun. Pluto crossed back outside Neptune's orbit in 1999 and stays outside until about the year 2227. Use the button above to jump to 1989 and look at the Neptune and Pluto view.</p>
+  <p>The two orbits cross on the flat picture, but the planets never collide. Pluto's orbit is tilted about 17 degrees to the plane of the other orbits, so near perihelion Pluto is far above Neptune's path. The two are also locked in a 3:2 resonance, which means that Neptune goes around three times while Pluto goes around twice, so they are never close to each other. This page draws every orbit flat, so it cannot show the tilt.</p>
   <h2>The planets</h2>
   <div class="tablewrap">
   <table>
@@ -67,7 +75,20 @@
     <tbody id="tbody"></tbody>
   </table>
   </div>
-  <p>The period column comes from Kepler's third law, T<sup>2</sup> = a<sup>3</sup>, with T in years and a in astronomical units. Venus has the most circular orbit (e = 0.007) and Mercury has the most eccentric (e = 0.206). The orbits are drawn flat, as seen from above the sun's north pole, and the small tilts of the orbits are ignored. The planets move counterclockwise.</p>
+  <p>The period column comes from Kepler's third law, T<sup>2</sup> = a<sup>3</sup>, with T in years and a in astronomical units. Among the eight planets, Venus has the most circular orbit (e = 0.007) and Mercury has the most eccentric (e = 0.206). Pluto's orbit (e = 0.249) is more eccentric than any of them. The orbits are drawn flat, as seen from above the sun's north pole, and the tilts of the orbits are ignored. The planets move counterclockwise.</p>
+  <p>Halley's Comet has an orbit with e = 0.967. Its orbit is tilted about 162 degrees to the plane of the planets' orbits, so it goes around the sun in the opposite direction from the planets, clockwise as seen from above. The page places the comet using its perihelion on Feb 9, 1986, its aphelion on Dec 9, 2023, and its next perihelion on Jul 28, 2061. The time between perihelia changes by a few years from one orbit to the next because of the pull of the planets, so the comet's position here is approximate.</p>
+  <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
+  <ol style="padding-left:1.4em">
+    <li style="margin-bottom:0.6em">Use the exaggeration checkbox and compare Mercury with Venus. What does it show about their orbits? Which one is more nearly a circle, and how can you tell from the table?</li>
+    <li style="margin-bottom:0.6em">Use T² = a³ to predict the period of Saturn from its semi-major axis, and compare your answer with the table. Neptune is about 30 times farther from the sun than Earth. Is its period 30 times as long? Explain.</li>
+    <li style="margin-bottom:0.6em">Switch between the four views. What does the “All nine” view show well, and what does it distort? Why can’t you use it to judge the shapes of the ellipses?</li>
+    <li style="margin-bottom:0.6em">Earth is closest to the sun in early January. Use the table to find how much closer it is than at its farthest. Is that difference large enough to explain why it is winter in the northern hemisphere in January? What else could cause the seasons?</li>
+    <li style="margin-bottom:0.6em">Choose a planet and watch it for a few orbits at a fast speed. When does it move faster, and when does it move more slowly? Where in the orbit are those points?</li>
+    <li style="margin-bottom:0.6em">The planets move counterclockwise in this view, and the inner planets complete their orbits much faster than the outer ones. Use the table and Kepler’s third law to explain why Mercury goes around so quickly.</li>
+    <li style="margin-bottom:0.6em">Neptune and Pluto switch places as the planet farthest from the sun, yet they never collide. Use the Neptune and Pluto view and the jump button to explain how both statements can be true. What does the flat picture leave out?</li>
+    <li style="margin-bottom:0.6em">Pluto takes about 248 years to go around the sun and Neptune takes about 165. Show that two orbital periods in the ratio 3 to 2 would be consistent with these numbers, and explain why that kind of match could keep two planets from ever getting close.</li>
+    <li style="margin-bottom:0.6em">Turn on Halley’s Comet and watch one full orbit. Where does it move fastest and where slowest? Use the equal-area law to explain why it spends most of its 75 years in the outer solar system. In which direction does it go around the sun compared with the planets?</li>
+  </ol>
 </main>
 
 <script>
@@ -87,35 +108,60 @@
     { n: 'Jupiter', a: [5.20288700, -0.00011607], e: [0.04838624, -0.00013253], L: [34.39644051, 3034.74612775], w: [14.72847983, 0.21252668], c: '#fb923c', r: 8 },
     { n: 'Saturn',  a: [9.53667594, -0.00125060], e: [0.05386179, -0.00050991], L: [49.95424423, 1222.49362201], w: [92.59887831, -0.41897216], c: '#d6b98c', r: 7 },
     { n: 'Uranus',  a: [19.18916464, -0.00196176], e: [0.04725744, -0.00004397], L: [313.23810451, 428.48202785], w: [170.95427630, 0.40805281], c: '#5eead4', r: 6 },
-    { n: 'Neptune', a: [30.06992276, 0.00026291], e: [0.00859048, 0.00005105], L: [-55.12002969, 218.45945325], w: [44.96476227, -0.32241464], c: '#818cf8', r: 6 }
+    { n: 'Neptune', a: [30.06992276, 0.00026291], e: [0.00859048, 0.00005105], L: [-55.12002969, 218.45945325], w: [44.96476227, -0.32241464], c: '#818cf8', r: 6 },
+    // Pluto: NASA mean orbital elements at J2000; rates chosen to match its 247.9-year period
+    { n: 'Pluto',   a: [39.48168677, -0.0003], e: [0.24880766, 0.00005], L: [238.92881, 145.2078], w: [224.06676, -0.04], c: '#f0abfc', r: 3.5 },
+    // Halley's Comet: orbit shape and orientation (inclination 161.96 deg, so it moves clockwise); timing from the dates of perihelion and aphelion
+    { n: 'Halley\u2019s Comet', comet: true, a: 17.737, e: 0.96658, inc: 161.96, om: 59.396, w: 112.05, c: '#f8fafc', r: 3 }
   ];
+  var COMET = 9;
+  var D0 = (Date.UTC(1986, 1, 9, 12) - Date.UTC(2000, 0, 1, 12)) / 864e5,
+      D1 = (Date.UTC(2023, 11, 9, 1) - Date.UTC(2000, 0, 1, 12)) / 864e5,
+      D2 = (Date.UTC(2061, 6, 28, 12) - Date.UTC(2000, 0, 1, 12)) / 864e5;
+  function cometM(d) {
+    var P = D2 - D0, t = (((d - D0) % P) + P) % P;
+    return t < D1 - D0 ? Math.PI * t / (D1 - D0) : Math.PI + Math.PI * (t - (D1 - D0)) / (D2 - D1);
+  }
   var J2000 = Date.UTC(2000, 0, 1, 12, 0, 0);
   var SPEEDS = [[1, '1 day'], [7, '1 week'], [30.4375, '1 month'], [91.3125, '3 months'], [365.25, '1 year'], [1826.25, '5 years'], [3652.5, '10 years'], [9131.25, '25 years'], [18262.5, '50 years']];
-  var VIEW_SPEED = { all: 3, inner: 2, outer: 5 };
-  var st = { view: 'all', d: (Date.now() - J2000) / 864e5, play: true, speed: 3, exag: false, lines: true, sel: 2 };
+  var VIEW_SPEED = { all: 3, inner: 2, outer: 5, np: 6 };
+  var st = { view: 'all', d: (Date.now() - J2000) / 864e5, play: true, speed: 3, exag: false, comet: false, lines: true, sel: 2 };
 
   function solveE(M, e) {
     M = ((M % TWO) + TWO) % TWO; var E = e > 0.8 ? Math.PI : M;
     for (var i = 0; i < 40; i++) { var dE = (E - e * Math.sin(E) - M) / (1 - e * Math.cos(E)); E -= dE; if (Math.abs(dE) < 1e-12) break; }
     return E;
   }
-  // heliocentric position in the plane of the ecliptic (orbit inclination ignored); exag multiplies e by 5
+  // heliocentric position seen from above the ecliptic. Planets are drawn flat (inclination ignored); the comet uses its full orientation.
+  // exag replaces e by its square root (planets only), which makes small eccentricities easier to see.
   function elements(p, d, exag) {
+    if (p.comet) return { comet: true, a: p.a, e: p.e, M: cometM(d), om: p.om * RAD, w: p.w * RAD, inc: p.inc * RAD };
     var T = d / 36525, a = p.a[0] + p.a[1] * T, e = p.e[0] + p.e[1] * T, L = p.L[0] + p.L[1] * T, w = p.w[0] + p.w[1] * T;
-    return { a: a, e: exag ? Math.min(0.9, 5 * e) : e, w: w * RAD, M: (L - w) * RAD, ereal: e };
+    return { a: a, e: exag ? Math.sqrt(e) : e, w: w * RAD, M: (L - w) * RAD };
   }
   function xy(el, E) {
     var x = el.a * (Math.cos(E) - el.e), y = el.a * Math.sqrt(1 - el.e * el.e) * Math.sin(E);
+    if (el.comet) {
+      var cO = Math.cos(el.om), sO = Math.sin(el.om), cw = Math.cos(el.w), sw = Math.sin(el.w), ci = Math.cos(el.inc);
+      return [(cO * cw - sO * sw * ci) * x + (-cO * sw - sO * cw * ci) * y, (sO * cw + cO * sw * ci) * x + (-sO * sw + cO * cw * ci) * y];
+    }
     return [x * Math.cos(el.w) - y * Math.sin(el.w), x * Math.sin(el.w) + y * Math.cos(el.w)];
   }
   function toScreen(X, Y) {
     var r = Math.hypot(X, Y), k;
-    if (st.view === 'all') k = r > 0 ? 285 * Math.log(1 + r / 0.3) / Math.log(1 + 30.6 / 0.3) / r : 0;
+    if (st.view === 'all') k = r > 0 ? 285 * Math.log(1 + r / 0.3) / Math.log(1 + 50 / 0.3) / r : 0;
     else if (st.view === 'inner') k = 250 / 1.75;
-    else k = 285 / 30.6;
+    else if (st.view === 'outer') k = 285 / 36;
+    else k = 285 / 50;
     return [CX + X * k, CY - Y * k];
   }
-  function visible(i) { return st.view === 'all' || (st.view === 'inner' ? i < 4 : i >= 4); }
+  function visible(i) {
+    if (PL[i].comet) return st.comet;
+    if (st.view === 'all') return true;
+    if (st.view === 'inner') return i < 4;
+    if (st.view === 'outer') return i >= 4 && i <= 6 || i === 7;
+    return i === 7 || i === 8;
+  }
 
   var stars = [], seed = 11;
   function rnd() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
@@ -162,6 +208,14 @@
         });
         ctx.beginPath(); ctx.arc(s[0], s[1], p.r + 6, 0, TWO); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.stroke();
       }
+      if (p.comet) {
+        var rr = Math.hypot(q[0], q[1]);
+        if (rr < 5) {
+          var vx = s[0] - CX, vy = s[1] - CY, vl = Math.hypot(vx, vy) || 1, tl = 12 + 40 * (1 - rr / 5);
+          ctx.beginPath(); ctx.moveTo(s[0], s[1]); ctx.lineTo(s[0] + vx / vl * tl, s[1] + vy / vl * tl);
+          ctx.strokeStyle = 'rgba(186,230,253,0.8)'; ctx.lineWidth = 3; ctx.stroke();
+        }
+      }
       ctx.beginPath(); ctx.arc(s[0], s[1], p.r, 0, TWO); ctx.fillStyle = p.c; ctx.fill();
       label(p.n, s[0] + p.r + 7, s[1] + 4, '#f1f5f9', i === st.sel);
     });
@@ -181,8 +235,9 @@
   tb.addEventListener('click', function (ev) { var b = ev.target.closest('button'); if (b) select(parseInt(b.getAttribute('data-i'), 10)); });
 
   function real(i) {
-    var el = elements(PL[i], st.d, false), q = xy(el, solveE(el.M, el.e));
-    return { a: el.a, e: el.e, r: Math.hypot(q[0], q[1]) };
+    var el = elements(PL[i], st.d, false), E = solveE(el.M, el.e);
+    // true distance from the sun (for the comet, the drawn position is a flattened view, so it can't be used here)
+    return { a: el.a, e: el.e, r: el.a * (1 - el.e * Math.cos(E)) };
   }
   function refresh() {
     var dd = new Date(J2000 + st.d * 864e5);
@@ -194,7 +249,11 @@
       $('tq' + i).textContent = (q.a * (1 - q.e)).toFixed(3); $('tQ' + i).textContent = (q.a * (1 + q.e)).toFixed(3);
       $('td' + i).textContent = q.r.toFixed(3);
       $('row' + i).className = i === st.sel ? 'sel' : '';
+      $('row' + i).style.display = (p.comet && !st.comet) ? 'none' : '';
     });
+    var rn = real(7).r, rp = real(8).r;
+    $('swap').textContent = 'On this date Neptune is ' + rn.toFixed(2) + ' AU from the sun and Pluto is ' + rp.toFixed(2) + ' AU, so ' +
+      (rp < rn ? 'Pluto is closer to the sun than Neptune.' : 'Neptune is closer to the sun than Pluto.');
     var q = real(st.sel), v = 29.7847 * Math.sqrt(2 / q.r - 1 / q.a), per = Math.pow(q.a, 1.5);
     $('info').textContent = PL[st.sel].n + ': semi-major axis a = ' + q.a.toFixed(3) + ' AU, eccentricity e = ' + q.e.toFixed(4) +
       ', period ' + (per < 1 ? (per * 365.25).toFixed(1) + ' days' : per.toFixed(2) + ' years') +
@@ -202,21 +261,32 @@
       ' AU. Right now it is ' + q.r.toFixed(3) + ' AU from the sun and moving at ' + v.toFixed(1) + ' km/s.';
   }
   var notes = {
-    all: 'In this view the distance from the sun is compressed (the screen distance grows like the logarithm of the real distance) so that all eight planets fit. The positions are correct, but the compression bends the ellipses. Use the other two views to see the true shapes and sizes.',
-    inner: 'In this view the orbits of Mercury, Venus, Earth, and Mars are drawn to true scale. Mercury’s orbit is clearly off-center from the sun. The orbit of Mars reaches out to about 1.67 AU.',
-    outer: 'In this view the orbits of Jupiter, Saturn, Uranus, and Neptune are drawn to true scale. The four inner planets are inside the sun’s glow at this scale. Neptune’s orbit has a radius of about 30 AU.'
+    all: 'In this view the distance from the sun is compressed (the screen distance grows like the logarithm of the real distance) so that all nine planets fit. The positions are correct, but the compression bends the ellipses. Use the other views to see the true shapes and sizes.',
+    inner: 'In this view the orbits of Mercury, Venus, Earth, and Mars are drawn to true scale. Mercury\u2019s orbit is clearly off-center from the sun. The orbit of Mars reaches out to about 1.67 AU.',
+    outer: 'In this view the orbits of Jupiter, Saturn, Uranus, and Neptune are drawn to true scale. The four inner planets are inside the sun\u2019s glow at this scale. Neptune\u2019s orbit has a radius of about 30 AU.',
+    np: 'In this view Neptune and Pluto are drawn to true scale. On this flat picture the two orbits cross, near the part of Pluto\u2019s orbit closest to the sun. In space, Pluto\u2019s orbit is tilted about 17 degrees, so the planets are never near each other. Jump to 1989 to see Pluto inside Neptune\u2019s orbit.'
   };
+  var VIEWS = ['all', 'inner', 'outer', 'np'];
   function setView(v) {
     st.view = v;
-    ['all', 'inner', 'outer'].forEach(function (k) { $('v-' + k).setAttribute('aria-pressed', k === v ? 'true' : 'false'); });
+    VIEWS.forEach(function (k) { $('v-' + k).setAttribute('aria-pressed', k === v ? 'true' : 'false'); });
     st.speed = VIEW_SPEED[v]; $('speed').value = st.speed; speedText();
-    if (!visible(st.sel)) select(v === 'inner' ? 2 : 4); else refresh();
+    if (!visible(st.sel)) select(v === 'inner' ? 2 : v === 'np' ? 8 : 4); else refresh();
     $('viewNote').textContent = notes[v];
   }
   function select(i) { st.sel = i; $('status').textContent = 'Selected ' + PL[i].n; refresh(); }
   function speedText() { $('spOut').textContent = SPEEDS[st.speed][1]; }
 
-  ['all', 'inner', 'outer'].forEach(function (k) { $('v-' + k).addEventListener('click', function () { setView(k); }); });
+  VIEWS.forEach(function (k) { $('v-' + k).addEventListener('click', function () { setView(k); }); });
+  $('comet').addEventListener('change', function () { st.comet = this.checked; if (!st.comet && st.sel === COMET) select(2); else refresh(); });
+  function goTo(y, m, d) { st.d = (Date.UTC(y, m - 1, d, 12) - J2000) / 864e5; refresh(); }
+  $('dateIn').addEventListener('change', function () {
+    var v = this.value.split('-'); if (v.length === 3) goTo(parseInt(v[0], 10), parseInt(v[1], 10), parseInt(v[2], 10));
+  });
+  $('j1989').addEventListener('click', function () {
+    setView('np'); goTo(1989, 9, 5); st.play = false; $('play').textContent = 'Play'; select(8);
+    $('dateIn').value = '1989-09-05';
+  });
   $('speed').addEventListener('input', function () { st.speed = parseInt(this.value, 10); speedText(); });
   $('exag').addEventListener('change', function () { st.exag = this.checked; });
   $('lines').addEventListener('change', function () { st.lines = this.checked; });
