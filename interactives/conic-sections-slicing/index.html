@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Slicing a Cone to Get the Conic Sections</title>
+<style>
+  body { font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; color: #1a1a1a; margin: 0; background: #fff; line-height: 1.45; }
+  main { max-width: 900px; margin: 0 auto; padding: 12px 14px 24px; }
+  h1 { font-size: 1.5rem; margin: 0.2em 0 0.4em; }
+  p { margin: 0.4em 0 0.8em; }
+  #view { width: 100%; height: 480px; border: 1px solid #9ca3af; border-radius: 6px; background: #f8fafc; position: relative; touch-action: none; overflow: hidden; }
+  #view canvas { display: block; }
+  #fallback { padding: 20px; }
+  .two { display: grid; grid-template-columns: 1fr 340px; gap: 14px; margin-top: 12px; align-items: start; }
+  @media (max-width: 760px) { .two { grid-template-columns: 1fr; } }
+  .controls label { display: block; font-size: 0.95rem; margin-bottom: 8px; }
+  .controls input[type=range] { width: 100%; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; align-items: center; }
+  button { font: inherit; padding: 6px 14px; border: 2px solid #1f3a8a; background: #fff; color: #1f3a8a; border-radius: 6px; cursor: pointer; }
+  button:hover { background: #eef2ff; }
+  button[aria-pressed="true"] { background: #1f3a8a; color: #fff; }
+  button:focus-visible, input:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+  #face { width: 100%; max-width: 340px; height: auto; border: 1px solid #9ca3af; border-radius: 6px; background: #fff; display: block; }
+  .readout { background: #f3f4f6; border-radius: 6px; padding: 8px 12px; margin: 8px 0; font-size: 0.97rem; }
+  .sw { display: inline-block; width: 22px; height: 0; border-top: 4px solid; vertical-align: middle; margin-right: 5px; }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<main>
+  <h1>Slicing a Cone to Get the Conic Sections</h1>
+  <p>A double cone is cut by a plane, and the curve where the plane meets the cone is a conic section. Tilt the plane and watch the curve change from a circle to an ellipse, then a parabola, then a hyperbola. Drag the picture to rotate it, and scroll or pinch to zoom.</p>
+
+  <div id="view" role="img" aria-label="A double cone cut by a tilted plane. The red curve is where the plane meets the cone."></div>
+
+  <div class="row" role="group" aria-label="Jump to a type of conic section">
+    <span>Jump to:</span>
+    <button type="button" id="jCircle">Circle</button>
+    <button type="button" id="jEllipse">Ellipse</button>
+    <button type="button" id="jParabola">Parabola</button>
+    <button type="button" id="jHyperbola">Hyperbola</button>
+    <button type="button" id="sweep" aria-pressed="false">Sweep the tilt</button>
+  </div>
+
+  <div class="two">
+    <div class="controls">
+      <label>Tilt of the plane, t: <output id="tOut"></output>
+        <input type="range" id="t" min="0" max="90" step="0.5" value="30"></label>
+      <label>Half-angle of the cone, &alpha;: <output id="aOut"></output>
+        <input type="range" id="alpha" min="20" max="60" step="1" value="35"></label>
+      <label>Distance of the plane from the apex: <output id="kOut"></output>
+        <input type="range" id="k" min="0.4" max="4" step="0.05" value="1.5"></label>
+      <label><input type="checkbox" id="cut"> Remove the part of the cone beyond the plane</label>
+      <div class="readout" id="info" aria-live="polite"></div>
+    </div>
+    <div>
+      <canvas id="face" width="680" height="520" role="img" aria-label="The cut seen face-on"></canvas>
+      <p style="font-size:0.9rem;margin-top:4px">The same cut, seen face-on from the front of the plane.</p>
+    </div>
+  </div>
+
+  <p><span class="sw" style="border-color:#dc2626"></span>the conic section &nbsp; <span class="sw" style="border-color:#f97316"></span>the cutting plane &nbsp; <span class="sw" style="border-color:#2563eb"></span>the cone</p>
+  <p>The tilt t is the angle between the cutting plane and a plane perpendicular to the axis of the cone. If t = 0 the cut is a circle. As t increases the cut stays an ellipse until the plane becomes parallel to a line on the cone (a generator). That happens when t = 90&deg; &minus; &alpha;, and the cut is a parabola. Past that, the plane cuts both halves of the cone and the cut is a hyperbola with two branches. The eccentricity of the curve is e = sin t / cos &alpha;.</p>
+</main>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const deg = Math.PI / 180, H = 6;
+const st = { t: 30, alpha: 35, k: 1.5, cut: false, sweep: false };
+const $ = (id) => document.getElementById(id);
+const view = $('view');
+
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ antialias: true });
+} catch (e) {
+  view.innerHTML = '<div id="fallback">This demo needs WebGL, which this browser does not seem to support.</div>';
+  throw e;
+}
+renderer.localClippingEnabled = true;
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+view.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xf8fafc);
+const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
+camera.position.set(12, 7, 16);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.target.set(0, 0, 0);
+scene.add(new THREE.AmbientLight(0xffffff, 0.85));
+const sun = new THREE.DirectionalLight(0xffffff, 0.6); sun.position.set(5, 10, 7); scene.add(sun);
+
+function resize() {
+  const w = view.clientWidth, h = view.clientHeight;
+  renderer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix();
+}
+new ResizeObserver(resize).observe(view); resize();
+
+/* ---------- cone ---------- */
+const coneGroup = new THREE.Group(); scene.add(coneGroup);
+const clipPlane = new THREE.Plane();
+const coneMat = new THREE.MeshPhongMaterial({ color: 0x60a5fa, transparent: true, opacity: 0.28, side: THREE.DoubleSide, depthWrite: false });
+const lineMat = new THREE.LineBasicMaterial({ color: 0x1d4ed8, transparent: true, opacity: 0.5 });
+
+function disposeGroup(g) {
+  while (g.children.length) {
+    const o = g.children[0]; g.remove(o);
+    o.traverse((c) => { if (c.geometry) c.geometry.dispose(); });
+  }
+}
+function buildCone() {
+  disposeGroup(coneGroup);
+  const a = st.alpha * deg, R = H * Math.tan(a);
+  const geo = new THREE.CylinderGeometry(R, 0, H, 72, 1, true); geo.translate(0, H / 2, 0);
+  const up = new THREE.Mesh(geo, coneMat);
+  const down = new THREE.Mesh(geo.clone(), coneMat); down.scale.y = -1;
+  coneGroup.add(up, down);
+  const pos = [];
+  for (let i = 0; i < 24; i++) {
+    const p = 2 * Math.PI * i / 24, x = R * Math.cos(p), z = R * Math.sin(p);
+    pos.push(0, 0, 0, x, H, z, 0, 0, 0, x, -H, z);
+  }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  coneGroup.add(new THREE.LineSegments(g, lineMat));
+  [H, -H].forEach((y) => {
+    const pts = []; for (let i = 0; i <= 96; i++) { const p = 2 * Math.PI * i / 96; pts.push(new THREE.Vector3(R * Math.cos(p), y, R * Math.sin(p))); }
+    coneGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), lineMat));
+  });
+}
+
+/* ---------- cutting plane and curve ---------- */
+const planeMesh = new THREE.Mesh(new THREE.PlaneGeometry(11, 11),
+  new THREE.MeshBasicMaterial({ color: 0xf97316, transparent: true, opacity: 0.22, side: THREE.DoubleSide, depthWrite: false }));
+const planeEdge = new THREE.LineSegments(new THREE.EdgesGeometry(planeMesh.geometry), new THREE.LineBasicMaterial({ color: 0xea580c }));
+planeMesh.add(planeEdge); scene.add(planeMesh);
+const curveGroup = new THREE.Group(); scene.add(curveGroup);
+
+function branches() {
+  const a = st.alpha * deg, t = st.t * deg, sa = Math.sin(a), ca = Math.cos(a), sn = Math.sin(t), cs = Math.cos(t);
+  const N = 900, runs = []; let cur = null;
+  for (let i = 0; i <= N; i++) {
+    const psi = Math.PI + (-Math.PI + 2 * Math.PI * i / N);
+    const nd = -sn * sa * Math.cos(psi) + cs * ca;
+    let pt = null, nap = 0;
+    if (Math.abs(nd) > 1e-9) {
+      const s = st.k / nd, y = s * ca;
+      if (Math.abs(y) <= H) { pt = new THREE.Vector3(s * sa * Math.cos(psi), y, s * sa * Math.sin(psi)); nap = nd > 0 ? 1 : -1; }
+    }
+    if (pt) {
+      if (cur && cur.nap === nap) cur.pts.push(pt);
+      else { cur = { nap, pts: [pt], first: i === 0 }; runs.push(cur); }
+    } else cur = null;
+  }
+  if (runs.length > 1 && cur && runs[0].first && runs[0].nap === runs[runs.length - 1].nap) {
+    const last = runs.pop(); runs[0].pts = last.pts.concat(runs[0].pts);
+  }
+  return runs.map((r) => r.pts);
+}
+
+function update() {
+  const t = st.t * deg, n = new THREE.Vector3(-Math.sin(t), Math.cos(t), 0), C = n.clone().multiplyScalar(st.k);
+  planeMesh.position.copy(C); planeMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), n);
+  const wasCut = coneMat.clippingPlanes && coneMat.clippingPlanes.length > 0;
+  if (st.cut) { clipPlane.setFromNormalAndCoplanarPoint(n.clone().negate(), C); coneMat.clippingPlanes = [clipPlane]; lineMat.clippingPlanes = [clipPlane]; }
+  else { coneMat.clippingPlanes = []; lineMat.clippingPlanes = []; }
+  if (wasCut !== st.cut) { coneMat.needsUpdate = true; lineMat.needsUpdate = true; }
+
+  disposeGroup(curveGroup);
+  const br = branches();
+  br.forEach((pts) => {
+    if (pts.length < 2) return;
+    const step = Math.max(1, Math.floor(pts.length / 280)), sp = [];
+    for (let i = 0; i < pts.length; i += step) sp.push(pts[i]);
+    if ((pts.length - 1) % step !== 0) sp.push(pts[pts.length - 1]);
+    const curve = new THREE.CatmullRomCurve3(sp);
+    curveGroup.add(new THREE.Mesh(new THREE.TubeGeometry(curve, Math.min(600, sp.length * 2), 0.05, 8, false),
+      new THREE.MeshBasicMaterial({ color: 0xdc2626 })));
+  });
+  drawFace(br, C);
+  text();
+}
+
+/* ---------- face-on 2D view ---------- */
+const fc = $('face'), fx = fc.getContext('2d');
+function drawFace(br, C) {
+  const t = st.t * deg, e1 = new THREE.Vector3(Math.cos(t), Math.sin(t), 0);
+  const w = fc.width, h = fc.height;
+  fx.clearRect(0, 0, w, h);
+  const all = br.map((pts) => pts.map((p) => [p.dot(e1), p.z]));
+  let u0 = 1e9, u1 = -1e9, v0 = 1e9, v1 = -1e9;
+  all.forEach((b) => b.forEach(([u, v]) => { u0 = Math.min(u0, u); u1 = Math.max(u1, u); v0 = Math.min(v0, v); v1 = Math.max(v1, v); }));
+  if (u0 > u1) return;
+  const sc = Math.max(10, Math.min(120, 0.86 * Math.min(w / ((u1 - u0) || 1), h / ((v1 - v0) || 1))));
+  const mu = (u0 + u1) / 2, mv = (v0 + v1) / 2;
+  fx.strokeStyle = '#e5e7eb'; fx.lineWidth = 2;
+  fx.beginPath(); fx.moveTo(0, h / 2); fx.lineTo(w, h / 2); fx.moveTo(w / 2, 0); fx.lineTo(w / 2, h); fx.stroke();
+  fx.strokeStyle = '#dc2626'; fx.lineWidth = 5; fx.lineJoin = 'round';
+  all.forEach((b) => {
+    fx.beginPath();
+    b.forEach(([u, v], i) => { const X = w / 2 + (u - mu) * sc, Y = h / 2 - (v - mv) * sc; if (i) fx.lineTo(X, Y); else fx.moveTo(X, Y); });
+    fx.stroke();
+  });
+}
+
+/* ---------- readout ---------- */
+function text() {
+  const par = 90 - st.alpha;
+  let type;
+  if (st.t < 0.5) type = 'circle'; else if (Math.abs(st.t - par) < 0.5) type = 'parabola'; else if (st.t < par) type = 'ellipse'; else type = 'hyperbola';
+  const e = Math.sin(st.t * deg) / Math.cos(st.alpha * deg);
+  const why = { circle: 'The plane is perpendicular to the axis.',
+    ellipse: 'The tilt is less than ' + par.toFixed(1) + '°, so the plane cuts only one half of the cone in a closed curve.',
+    parabola: 'The tilt equals 90° − α = ' + par.toFixed(1) + '°, so the plane is parallel to a line on the cone.',
+    hyperbola: 'The tilt is more than ' + par.toFixed(1) + '°, so the plane cuts both halves of the cone.' }[type];
+  $('info').textContent = 'The section is ' + (type === 'ellipse' ? 'an ' : 'a ') + type + '. ' + why + ' Eccentricity e = sin t / cos α = ' + (type === 'circle' ? '0' : e.toFixed(3)) + '.';
+  $('tOut').textContent = st.t.toFixed(1) + '°'; $('aOut').textContent = st.alpha + '°'; $('kOut').textContent = st.k.toFixed(2);
+  fc.setAttribute('aria-label', 'The cut seen face-on: ' + (type === 'ellipse' ? 'an ' : 'a ') + type);
+}
+
+/* ---------- controls ---------- */
+function setT(v) { st.t = v; $('t').value = v; update(); }
+$('t').addEventListener('input', function () { st.sweep = false; $('sweep').setAttribute('aria-pressed', 'false'); st.t = parseFloat(this.value); update(); });
+$('alpha').addEventListener('input', function () { st.alpha = parseFloat(this.value); buildCone(); update(); });
+$('k').addEventListener('input', function () { st.k = parseFloat(this.value); update(); });
+$('cut').addEventListener('change', function () { st.cut = this.checked; update(); });
+const stop = () => { st.sweep = false; $('sweep').setAttribute('aria-pressed', 'false'); };
+$('jCircle').addEventListener('click', () => { stop(); setT(0); });
+$('jEllipse').addEventListener('click', () => { stop(); setT((90 - st.alpha) / 2); });
+$('jParabola').addEventListener('click', () => { stop(); setT(90 - st.alpha); });
+$('jHyperbola').addEventListener('click', () => { stop(); setT(90 - st.alpha / 2); });
+$('sweep').addEventListener('click', function () { st.sweep = !st.sweep; this.setAttribute('aria-pressed', st.sweep ? 'true' : 'false'); });
+
+buildCone(); update();
+const t0 = performance.now();
+let phase0 = null;
+function loop(now) {
+  if (st.sweep) {
+    if (phase0 === null) phase0 = now;
+    st.t = Math.round(45 * (1 - Math.cos((now - phase0) / 1000 * 2 * Math.PI / 18)) * 2) / 2;
+    $('t').value = st.t; update();
+  } else phase0 = null;
+  controls.update(); renderer.render(scene, camera);
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

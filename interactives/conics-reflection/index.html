@@ -218,19 +218,19 @@
       eq = 'y² = 4px with p = ' + f2(g.p) + '. Focus (' + f2(g.p) + ', 0). Directrix x = -' + f2(g.p) + '.';
       info = 'Traced ray hits the mirror at (' + f2(P[0]) + ', ' + f2(P[1]) + '). Distance to the focus: ' + f2(dF) +
              '. Distance to the directrix: ' + f2(dD) + '. Angle of incidence = angle of reflection = ' + ang.toFixed(1) + '°.';
-      note = 'Light traveling parallel to the axis reflects through the focus. Run the light the other way and a source at the focus produces a parallel beam, which is how a flashlight reflector or a headlight works.';
+      note = 'Light traveling parallel to the axis reflects through the focus. Every point of the parabola is as far from the focus as it is from the directrix, so (distance from the starting line to the mirror) + (distance from the mirror to the focus) is the same for every ray. That is why all the light pulses reach the focus at the same moment. Run the light the other way and a source at the focus produces a parallel beam, which is how a flashlight reflector or a headlight works.';
     } else if (st.mode === 'ellipse') {
       var d1 = hyp(P[0] - g.F1[0], P[1] - g.F1[1]), d2 = hyp(P[0] - g.F2[0], P[1] - g.F2[1]);
       eq = 'x²/' + f2(g.a * g.a) + ' + y²/' + f2(g.b * g.b) + ' = 1. Foci (±' + f2(g.c) + ', 0). Eccentricity e = ' + f2(g.e) + '.';
       info = 'Traced ray: F₁ to mirror = ' + f2(d1) + ', mirror to F₂ = ' + f2(d2) + ', total = ' + f2(d1 + d2) +
              ' (the major axis length 2a = ' + f2(2 * g.a) + '). Angle of incidence = angle of reflection = ' + ang.toFixed(1) + '°.';
-      note = 'Every ray leaving one focus reflects through the other focus. All of these paths have the same length, so the light pulses arrive at F₂ at the same moment.';
+      note = 'Every ray leaving one focus reflects through the other focus. Every path has length PF₁ + PF₂ = 2a, so the light pulses arrive at F₂ at the same moment.' + (g.e < 0.005 ? ' With e = 0 the two foci sit together at the center and the ellipse is a circle: every ray from the center reflects straight back to the center.' : '');
     } else {
       var e1 = hyp(P[0] - g.F1[0], P[1] - g.F1[1]), e2 = hyp(P[0] - g.F2[0], P[1] - g.F2[1]);
       eq = 'x²/' + f2(g.a * g.a) + ' - y²/' + f2(g.b * g.b) + ' = 1. Foci (±' + f2(g.c) + ', 0). Eccentricity e = ' + f2(g.e) + '.';
       info = 'Traced ray: distance to F₁ = ' + f2(e1) + ', distance to F₂ = ' + f2(e2) + ', difference = ' + f2(e1 - e2) +
              ' (2a = ' + f2(2 * g.a) + '). Angle of incidence = angle of reflection = ' + ang.toFixed(1) + '°.';
-      note = 'Light from F₂ reflects off the right branch and spreads out as if it came from F₁. The dashed teal lines extend each reflected ray backward to F₁.';
+      note = 'Light from F₂ reflects off the right branch and spreads out as if it came from F₁. The dashed teal lines extend each reflected ray backward to F₁. Because PF₁ - PF₂ = 2a for every point on the branch, the pulses after reflection lie on a circle centered at F₁.';
     }
     el('eq').textContent = eq; el('info').textContent = info; el('note').textContent = note;
     el('nOut').textContent = st.n;
@@ -241,7 +241,7 @@
   var shape = el('shape');
   function configShape() {
     if (st.mode === 'parabola') { el('shapeLbl').textContent = 'Focal length p'; shape.min = 0.5; shape.max = 3; shape.step = 0.05; shape.value = st.p; }
-    else if (st.mode === 'ellipse') { el('shapeLbl').textContent = 'Eccentricity e'; shape.min = 0.05; shape.max = 0.95; shape.step = 0.01; shape.value = st.eE; }
+    else if (st.mode === 'ellipse') { el('shapeLbl').textContent = 'Eccentricity e'; shape.min = 0; shape.max = 0.95; shape.step = 0.01; shape.value = st.eE; }
     else { el('shapeLbl').textContent = 'Eccentricity e'; shape.min = 1.15; shape.max = 3; shape.step = 0.05; shape.value = st.eH; }
     el('shapeOut').textContent = Number(shape.value).toFixed(2);
   }
