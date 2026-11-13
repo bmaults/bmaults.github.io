@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interactive Demonstrations of the Conic Sections</title>
+<meta name="description" content="Free interactive demonstrations of the geometry of conic sections: slicing a cone, Dandelin spheres, the focus and directrix, the string construction, paper folding, reflection, and orbits.">
+<style>
+  :root { --text: #1a1a1a; --muted: #4b5563; --rule: #d1d5db; --link: #1f3a8a; --card: #f8fafc; }
+  * { box-sizing: border-box; }
+  body { margin: 0; color: var(--text); background: #fff; font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; line-height: 1.55; }
+  a { color: var(--link); }
+  a:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+  .skip { position: absolute; left: -9999px; top: 0; padding: 8px 12px; background: #fff; border: 2px solid #000; z-index: 10; }
+  .skip:focus { left: 8px; top: 8px; }
+  header, main, footer { max-width: 860px; margin: 0 auto; padding: 0 16px; }
+  header { padding-top: 28px; }
+  h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 0.4em; }
+  h2 { font-size: 1.3rem; margin: 1.8em 0 0.4em; padding-bottom: 0.2em; border-bottom: 1px solid var(--rule); }
+  p { margin: 0.5em 0 0.9em; }
+  .lede { font-size: 1.1rem; color: var(--muted); }
+  table { border-collapse: collapse; width: 100%; margin: 0.8em 0 1.2em; font-size: 0.97rem; }
+  th, td { text-align: left; padding: 7px 10px; border: 1px solid var(--rule); vertical-align: top; }
+  th { background: #f3f4f6; }
+  ul.demos { list-style: none; padding: 0; margin: 0.6em 0; display: grid; gap: 12px; }
+  ul.demos li { background: var(--card); border: 1px solid var(--rule); border-radius: 8px; padding: 12px 16px; }
+  ul.demos h3 { font-size: 1.1rem; margin: 0 0 0.2em; }
+  ul.demos p { margin: 0.2em 0; }
+  .tag { color: var(--muted); font-size: 0.9rem; }
+  footer { color: var(--muted); font-size: 0.92rem; padding-top: 24px; padding-bottom: 40px; }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the demonstrations</a>
+<header>
+  <h1>Interactive Demonstrations of the Conic Sections</h1>
+  <p class="lede">Free, hands-on pages for understanding the geometry of the circle, ellipse, parabola, and hyperbola. Each page is a single interactive picture you can drag and change, with open-ended questions at the bottom. No sign-in or download is needed, since everything runs in the web browser.</p>
+</header>
+<main id="main">
+  <h2>The four conic sections at a glance</h2>
+  <p>A conic section is a curve you get by slicing a cone with a plane. The same curves can also be described by distances to a focus, and the eccentricity e tells you which curve you have.</p>
+  <table>
+    <caption class="tag" style="text-align:left;padding-bottom:4px">Summary of the four conic sections</caption>
+    <thead><tr><th scope="col">Curve</th><th scope="col">Eccentricity</th><th scope="col">Defining property</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">Circle</th><td>e = 0</td><td>All points are the same distance from the center.</td></tr>
+      <tr><th scope="row">Ellipse</th><td>0 &lt; e &lt; 1</td><td>The sum of the distances to the two foci is constant.</td></tr>
+      <tr><th scope="row">Parabola</th><td>e = 1</td><td>Each point is equally far from the focus and from the directrix.</td></tr>
+      <tr><th scope="row">Hyperbola</th><td>e &gt; 1</td><td>The difference of the distances to the two foci is constant.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>1. Where the conic sections come from</h2>
+  <ul class="demos">
+    <li>
+      <h3><a href="conic-sections-slicing/">Slicing a Cone to Get the Conic Sections</a></h3>
+      <p>Tilt and move a plane through a double cone and watch the cross-section change between a circle, an ellipse, a parabola, and a hyperbola. A face-on view shows the curve itself, and jump buttons take you to each case.</p>
+    </li>
+    <li>
+      <h3><a href="dandelin-spheres/">Dandelin Spheres</a></h3>
+      <p>Place two spheres inside the cone so that they touch the slicing plane. The two points of contact are the foci, which explains why the cross-section of a cone has the focus and distance properties of an ellipse or hyperbola.</p>
+    </li>
+  </ul>
+
+  <h2>2. Three ways to define a conic section</h2>
+  <ul class="demos">
+    <li>
+      <h3><a href="focus-directrix/">The Focus and Directrix Definition of the Conics</a></h3>
+      <p>Drag a point along the curve and compare its distance to the focus with its distance to the directrix. One slider for the eccentricity moves through the circle, ellipse, parabola, and hyperbola.</p>
+    </li>
+    <li>
+      <h3><a href="string-and-foci/">Sums and Differences of Distances to the Foci</a></h3>
+      <p>See why the sum of the two distances is constant on an ellipse and the difference is constant on a hyperbola. Drag the point off the curve to see when the sum is smaller or larger than the constant.</p>
+    </li>
+    <li>
+      <h3><a href="paper-folding/">Paper Folding and the Conics</a></h3>
+      <p>Fold points of a circle onto a point F, and the creases outline an ellipse, a hyperbola, or a circle. Fold points of a line onto F, and they outline a parabola.</p>
+    </li>
+  </ul>
+
+  <h2>3. What the conic sections do</h2>
+  <ul class="demos">
+    <li>
+      <h3><a href="conics-reflection/">Reflection Property of the Conics</a></h3>
+      <p>Light rays bounce off a parabolic, elliptical, or hyperbolic mirror. Rays parallel to the axis of a parabola meet at the focus, and rays from one focus of an ellipse meet at the other. Animated pulses show that they arrive together.</p>
+    </li>
+    <li>
+      <h3><a href="elliptical-orbits/">Elliptical Orbits and Kepler's Laws</a></h3>
+      <p>Follow a planet around an ellipse with the sun at one focus. Colored wedges show that equal areas are swept in equal times, so the planet moves fastest when it is closest to the sun.</p>
+    </li>
+    <li>
+      <h3><a href="solar-system-orbits/">The Nine Planets and Their Elliptical Orbits</a></h3>
+      <p>All of the planets, plus Pluto and an optional Halley's Comet, on orbits drawn from real orbital elements. It includes a look at Neptune and Pluto switching places as the farthest planet.</p>
+    </li>
+  </ul>
+
+  <h2>How to use these pages</h2>
+  <p>The pages are in a suggested order, but each one stands on its own. They work well in a class discussion on a projector, and the questions at the bottom of each page are open-ended so that students can explain what they see. Each page can be linked directly or embedded in a course page with an iframe.</p>
+</main>
+<footer>
+  <p>Created by <a href="../">Bevin Maultsby</a>, Teaching Professor of Mathematics at NC State University.</p>
+</footer>
+</body>
+</html>
