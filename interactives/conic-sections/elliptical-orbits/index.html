@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Elliptical Orbits and Kepler's Laws</title>
+<style>
+  body { font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; color: #1a1a1a; margin: 0; background: #fff; line-height: 1.45; }
+  main { max-width: 860px; margin: 0 auto; padding: 12px 14px 24px; }
+  h1 { font-size: 1.5rem; margin: 0.2em 0 0.4em; }
+  p { margin: 0.4em 0 0.8em; }
+  canvas { width: 100%; height: auto; display: block; border-radius: 6px; background: #0b1020; }
+  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px 22px; margin: 12px 0; }
+  .controls label { display: block; font-size: 0.95rem; }
+  .controls input[type=range] { width: 100%; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; align-items: center; }
+  button { font: inherit; padding: 6px 14px; border: 2px solid #1f3a8a; background: #fff; color: #1f3a8a; border-radius: 6px; cursor: pointer; }
+  button:hover { background: #eef2ff; }
+  button:focus-visible, input:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.97rem; }
+  td, th { text-align: left; padding: 4px 10px; border-bottom: 1px solid #d1d5db; }
+  .readout { background: #f3f4f6; border-radius: 6px; padding: 8px 12px; margin: 8px 0; font-size: 0.97rem; }
+  .sw { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: middle; margin-right: 5px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Elliptical Orbits and Kepler's Laws</h1>
+  <p>A planet moves on an ellipse with the sun at one focus. Change the eccentricity and watch how the shape, the speed, and the swept-out area change. The semi-major axis is fixed at a = 1.</p>
+
+  <canvas id="cv" width="800" height="560" role="img" aria-label="A planet orbiting the sun on an ellipse. The sun is at one focus."></canvas>
+
+  <div class="row" role="group" aria-label="Preset orbits">
+    <span>Presets (eccentricity):</span>
+    <button type="button" data-e="0">Circle (0)</button>
+    <button type="button" data-e="0.0167">Earth (0.017)</button>
+    <button type="button" data-e="0.0934">Mars (0.093)</button>
+    <button type="button" data-e="0.2056">Mercury (0.206)</button>
+    <button type="button" data-e="0.2488">Pluto (0.249)</button>
+    <button type="button" data-e="0.967">Halley's Comet (0.967)</button>
+  </div>
+
+  <div class="controls">
+    <label>Eccentricity e: <output id="eOut"></output>
+      <input type="range" id="e" min="0" max="0.97" step="0.001" value="0.4"></label>
+    <label>Speed of animation: <output id="spOut"></output>
+      <input type="range" id="speed" min="0.25" max="3" step="0.25" value="1"></label>
+    <label>Position in orbit (fraction of the period): <output id="posOut"></output>
+      <input type="range" id="scrub" min="0" max="1000" step="1" value="0"></label>
+    <div class="row">
+      <button type="button" id="play">Pause</button>
+      <label><input type="checkbox" id="areas" checked> Equal-area wedges</label>
+      <label><input type="checkbox" id="sum" checked> Distances to both foci</label>
+    </div>
+  </div>
+
+  <table aria-label="Live measurements">
+    <tr><th scope="row">Distance from the sun, r</th><td id="vr"></td></tr>
+    <tr><th scope="row">Distance from the empty focus</th><td id="vr2"></td></tr>
+    <tr><th scope="row">Sum of the two distances</th><td id="vsum"></td></tr>
+    <tr><th scope="row">Speed compared with a circular orbit of radius 1</th><td id="vv"></td></tr>
+  </table>
+
+  <div class="readout" id="shape"></div>
+  <div class="readout" id="wedges" aria-live="polite"></div>
+  <h2 style="font-size:1.15rem;margin:1em 0 0.3em">What the colored wedges show</h2>
+  <p>Each wedge is the region swept out by the line from the sun to the planet during the same amount of time, one twelfth of the period. Kepler's second law says that equal times give equal areas, so all three wedges have the same area even though they look very different.</p>
+  <p><span class="sw" style="background:#f97316"></span><strong>Orange</strong> is the wedge at perihelion, the point closest to the sun. The planet moves fastest here, so it covers a lot of arc in that time, and the wedge is short and wide.</p>
+  <p><span class="sw" style="background:#34d399"></span><strong>Green</strong> is the wedge at aphelion, the point farthest from the sun. The planet moves slowest here, so it covers little arc, and the wedge is long and thin.</p>
+  <p><span class="sw" style="background:#a78bfa"></span><strong>Purple</strong> is the wedge that follows the planet. It covers the most recent twelfth of the period, so it changes shape as the planet moves around the orbit.</p>
+  <p>The difference is easiest to see at high eccentricity. Try the Halley's Comet preset, or set the eccentricity to 0 and watch all three wedges become identical.</p>
+  <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
+  <ol style="padding-left:1.4em">
+    <li style="margin-bottom:0.6em">The three wedges look very different. Why do they have the same area? What does each wedge represent in terms of time?</li>
+    <li style="margin-bottom:0.6em">Why does the planet move faster near the sun than far from it? Use the shapes of the orange and green wedges in your explanation.</li>
+    <li style="margin-bottom:0.6em">Set the eccentricity to 0. Describe the speed of the planet and the three wedges. What does Kepler’s second law say about a circular orbit?</li>
+    <li style="margin-bottom:0.6em">Turn on the distances to both foci. Why is r₁ + r₂ always equal to 2a? Which definition of an ellipse does this match?</li>
+    <li style="margin-bottom:0.6em">Halley’s Comet has e = 0.967. Use the equal-area idea to estimate how many times faster it is moving at perihelion than at aphelion. Then compare your estimate with the speeds in the readout.</li>
+    <li style="margin-bottom:0.6em">Suppose the sun were at the center of the ellipse instead of at a focus. What would that say about the planet’s distance from the sun and its speed? Why is that not what we observe?</li>
+  </ol>
+</main>
+
+<script>
+(function () {
+  var cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+  var W = 800, H = 560, A = 255;
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  var TWO = 2 * Math.PI, DM = TWO / 12;
+  var st = { e: 0.4, speed: 1, play: true, areas: true, sum: true, M: 0 };
+
+  function solveE(M, e) {
+    M = ((M % TWO) + TWO) % TWO;
+    var E = e > 0.8 ? Math.PI : M;
+    for (var i = 0; i < 50; i++) {
+      var d = (E - e * Math.sin(E) - M) / (1 - e * Math.cos(E));
+      E -= d; if (Math.abs(d) < 1e-12) break;
+    }
+    return E;
+  }
+  function bOf(e) { return Math.sqrt(1 - e * e); }
+  // position relative to the sun (a = 1), perihelion on the right
+  function pos(E, e) { return [Math.cos(E) - e, bOf(e) * Math.sin(E)]; }
+  function sunX() { return W / 2 + st.e * A; }
+  function sx(x) { return sunX() + x * A; }
+  function sy(y) { return H / 2 - y * A; }
+
+  // deterministic star field
+  var stars = [], seed = 7;
+  function rnd() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
+  for (var i = 0; i < 90; i++) stars.push([rnd() * W, rnd() * H, rnd() * 1.2 + 0.3, rnd() * 0.5 + 0.3]);
+
+  function wedge(M1, M2, color) {
+    var pts = [[0, 0]], N = 48, e = st.e;
+    for (var i = 0; i <= N; i++) pts.push(pos(solveE(M1 + (M2 - M1) * i / N, e), e));
+    ctx.beginPath();
+    pts.forEach(function (p, i) { if (i) ctx.lineTo(sx(p[0]), sy(p[1])); else ctx.moveTo(sx(p[0]), sy(p[1])); });
+    ctx.closePath(); ctx.fillStyle = color; ctx.fill();
+    var area = 0;
+    for (var j = 0; j < pts.length; j++) { var q = pts[(j + 1) % pts.length]; area += pts[j][0] * q[1] - q[0] * pts[j][1]; }
+    return Math.abs(area) / 2;
+  }
+  function line(p, q, color, w, dash) {
+    ctx.beginPath(); ctx.moveTo(sx(p[0]), sy(p[1])); ctx.lineTo(sx(q[0]), sy(q[1]));
+    ctx.strokeStyle = color; ctx.lineWidth = w; ctx.setLineDash(dash || []); ctx.stroke(); ctx.setLineDash([]);
+  }
+  function disc(p, r, fill, stroke) {
+    ctx.beginPath(); ctx.arc(sx(p[0]), sy(p[1]), r, 0, TWO);
+    if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+    if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 2; ctx.stroke(); }
+  }
+
+  var last = performance.now(), wedgeAreas = [0, 0, 0], tick = 0;
+  var el = function (id) { return document.getElementById(id); };
+
+  function frame(now) {
+    var dt = Math.min(0.05, (now - last) / 1000); last = now;
+    if (st.play) st.M += dt * st.speed * TWO / 10;
+    var e = st.e, b = bOf(e), E = solveE(st.M, e), P = pos(E, e);
+
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#0b1020'; ctx.fillRect(0, 0, W, H);
+    stars.forEach(function (s) { ctx.fillStyle = 'rgba(255,255,255,' + s[3] + ')'; ctx.fillRect(s[0], s[1], s[2], s[2]); });
+
+    if (st.areas) {
+      wedgeAreas[0] = wedge(-DM / 2, DM / 2, 'rgba(249,115,22,0.55)');
+      wedgeAreas[1] = wedge(Math.PI - DM / 2, Math.PI + DM / 2, 'rgba(52,211,153,0.55)');
+      wedgeAreas[2] = wedge(st.M - DM, st.M, 'rgba(167,139,250,0.6)');
+    }
+    // orbit
+    ctx.beginPath();
+    for (var i = 0; i <= 240; i++) {
+      var p = pos(TWO * i / 240, e);
+      if (i) ctx.lineTo(sx(p[0]), sy(p[1])); else ctx.moveTo(sx(p[0]), sy(p[1]));
+    }
+    ctx.strokeStyle = '#e5e7eb'; ctx.lineWidth = 2; ctx.stroke();
+
+    var F2 = [-2 * e, 0];
+    if (st.sum) { line([0, 0], P, '#fbbf24', 2); line(F2, P, '#c4b5fd', 2); }
+    // foci
+    disc(F2, 5, null, '#c4b5fd');
+    var g = ctx.createRadialGradient(sx(0), sy(0), 2, sx(0), sy(0), 26);
+    g.addColorStop(0, 'rgba(253,224,71,1)'); g.addColorStop(1, 'rgba(253,224,71,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(sx(0), sy(0), 26, 0, TWO); ctx.fill();
+    disc([0, 0], 9, '#fde047');
+    ctx.font = '14px system-ui, sans-serif'; ctx.fillStyle = '#e5e7eb';
+    ctx.fillText('sun (focus)', sx(0) - 30, sy(0) + 28);
+    ctx.fillText('empty focus', sx(F2[0]) - 36, sy(0) + 22);
+
+    // velocity arrow
+    var Ed = 1 / (1 - e * Math.cos(E)), vx = -Math.sin(E) * Ed, vy = b * Math.cos(E) * Ed;
+    var vm = Math.hypot(vx, vy), r = Math.hypot(P[0], P[1]);
+    var vrel = Math.sqrt(Math.max(0, 2 / r - 1));
+    var L = 55 * vrel, ex = sx(P[0]) + L * vx / vm, ey = sy(P[1]) - L * vy / vm;
+    ctx.strokeStyle = '#fca5a5'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(sx(P[0]), sy(P[1])); ctx.lineTo(ex, ey); ctx.stroke();
+    var ang = Math.atan2(ey - sy(P[1]), ex - sx(P[0]));
+    ctx.beginPath(); ctx.moveTo(ex, ey);
+    ctx.lineTo(ex - 10 * Math.cos(ang - 0.4), ey - 10 * Math.sin(ang - 0.4));
+    ctx.lineTo(ex - 10 * Math.cos(ang + 0.4), ey - 10 * Math.sin(ang + 0.4)); ctx.closePath();
+    ctx.fillStyle = '#fca5a5'; ctx.fill();
+    disc(P, 8, '#7dd3fc', '#0c4a6e');
+
+    // readouts (throttled)
+    if (++tick % 4 === 0) {
+      var r2 = Math.hypot(P[0] - F2[0], P[1] - F2[1]);
+      el('vr').textContent = r.toFixed(3);
+      el('vr2').textContent = r2.toFixed(3);
+      el('vsum').textContent = (r + r2).toFixed(3) + ' (this is 2a = 2)';
+      el('vv').textContent = vrel.toFixed(2) + ' times (the arrow length shows this)';
+      var frac = (((st.M % TWO) + TWO) % TWO) / TWO;
+      el('posOut').textContent = Math.round(frac * 100) + '%';
+      if (document.activeElement !== el('scrub')) el('scrub').value = Math.round(frac * 1000);
+    }
+    requestAnimationFrame(frame);
+  }
+
+  function updateStatic() {
+    var e = st.e;
+    el('eOut').textContent = e.toFixed(3);
+    el('spOut').textContent = st.speed.toFixed(2) + 'x';
+    el('shape').textContent = 'e = ' + e.toFixed(3) + '. Semi-minor axis b = ' + bOf(e).toFixed(3) +
+      '. Focal distance c = ae = ' + e.toFixed(3) + '. Closest approach (perihelion) = ' + (1 - e).toFixed(3) +
+      '. Farthest distance (aphelion) = ' + (1 + e).toFixed(3) + '. The planet is ' + ((1 + e) / (1 - e)).toFixed(2) +
+      ' times as far from the sun at aphelion as at perihelion.';
+    var total = Math.PI * bOf(e);
+    // area of a 1/12 wedge, from the formula (ab/2)(DeltaM)
+    var wA = total / 12;
+    el('wedges').textContent = 'Each wedge has area ' + wA.toFixed(4) + ', which is 1/12 of the orbit area ' + total.toFixed(4) +
+      ' (in units of a squared). The speed at perihelion is ' + Math.sqrt((1 + e) / (1 - e)).toFixed(2) +
+      ' times the speed of a circular orbit of radius 1, and at aphelion it is ' + Math.sqrt((1 - e) / (1 + e)).toFixed(2) + ' times.';
+  }
+
+  el('e').addEventListener('input', function () { st.e = parseFloat(this.value); updateStatic(); });
+  el('speed').addEventListener('input', function () { st.speed = parseFloat(this.value); updateStatic(); });
+  el('areas').addEventListener('change', function () { st.areas = this.checked; });
+  el('sum').addEventListener('change', function () { st.sum = this.checked; });
+  el('play').addEventListener('click', function () { st.play = !st.play; this.textContent = st.play ? 'Pause' : 'Play'; });
+  el('scrub').addEventListener('input', function () {
+    st.M = parseInt(this.value, 10) / 1000 * TWO; st.play = false; el('play').textContent = 'Play';
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('button[data-e]'), function (btn) {
+    btn.addEventListener('click', function () {
+      st.e = parseFloat(btn.getAttribute('data-e')); el('e').value = st.e; updateStatic();
+    });
+  });
+  updateStatic();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

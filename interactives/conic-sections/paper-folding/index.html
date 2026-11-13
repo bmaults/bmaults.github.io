@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paper Folding and the Conics</title>
+<style>
+  body { font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; color: #1a1a1a; margin: 0; background: #fff; line-height: 1.45; }
+  main { max-width: 860px; margin: 0 auto; padding: 12px 14px 24px; }
+  h1 { font-size: 1.5rem; margin: 0.2em 0 0.4em; }
+  p { margin: 0.4em 0 0.8em; }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+  .tabs button { font: inherit; padding: 7px 14px; border: 2px solid #1f3a8a; background: #fff; color: #1f3a8a; border-radius: 6px; cursor: pointer; }
+  .tabs button[aria-pressed="true"] { background: #1f3a8a; color: #fff; }
+  .tabs button:focus-visible, input:focus-visible, canvas:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+  canvas { width: 100%; height: auto; display: block; border: 1px solid #9ca3af; border-radius: 6px; background: #fff; touch-action: none; cursor: grab; }
+  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px 22px; margin: 12px 0; }
+  .controls label { display: block; font-size: 0.95rem; }
+  .controls input[type=range] { width: 100%; }
+  .readout { background: #f3f4f6; border-radius: 6px; padding: 8px 12px; margin: 8px 0; font-size: 0.97rem; }
+  .legend span { display: inline-block; margin-right: 14px; }
+  .sw { display: inline-block; width: 22px; height: 0; border-top: 4px solid; vertical-align: middle; margin-right: 5px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Paper Folding and the Conics</h1>
+  <p>Take a circle drawn on a sheet of paper, with a point F marked somewhere on the sheet. Choose a point Q on the circle and fold the paper so that Q lands exactly on F. The crease is a straight line. Repeat for many points Q around the circle, and the creases outline a curve. Drag F to see which curve you get.</p>
+
+  <div class="tabs" role="group" aria-label="What to fold onto F">
+    <button type="button" id="m-circle" aria-pressed="true">Fold points of a circle onto F</button>
+    <button type="button" id="m-line" aria-pressed="false">Fold points of a line onto F</button>
+  </div>
+  <div class="tabs" role="group" aria-label="Jump to a position of F" id="jumps">
+    <button type="button" id="j-in">F inside the circle</button>
+    <button type="button" id="j-center">F at the center</button>
+    <button type="button" id="j-out">F outside the circle</button>
+  </div>
+
+  <canvas id="cv" width="800" height="560" tabindex="0" role="img" aria-label="A circle with a point F and many fold lines whose envelope is a conic section."></canvas>
+
+  <div class="controls">
+    <label id="eWrap">Distance CF divided by the radius, e: <output id="eOut"></output>
+      <input type="range" id="e" min="0" max="2" step="0.01" value="0.5"></label>
+    <label id="rWrap">Radius R of the circle: <output id="rOut"></output>
+      <input type="range" id="R" min="2" max="5" step="0.1" value="4.5"></label>
+    <label id="pWrap" style="display:none">Distance from F to the line: <output id="pOut"></output>
+      <input type="range" id="p" min="0.5" max="7" step="0.05" value="3"></label>
+    <label>Highlighted fold: <output id="hOut"></output>
+      <input type="range" id="h" min="0" max="1000" step="1" value="150"></label>
+    <label>Number of creases: <output id="nOut"></output>
+      <input type="range" id="n" min="6" max="120" step="1" value="36"></label>
+    <label><input type="checkbox" id="conic" checked> Show the curve traced by the touching points T</label>
+    <label><input type="checkbox" id="anim"> Animate the highlighted fold</label>
+  </div>
+
+  <p class="legend" aria-hidden="true">
+    <span><i class="sw" style="border-color:#c2410c"></i>point Q being folded onto F</span>
+    <span><i class="sw" style="border-color:#b91c1c"></i>highlighted crease</span>
+    <span><i class="sw" style="border-color:#0f766e"></i>point T where the crease touches the curve</span>
+  </p>
+
+  <div class="readout" id="eq" aria-live="polite"></div>
+  <div class="readout" id="info"></div>
+  <p id="note"></p>
+
+  <p>The crease for Q is the perpendicular bisector of the segment QF, so every point on the crease is the same distance from Q as from F. The point T is where the crease meets the line from the center C to Q (in the circle view) or the vertical line through Q (in the line view). Because T is on the crease, TF = TQ. That one fact is enough to show what curve T traces.</p>
+
+  <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
+  <ol style="padding-left:1.4em">
+    <li style="margin-bottom:0.6em">Why is the crease the perpendicular bisector of QF? Explain why every point on the crease is the same distance from Q as from F.</li>
+    <li style="margin-bottom:0.6em">With F inside the circle, T lies on the segment from C to Q. Explain why TF + TC = R for every choice of Q. What does this say about the curve that T traces?</li>
+    <li style="margin-bottom:0.6em">Move F to the center of the circle. What curve do the creases outline, and what is its radius in terms of R? Explain why, using the position of T.</li>
+    <li style="margin-bottom:0.6em">Move F outside the circle. T is now on the line CQ but outside the segment. Explain why |TF − TC| = R, and what curve this gives.</li>
+    <li style="margin-bottom:0.6em">In the line view, why is TF equal to the distance from T to the line? What does this say about the curve, and where are its focus and directrix?</li>
+    <li style="margin-bottom:0.6em">Each crease touches the curve at exactly one point, so it is a tangent line. In the circle view with F inside, the crease bisects angle FTQ, and Q is on the extension of CT. Use this to show that the tangent line at T makes equal angles with TF and TC, and explain how this gives the reflection property of the ellipse.</li>
+  </ol>
+</main>
+
+<script>
+(function () {
+  var cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+  var W = 800, H = 560, S = 50, LY = -4;
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  function $(id) { return document.getElementById(id); }
+  var st = { mode: 'circle', R: 4.5, F: [2.25, 0], FL: [0, -1], h: 0.15, n: 36, conic: true, anim: false };
+  function X(x) { return W / 2 + x * S; }
+  function Y(y) { return H / 2 - y * S; }
+  var f2 = function (x) { return x.toFixed(2); }, f3 = function (x) { return x.toFixed(3); };
+  function crease(Q, F) {
+    var dx = F[0] - Q[0], dy = F[1] - Q[1], l = Math.hypot(dx, dy); if (l < 1e-6) return null;
+    var nx = dx / l, ny = dy / l; return { M: [(Q[0] + F[0]) / 2, (Q[1] + F[1]) / 2], n: [nx, ny], t: [-ny, nx] };
+  }
+  function qOf(h) {
+    return st.mode === 'circle' ? [st.R * Math.cos(2 * Math.PI * h), st.R * Math.sin(2 * Math.PI * h)] : [-8 + 16 * h, LY];
+  }
+  function Fpt() { return st.mode === 'circle' ? st.F : st.FL; }
+  function touch(Q, F) {
+    var c = crease(Q, F); if (!c) return null;
+    if (st.mode === 'circle') {
+      var u = [Q[0] / st.R, Q[1] / st.R], un = u[0] * c.n[0] + u[1] * c.n[1]; if (Math.abs(un) < 1e-4) return null;
+      var s = (c.M[0] * c.n[0] + c.M[1] * c.n[1]) / un; return [s * u[0], s * u[1]];
+    }
+    var ty = ((Q[0] - F[0]) * (Q[0] - F[0]) + F[1] * F[1] - LY * LY) / (2 * (F[1] - LY)); return [Q[0], ty];
+  }
+  function line(c) {
+    ctx.beginPath(); ctx.moveTo(X(c.M[0] - 40 * c.t[0]), Y(c.M[1] - 40 * c.t[1])); ctx.lineTo(X(c.M[0] + 40 * c.t[0]), Y(c.M[1] + 40 * c.t[1]));
+  }
+  function dot(P, r, col, label, dx, dy) {
+    ctx.beginPath(); ctx.arc(X(P[0]), Y(P[1]), r, 0, 2 * Math.PI); ctx.fillStyle = col; ctx.fill();
+    if (label) { ctx.fillStyle = '#111'; ctx.font = 'bold 15px system-ui, sans-serif'; ctx.textAlign = 'left'; ctx.fillText(label, X(P[0]) + dx, Y(P[1]) + dy); }
+  }
+  function draw() {
+    var F = Fpt(), i; ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
+    ctx.save(); ctx.beginPath(); ctx.rect(0, 0, W, H); ctx.clip();
+    // creases
+    for (i = 0; i < st.n; i++) {
+      var c = crease(qOf(st.mode === 'circle' ? i / st.n : (i + 0.5) / st.n), F); if (!c) continue;
+      line(c); ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(31,58,138,0.45)'; ctx.stroke();
+    }
+    // locus of T
+    if (st.conic) {
+      ctx.beginPath(); var pen = false, N = 900;
+      for (i = 0; i <= N; i++) {
+        var T = touch(qOf(i / N), F);
+        if (!T || Math.abs(T[0]) > 30 || Math.abs(T[1]) > 30) { pen = false; continue; }
+        if (pen) ctx.lineTo(X(T[0]), Y(T[1])); else ctx.moveTo(X(T[0]), Y(T[1]));
+        pen = true;
+      }
+      ctx.lineWidth = 3; ctx.strokeStyle = '#0f766e'; ctx.stroke();
+    }
+    // circle or line
+    if (st.mode === 'circle') {
+      ctx.beginPath(); ctx.arc(X(0), Y(0), st.R * S, 0, 2 * Math.PI); ctx.lineWidth = 2.5; ctx.strokeStyle = '#1f3a8a'; ctx.stroke();
+      dot([0, 0], 5, '#374151', 'C', 8, 18);
+    } else {
+      ctx.beginPath(); ctx.moveTo(0, Y(LY)); ctx.lineTo(W, Y(LY)); ctx.lineWidth = 2.5; ctx.strokeStyle = '#1f3a8a'; ctx.stroke();
+    }
+    // highlighted
+    var Q = qOf(st.h), hc = crease(Q, F), T = touch(Q, F);
+    if (hc) { line(hc); ctx.lineWidth = 3; ctx.strokeStyle = '#b91c1c'; ctx.stroke(); }
+    ctx.save(); ctx.setLineDash([6, 5]); ctx.beginPath(); ctx.moveTo(X(Q[0]), Y(Q[1])); ctx.lineTo(X(F[0]), Y(F[1])); ctx.lineWidth = 2; ctx.strokeStyle = '#c2410c'; ctx.stroke();
+    if (T) { ctx.beginPath(); ctx.moveTo(X(Q[0]), Y(Q[1])); ctx.lineTo(X(T[0]), Y(T[1])); ctx.strokeStyle = '#6b7280'; ctx.stroke(); }
+    ctx.restore();
+    dot(F, 7, '#111', 'F', 9, -9); dot(Q, 6, '#c2410c', 'Q', 9, -9);
+    if (T) dot(T, 6, '#0f766e', 'T', 9, 18);
+    ctx.restore();
+    // readouts
+    var tf = T ? Math.hypot(T[0] - F[0], T[1] - F[1]) : NaN;
+    $('hOut').textContent = Math.round(st.h * 100) + '%'; $('nOut').textContent = st.n;
+    if (st.mode === 'circle') {
+      var e = Math.hypot(F[0], F[1]) / st.R, tc = T ? Math.hypot(T[0], T[1]) : NaN;
+      $('eOut').textContent = f2(e); $('rOut').textContent = f2(st.R); $('e').value = Math.min(2, e);
+      var kind = e < 0.02 ? 'circle' : e < 0.985 ? 'ellipse' : e < 1.015 ? 'degenerate' : 'hyperbola';
+      if (!T) $('eq').textContent = 'For this fold the crease is parallel to the line CQ, so there is no touching point T. Move the highlighted fold a little.';
+      else if (e < 1) $('eq').textContent = 'TF = ' + f3(tf) + '    TC = ' + f3(tc) + '    TF + TC = ' + f3(tf + tc) + '    R = ' + f3(st.R);
+      else $('eq').textContent = 'TF = ' + f3(tf) + '    TC = ' + f3(tc) + '    |TF − TC| = ' + f3(Math.abs(tf - tc)) + '    R = ' + f3(st.R);
+      var names = { circle: 'F is at the center, so the creases outline a circle of radius R / 2.', ellipse: 'F is inside the circle, so the creases outline an ellipse with foci F and C. Here e = ' + f2(e) + ' is also the eccentricity of the ellipse.',
+        degenerate: 'F is on the circle. Every crease passes through a point of the segment CF, and the ellipse has collapsed to that segment.', hyperbola: 'F is outside the circle, so the creases outline a hyperbola with foci F and C, and eccentricity e = ' + f2(e) + '.' };
+      $('info').textContent = names[kind];
+      $('note').textContent = 'The sum TF + TC stays equal to R as long as F is inside the circle. When F is outside, the difference |TF − TC| stays equal to R.';
+    } else {
+      var p = F[1] - LY; $('pOut').textContent = f2(p); $('p').value = p;
+      $('eq').textContent = T ? 'TF = ' + f3(tf) + '    distance from T to the line = ' + f3(Math.abs(T[1] - LY)) : '';
+      $('info').textContent = 'The creases outline a parabola. Its focus is F, its directrix is the line, and its focal length is ' + f2(p / 2) + ' (half the distance from F to the line).';
+      $('note').textContent = 'Every point T on the curve is as far from F as it is from the line, which is the focus and directrix definition of a parabola.';
+    }
+  }
+  function setMode(m) {
+    st.mode = m;
+    $('m-circle').setAttribute('aria-pressed', m === 'circle' ? 'true' : 'false'); $('m-line').setAttribute('aria-pressed', m === 'line' ? 'true' : 'false');
+    ['eWrap', 'rWrap', 'jumps'].forEach(function (id) { $(id).style.display = m === 'circle' ? '' : 'none'; });
+    $('pWrap').style.display = m === 'line' ? '' : 'none';
+    cv.setAttribute('aria-label', m === 'circle' ? 'A circle with a point F and many fold lines whose envelope is a conic section.' : 'A line with a point F and many fold lines whose envelope is a parabola.');
+    draw();
+  }
+  function setE(e) { var a = Math.atan2(st.F[1], st.F[0]); if (Math.hypot(st.F[0], st.F[1]) < 1e-9) a = 0; st.F = [e * st.R * Math.cos(a), e * st.R * Math.sin(a)]; draw(); }
+  var dragging = false;
+  function pointerTo(ev) {
+    var r = cv.getBoundingClientRect(), x = ((ev.clientX - r.left) * W / r.width - W / 2) / S, y = (H / 2 - (ev.clientY - r.top) * H / r.height) / S;
+    x = Math.max(-7.5, Math.min(7.5, x)); y = Math.max(-5.2, Math.min(5.2, y));
+    if (st.mode === 'circle') st.F = [x, y]; else st.FL = [x, Math.max(LY + 0.5, y)];
+    draw();
+  }
+  cv.addEventListener('pointerdown', function (ev) { dragging = true; cv.setPointerCapture(ev.pointerId); cv.style.cursor = 'grabbing'; pointerTo(ev); });
+  cv.addEventListener('pointermove', function (ev) { if (dragging) pointerTo(ev); });
+  cv.addEventListener('pointerup', function () { dragging = false; cv.style.cursor = 'grab'; });
+  cv.addEventListener('keydown', function (ev) {
+    var d = { ArrowLeft: [-0.1, 0], ArrowRight: [0.1, 0], ArrowUp: [0, 0.1], ArrowDown: [0, -0.1] }[ev.key]; if (!d) return;
+    var F = Fpt(); var nf = [F[0] + d[0], F[1] + d[1]];
+    if (st.mode === 'circle') st.F = nf; else st.FL = [nf[0], Math.max(LY + 0.5, nf[1])];
+    draw(); ev.preventDefault();
+  });
+  $('e').addEventListener('input', function () { setE(parseFloat(this.value)); });
+  $('R').addEventListener('input', function () { var e = Math.hypot(st.F[0], st.F[1]) / st.R; st.R = parseFloat(this.value); setE(e); });
+  $('p').addEventListener('input', function () { st.FL = [st.FL[0], LY + parseFloat(this.value)]; draw(); });
+  $('h').addEventListener('input', function () { st.h = parseFloat(this.value) / 1000; draw(); });
+  $('n').addEventListener('input', function () { st.n = parseInt(this.value, 10); draw(); });
+  $('conic').addEventListener('change', function () { st.conic = this.checked; draw(); });
+  $('anim').addEventListener('change', function () { st.anim = this.checked; });
+  $('m-circle').addEventListener('click', function () { setMode('circle'); });
+  $('m-line').addEventListener('click', function () { setMode('line'); });
+  $('j-in').addEventListener('click', function () { st.F = [0.5 * st.R, 0]; draw(); });
+  $('j-center').addEventListener('click', function () { st.F = [0, 0]; draw(); });
+  $('j-out').addEventListener('click', function () { st.F = [1.5 * st.R > 7.4 ? 7.4 : 1.5 * st.R, 0]; draw(); });
+  var last = 0;
+  function tick(t) {
+    if (st.anim) { st.h = (st.h + (t - last) / 12000) % 1; $('h').value = Math.round(st.h * 1000); draw(); }
+    last = t; requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+  st.F = [0.5 * st.R, 0]; setMode('circle');
+})();
+</script>
+</body>
+</html>

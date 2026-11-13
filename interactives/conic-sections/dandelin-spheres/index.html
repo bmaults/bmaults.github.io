@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dandelin Spheres</title>
+<style>
+  body { font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; color: #1a1a1a; margin: 0; background: #fff; line-height: 1.45; }
+  main { max-width: 900px; margin: 0 auto; padding: 12px 14px 24px; }
+  h1 { font-size: 1.5rem; margin: 0.2em 0 0.4em; }
+  h2 { font-size: 1.15rem; margin: 1em 0 0.3em; }
+  p { margin: 0.4em 0 0.8em; }
+  #view { width: 100%; height: 520px; border: 1px solid #9ca3af; border-radius: 6px; background: #f8fafc; position: relative; touch-action: none; overflow: hidden; }
+  #view canvas { display: block; }
+  #fallback { padding: 20px; }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 8px 22px; margin: 12px 0; }
+  .controls label { display: block; font-size: 0.95rem; }
+  .controls input[type=range] { width: 100%; }
+  button { font: inherit; padding: 7px 16px; border: 2px solid #1f3a8a; background: #fff; color: #1f3a8a; border-radius: 6px; cursor: pointer; }
+  button[aria-pressed="true"] { background: #1f3a8a; color: #fff; }
+  button:focus-visible, input:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+  input:disabled { opacity: 0.45; }
+  .readout { background: #f3f4f6; border-radius: 6px; padding: 8px 12px; margin: 8px 0; font-size: 0.97rem; }
+  .sw { display: inline-block; width: 14px; height: 14px; border-radius: 50%; vertical-align: middle; margin-right: 5px; }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<main>
+  <h1>Dandelin Spheres</h1>
+  <p>A plane cuts a cone. Place a sphere inside the cone so that it touches both the cone and the plane. The point where it touches the plane is a focus of the conic section. Choose a type of conic, drag the picture to rotate it, and slide the point along the curve to see why the focus property holds.</p>
+
+  <div class="tabs" role="group" aria-label="Choose a conic section">
+    <button type="button" id="b-ellipse" aria-pressed="true">Ellipse</button>
+    <button type="button" id="b-parabola" aria-pressed="false">Parabola</button>
+    <button type="button" id="b-hyperbola" aria-pressed="false">Hyperbola</button>
+  </div>
+
+  <div id="view" role="img" aria-label="A cone cut by a plane, with spheres inside the cone touching both the cone and the plane."></div>
+
+  <div class="controls">
+    <label>Tilt of the plane: <output id="tOut"></output>
+      <input type="range" id="t" min="0" max="45" step="1" value="30"></label>
+    <label>Distance of the plane from the apex: <output id="kOut"></output>
+      <input type="range" id="k" min="0.6" max="1.1" step="0.05" value="0.9"></label>
+    <label>Point P on the curve: <output id="uOut"></output>
+      <input type="range" id="u" min="-100" max="100" step="1" value="35"></label>
+    <label><input type="checkbox" id="showPlane" checked> Show the cutting plane</label>
+    <label><input type="checkbox" id="showSph" checked> Show the spheres</label>
+  </div>
+
+  <div class="readout" id="info" aria-live="polite"></div>
+  <p id="legend"></p>
+  <h2>Why it works</h2>
+  <p id="why"></p>
+  <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
+  <ol style="padding-left:1.4em">
+    <li style="margin-bottom:0.6em">Why are the two tangent segments from P to the same sphere equal in length? Use this to explain why PF₁ + PF₂ is the same for every point P on the ellipse.</li>
+    <li style="margin-bottom:0.6em">Move P around the ellipse. The distances PF₁ and PF₂ both change, but their sum does not. Explain, in your own words, why the length of the cone’s edge between the two circles cannot change.</li>
+    <li style="margin-bottom:0.6em">Set the tilt of the ellipse to 0. Where are the two foci, and why? What curve is this?</li>
+    <li style="margin-bottom:0.6em">In the ellipse, increase the tilt toward 45°. What happens to the larger sphere and to the second focus? What would happen if you kept going until the plane is parallel to the edge of the cone?</li>
+    <li style="margin-bottom:0.6em">For the hyperbola, the two spheres are in opposite halves of the cone. Use this to explain why we get a difference of distances instead of a sum.</li>
+    <li style="margin-bottom:0.6em">For the parabola, explain where the directrix comes from. Which two planes meet in that line?</li>
+  </ol>
+</main>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const deg = Math.PI / 180, alpha = 30 * deg, sa = Math.sin(alpha), ca = Math.cos(alpha), H = 9;
+const V3 = THREE.Vector3;
+const modes = {
+  ellipse: { tmin: 0, tmax: 45, t: 30 },
+  parabola: { tmin: 60, tmax: 60, t: 60 },
+  hyperbola: { tmin: 72, tmax: 90, t: 80 }
+};
+const st = { mode: 'ellipse', t: 30, k: 0.9, u: 0.35, plane: true, sph: true };
+const GREEN = 0x16a34a, PURPLE = 0x7c3aed, RED = 0xdc2626;
+const $ = (id) => document.getElementById(id);
+const view = $('view');
+
+let renderer;
+try { renderer = new THREE.WebGLRenderer({ antialias: true }); }
+catch (e) { view.innerHTML = '<div id="fallback">This demo needs WebGL, which this browser does not seem to support.</div>'; throw e; }
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+view.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xf8fafc);
+const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 150);
+camera.position.set(13, 7, 20);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; controls.target.set(0, 0, 0);
+scene.add(new THREE.AmbientLight(0xffffff, 0.85));
+const dl = new THREE.DirectionalLight(0xffffff, 0.6); dl.position.set(5, 10, 7); scene.add(dl);
+function resize() { const w = view.clientWidth, h = view.clientHeight; renderer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix(); }
+new ResizeObserver(resize).observe(view); resize();
+
+/* ---------- static cone ---------- */
+{
+  const R = H * Math.tan(alpha);
+  const mat = new THREE.MeshPhongMaterial({ color: 0x60a5fa, transparent: true, opacity: 0.13, side: THREE.DoubleSide, depthWrite: false });
+  const geo = new THREE.CylinderGeometry(R, 0, H, 72, 1, true); geo.translate(0, H / 2, 0);
+  const up = new THREE.Mesh(geo, mat), down = new THREE.Mesh(geo.clone(), mat); down.scale.y = -1;
+  scene.add(up, down);
+  const lm = new THREE.LineBasicMaterial({ color: 0x1d4ed8, transparent: true, opacity: 0.3 });
+  const pos = [];
+  for (let i = 0; i < 24; i++) { const p = 2 * Math.PI * i / 24, x = R * Math.cos(p), z = R * Math.sin(p); pos.push(0, 0, 0, x, H, z, 0, 0, 0, x, -H, z); }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  scene.add(new THREE.LineSegments(g, lm));
+  [H, -H].forEach((y) => {
+    const pts = []; for (let i = 0; i <= 96; i++) { const p = 2 * Math.PI * i / 96; pts.push(new V3(R * Math.cos(p), y, R * Math.sin(p))); }
+    scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), lm));
+  });
+}
+const dyn = new THREE.Group(); scene.add(dyn);
+function clearDyn() {
+  while (dyn.children.length) {
+    const o = dyn.children[0]; dyn.remove(o);
+    o.traverse((c) => { if (c.geometry) c.geometry.dispose(); if (c.material) { if (c.material.map) c.material.map.dispose(); c.material.dispose(); } });
+  }
+}
+function tube(a, b, color, r) {
+  const m = new THREE.Mesh(new THREE.TubeGeometry(new THREE.LineCurve3(a, b), 2, r || 0.04, 8, false), new THREE.MeshBasicMaterial({ color }));
+  dyn.add(m); return m;
+}
+function dashed(a, b, color) {
+  const l = new THREE.Line(new THREE.BufferGeometry().setFromPoints([a, b]), new THREE.LineDashedMaterial({ color, dashSize: 0.18, gapSize: 0.12 }));
+  l.computeLineDistances(); dyn.add(l);
+}
+function ball(p, r, color) { const m = new THREE.Mesh(new THREE.SphereGeometry(r, 20, 14), new THREE.MeshBasicMaterial({ color })); m.position.copy(p); dyn.add(m); }
+function label(text, color, p) {
+  const wide = text.length > 3, cw = wide ? 360 : 160;
+  const c = document.createElement('canvas'); c.width = cw; c.height = 80;
+  const g = c.getContext('2d'); g.font = 'bold 44px system-ui, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.lineWidth = 8; g.strokeStyle = '#fff'; g.strokeText(text, cw / 2, 40); g.fillStyle = color; g.fillText(text, cw / 2, 40);
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), depthTest: false, transparent: true }));
+  sp.scale.set(1.4 * cw / 160, 0.7, 1); sp.position.copy(p); dyn.add(sp);
+}
+
+/* ---------- geometry ---------- */
+function branches(t, k, lim) {
+  const sn = Math.sin(t), cs = Math.cos(t), N = 720, runs = []; let cur = null;
+  for (let i = 0; i <= N; i++) {
+    const psi = Math.PI + (-Math.PI + 2 * Math.PI * i / N), nd = -sn * sa * Math.cos(psi) + cs * ca;
+    let pt = null, nap = 0;
+    if (Math.abs(nd) > 1e-9) { const s = k / nd, y = s * ca; if (Math.abs(y) <= lim) { pt = new V3(s * sa * Math.cos(psi), y, s * sa * Math.sin(psi)); nap = nd > 0 ? 1 : -1; } }
+    if (pt) { if (cur && cur.nap === nap) cur.pts.push(pt); else { cur = { nap, pts: [pt], first: i === 0 }; runs.push(cur); } } else cur = null;
+  }
+  if (runs.length > 1 && cur && runs[0].first && runs[0].nap === runs[runs.length - 1].nap) { const last = runs.pop(); runs[0].pts = last.pts.concat(runs[0].pts); }
+  return runs.map((r) => r.pts);
+}
+function sphereAt(yc, n, k) {
+  const C = new V3(0, yc, 0), sgn = Math.sign(yc), s = Math.abs(yc) * ca;
+  const F = C.clone().add(n.clone().multiplyScalar(k - n.dot(C)));
+  return { yc, r: Math.abs(yc) * sa, C, F, s, ty: sgn * s * ca, rho: s * sa, sgn };
+}
+const f2 = (x) => x.toFixed(2);
+
+function update() {
+  clearDyn();
+  const t = st.t * deg, k = st.k, ct = Math.cos(t), sn = Math.sin(t), n = new V3(-sn, ct, 0), Cp = n.clone().multiplyScalar(k);
+  const A = sphereAt(k / (ct + sa), n, k);
+  const B = st.mode === 'parabola' ? null : sphereAt(k / (ct - sa), n, k);
+
+  // cutting plane
+  if (st.plane) {
+    const pm = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), new THREE.MeshBasicMaterial({ color: 0xf97316, transparent: true, opacity: 0.16, side: THREE.DoubleSide, depthWrite: false }));
+    pm.position.copy(Cp); pm.quaternion.setFromUnitVectors(new V3(0, 0, 1), n);
+    pm.add(new THREE.LineSegments(new THREE.EdgesGeometry(pm.geometry), new THREE.LineBasicMaterial({ color: 0xea580c })));
+    dyn.add(pm);
+  }
+  // conic curve
+  branches(t, k, 0.95 * H).forEach((pts) => {
+    if (pts.length < 2) return;
+    const step = Math.max(1, Math.floor(pts.length / 240)), sp = [];
+    for (let i = 0; i < pts.length; i += step) sp.push(pts[i]);
+    sp.push(pts[pts.length - 1]);
+    dyn.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(sp), Math.min(500, sp.length * 2), 0.05, 8, false), new THREE.MeshBasicMaterial({ color: RED })));
+  });
+  // spheres, tangent circles, foci
+  [[A, GREEN, '#15803d', 'F₁'], [B, PURPLE, '#6d28d9', 'F₂']].forEach(([S, col, css, name]) => {
+    if (!S) return;
+    if (st.mode === 'parabola') name = 'F';
+    if (st.sph) {
+      const sm = new THREE.Mesh(new THREE.SphereGeometry(S.r, 48, 32), new THREE.MeshPhongMaterial({ color: col, transparent: true, opacity: 0.45, depthWrite: false }));
+      sm.position.copy(S.C); dyn.add(sm);
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(S.rho, 0.04, 8, 72), new THREE.MeshBasicMaterial({ color: col }));
+      ring.rotation.x = Math.PI / 2; ring.position.set(0, S.ty, 0); dyn.add(ring);
+    }
+    ball(S.F, 0.1, 0x111827);
+    label(name, css, S.F.clone().add(n.clone().multiplyScalar(0.55)));
+  });
+
+  // point P on the curve
+  const c0 = sn < 1e-9 ? -2 : (k * ca / (0.95 * H) - ct * ca) / (sn * sa);
+  const dmax = c0 <= -1 ? Math.PI : Math.acos(Math.min(1, c0));
+  const psi = Math.PI + st.u * dmax;
+  const dir = new V3(sa * Math.cos(psi), ca, sa * Math.sin(psi)), nd = n.dot(dir), p = k / nd, P = dir.clone().multiplyScalar(p);
+  const g = (sig) => dir.clone().multiplyScalar(sig);
+  dyn.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([g(-H / ca * 0.9), g(H / ca * 0.9)]), new THREE.LineBasicMaterial({ color: 0x6b7280, transparent: true, opacity: 0.5 })));
+  ball(P, 0.13, RED);
+  label('P', '#b91c1c', P.clone().add(n.clone().multiplyScalar(0.5)));
+
+  let info, why, legend;
+  const dA = P.distanceTo(A.F);
+  if (st.mode === 'ellipse') {
+    const dB = P.distanceTo(B.F);
+    tube(g(A.s), P, GREEN); tube(P, g(B.s), PURPLE);
+    dashed(P, A.F, GREEN); dashed(P, B.F, PURPLE);
+    info = 'PF₁ = ' + f2(dA) + ' and PF₂ = ' + f2(dB) + ', so PF₁ + PF₂ = ' + f2(dA + dB) +
+      '. The piece of the cone’s straight edge between the green circle and the purple circle has length ' + f2(B.s - A.s) + '. The sum is the same for every point P on the curve.';
+    why = 'The segment from P along the cone to the green circle and the dashed segment from P to F₁ are both tangent segments from P to the green sphere, so they have the same length. The same is true for the purple sphere and F₂. Add them: PF₁ + PF₂ is the length of the cone’s straight edge between the two circles. That length does not depend on where P is, so the sum is constant. A curve whose distances to two fixed points add up to a constant is an ellipse.';
+    legend = 'F₁ and F₂ are the points where the green and purple spheres touch the plane. The red curve is the ellipse.';
+  } else if (st.mode === 'hyperbola') {
+    const dB = P.distanceTo(B.F);
+    tube(g(A.s), P, GREEN); tube(g(-B.s), P, PURPLE);
+    dashed(P, A.F, GREEN); dashed(P, B.F, PURPLE);
+    info = 'PF₁ = ' + f2(dA) + ' and PF₂ = ' + f2(dB) + ', so PF₂ − PF₁ = ' + f2(dB - dA) +
+      '. The piece of the cone’s straight edge between the green circle and the purple circle, passing through the apex, has length ' + f2(A.s + B.s) + '. The difference is the same for every point P on this branch.';
+    why = 'The green sphere is in the upper half of the cone and the purple sphere is in the lower half. Tangent segments from P to the green sphere have equal length, so PF₁ is the distance from P to the green circle along the cone. In the same way PF₂ is the distance from P to the purple circle, measured along the straight edge through the apex. Their difference is the length of the edge between the two circles, which is constant. A curve where the difference of distances to two fixed points is constant is a hyperbola. Only the upper branch is used for P; the lower branch works the same way.';
+    legend = 'F₁ and F₂ are the points where the green and purple spheres touch the plane. The two red curves are the two branches of the hyperbola.';
+  } else {
+    tube(g(A.s), P, GREEN); dashed(P, A.F, GREEN);
+    const xd = (ct * A.ty - k) / sn, Q = new V3(xd, A.ty, P.z);
+    tube(new V3(xd, A.ty, -5), new V3(xd, A.ty, 5), 0xb45309, 0.05);
+    tube(P, Q, 0xea580c, 0.035);
+    label('directrix', '#b45309', new V3(xd, A.ty, 5.4));
+    const dD = Math.hypot(P.x - xd, P.y - A.ty);
+    info = 'PF = ' + f2(dA) + ' and the distance from P to the directrix is ' + f2(dD) + '. They are equal for every point P on the parabola.';
+    why = 'There is only one sphere. The segment from P along the cone to the green circle and the dashed segment from P to F are tangent segments from P to the sphere, so they have the same length. The green circle lies in a plane perpendicular to the axis, and that plane meets the cutting plane in a line, the directrix. The distance from P to the green circle along the cone equals the distance from P to the directrix, because the cutting plane is parallel to the edge of the cone here. So PF equals the distance to the directrix, which is the definition of a parabola.';
+    legend = 'F is the point where the green sphere touches the plane. The brown line is the directrix, and the orange segment is the shortest path from P to it. The second sphere would be infinitely large, so a parabola has only one focus.';
+  }
+  $('info').textContent = info; $('why').textContent = why;
+  $('legend').innerHTML = '<span class="sw" style="background:#16a34a"></span>green sphere &nbsp; ' +
+    (B ? '<span class="sw" style="background:#7c3aed"></span>purple sphere &nbsp; ' : '') +
+    '<span class="sw" style="background:#dc2626"></span>the curve &nbsp; ' + legend;
+  $('tOut').textContent = st.t + '°'; $('kOut').textContent = st.k.toFixed(2); $('uOut').textContent = Math.round(st.u * 100);
+}
+
+/* ---------- controls ---------- */
+const framing = { ellipse: [2.4, [5, 8, 9.5]], parabola: [1.4, [-6.5, 5, 8.5]], hyperbola: [0, [12.6, 7, 18.2]] };
+function frame(m) {
+  const [ty, o] = framing[m];
+  controls.target.set(0, ty, 0); camera.position.set(o[0], ty + o[1], o[2]); controls.update();
+}
+function setMode(m) {
+  st.mode = m; const c = modes[m];
+  ['ellipse', 'parabola', 'hyperbola'].forEach((x) => $('b-' + x).setAttribute('aria-pressed', x === m ? 'true' : 'false'));
+  const ts = $('t'); ts.min = c.tmin; ts.max = c.tmax; st.t = Math.min(c.tmax, Math.max(c.tmin, c.t)); ts.value = st.t; ts.disabled = c.tmin === c.tmax;
+  frame(m);
+  update();
+}
+Object.keys(modes).forEach((m) => $('b-' + m).addEventListener('click', () => setMode(m)));
+$('t').addEventListener('input', function () { st.t = parseFloat(this.value); modes[st.mode].t = st.t; update(); });
+$('k').addEventListener('input', function () { st.k = parseFloat(this.value); update(); });
+$('u').addEventListener('input', function () { st.u = parseInt(this.value, 10) / 100; update(); });
+$('showPlane').addEventListener('change', function () { st.plane = this.checked; update(); });
+$('showSph').addEventListener('change', function () { st.sph = this.checked; update(); });
+setMode('ellipse');
+(function loop() { controls.update(); renderer.render(scene, camera); requestAnimationFrame(loop); })();
+</script>
+</body>
+</html>
