@@ -87,8 +87,14 @@
     ctx.save(); ctx.translate(px(cx), py(cy)); ctx.rotate(-e * Math.PI / 2);
     R(-(a - b) * s / 2, -b * s / 2, (a - b) * s, b * s, '#fed7aa', '#c2410c'); ctx.restore();
     if (e < 0.05) lbl('b(a − b)', px(0), py(a), (a - b) * s, b * s, '#9a3412'); else if (e > 0.95) lbl('b(a − b)', px(a), py(a - b), b * s, (a - b) * s, '#9a3412');
-    T('a − b', px(0) - 36, py((a - b) / 2), 16); T('a', px(a / 2), py(0) + 18, 18);
-    if (t > 0.95) { T('b', px(a + b / 2), py(0) + 18, 18); T('Length a + b, height a − b', W / 2, 30, 20, '#1f3a8a'); }
+    T('a', px(a / 2), py(0) + 18, 18);
+    if (t < 0.05) {
+      T('a', px(0) - 18, py(a / 2), 18); T('a − b', px((a - b) / 2), py(a) - 16, 16); T('b', px(a - b / 2), py(a) - 16, 18, '#b91c1c');
+      T('b', px(a) + 16, py(a - b / 2), 18, '#b91c1c'); T('a − b', px(a) + 36, py((a - b) / 2), 16);
+    } else if (t > 0.95) {
+      T('a − b', px(0) - 36, py((a - b) / 2), 16); T('b', px(a + b / 2), py(0) + 18, 18); T('a − b', px(a + b) + 36, py((a - b) / 2), 16);
+      T('Length a + b, height a − b', W / 2, 30, 20, '#1f3a8a');
+    } else { T('a − b', px(0) - 36, py((a - b) / 2), 16); }
     $('eq').innerHTML = sp('a² − b²', '#1f3a8a') + ' = (a + b)(a − b)';
     $('t').value = Math.round(t * 1000);
   }
