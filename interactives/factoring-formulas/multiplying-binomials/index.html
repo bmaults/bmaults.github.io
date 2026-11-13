@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Multiplying Binomials with an Area Model (FOIL)</title>
+<meta name="description" content="An interactive area model that shows why FOIL gives four terms when multiplying two binomials.">
+<style>
+  body { font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; color: #1a1a1a; margin: 0; background: #fff; line-height: 1.45; }
+  main { max-width: 860px; margin: 0 auto; padding: 12px 14px 24px; }
+  h1 { font-size: 1.5rem; margin: 0.2em 0 0.4em; }
+  p { margin: 0.4em 0 0.8em; }
+  a { color: #1f3a8a; }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+  .tabs button, button.act { font: inherit; padding: 7px 14px; border: 2px solid #1f3a8a; background: #fff; color: #1f3a8a; border-radius: 6px; cursor: pointer; }
+  .tabs button[aria-pressed="true"] { background: #1f3a8a; color: #fff; }
+  button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+  canvas { width: 100%; height: auto; display: block; border: 1px solid #9ca3af; border-radius: 6px; background: #fff; }
+  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px 22px; margin: 12px 0; }
+  .controls label { display: block; font-size: 0.95rem; }
+  .controls input[type=range] { width: 100%; }
+  .readout { background: #f3f4f6; border-radius: 6px; padding: 8px 12px; margin: 8px 0; font-size: 1rem; }
+  .box { border: 1px solid #d1d5db; border-radius: 8px; padding: 10px 14px; margin: 12px 0; background: #f8fafc; }
+  table.t { border-collapse: collapse; margin: 6px 0; }
+  table.t th, table.t td { border: 1px solid #d1d5db; padding: 4px 12px; text-align: center; }
+  input[type=text] { font: inherit; padding: 5px 8px; border: 2px solid #9ca3af; border-radius: 6px; width: 15em; max-width: 100%; }
+</style>
+</head>
+<body>
+<main>
+  <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../">&larr; All factoring formula demonstrations</a></nav>
+  <h1>Multiplying Binomials with an Area Model (FOIL)</h1>
+  <p>Multiplying two binomials is finding the area of a rectangle cut into four pieces. Each piece is one term of FOIL. Change the sliders to change the sizes of the pieces.</p>
+  <canvas id="cv" width="800" height="520" role="img" aria-label="A rectangle of width a plus b and height c plus d cut into four pieces labeled F, O, I, and L."></canvas>
+  <div class="controls">
+    <label>a <input type="range" id="a" min="1" max="8" step="0.5" value="5"></label>
+    <label>b <input type="range" id="b" min="1" max="8" step="0.5" value="3"></label>
+    <label>c <input type="range" id="c" min="1" max="8" step="0.5" value="4"></label>
+    <label>d <input type="range" id="d" min="1" max="8" step="0.5" value="2"></label>
+  </div>
+  <div class="readout" id="eq" style="font-size:1.15rem"></div>
+  <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
+  <ol style="padding-left:1.4em">
+    <li style="margin-bottom:0.6em">Where does each of the four terms of FOIL come from in the picture? Why are there exactly four?</li>
+    <li style="margin-bottom:0.6em">What would the picture look like for (a + b)(c + d + e)? How many pieces would there be?</li>
+    <li style="margin-bottom:0.6em">Make a = c and b = d. What kind of rectangle do you get, and which pieces are equal?</li>
+  </ol>
+</main>
+<script>
+(function () {
+  var cv = document.getElementById('cv'), ctx = cv ? cv.getContext('2d') : null, W = 800, H = 520;
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  if (cv) { cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+  function $(id) { return document.getElementById(id); }
+  function fmt(n) { return String(+n.toFixed(2)).replace('-', '\u2212'); }
+  function sgn(n) { return (n < 0 ? ' − ' : ' + ') + fmt(Math.abs(n)); }
+  function ease(u) { u = Math.max(0, Math.min(1, u)); return u * u * (3 - 2 * u); }
+  function R(x, y, w, h, fill, stroke, lw) {
+    ctx.fillStyle = fill; ctx.fillRect(x, y, w, h);
+    if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw || 2; ctx.strokeRect(x, y, w, h); }
+  }
+  function T(txt, x, y, size, col, align) {
+    ctx.font = 'bold ' + (size || 16) + 'px system-ui, sans-serif'; ctx.fillStyle = col || '#111';
+    ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle'; ctx.fillText(txt, x, y);
+  }
+  function lbl(t, x, y, w, h, col) { if (w > 38 && h > 24) T(t, x + w / 2, y + h / 2, Math.min(24, Math.max(12, Math.min(w, h) / 3)), col); }
+  function clear() { ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H); }
+  function dashRect(x, y, w, h, col, fill) {
+    if (fill) { ctx.fillStyle = fill; ctx.fillRect(x, y, w, h); }
+    ctx.save(); ctx.setLineDash([6, 5]); ctx.strokeStyle = col; ctx.lineWidth = 2.5; ctx.strokeRect(x, y, w, h); ctx.restore();
+  }
+  function setTabs(ids, on) { ids.forEach(function (id) { $(id).setAttribute('aria-pressed', id === on ? 'true' : 'false'); }); }
+  var animating = [], last = 0;
+  function onTick(fn) { animating.push(fn); }
+  function tick(ts) { var dt = ts - last; last = ts; animating.forEach(function (f) { f(dt); }); requestAnimationFrame(tick); }
+  requestAnimationFrame(tick);
+  function sp(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+
+  var st = { a: 5, b: 3, c: 4, d: 2 };
+  function cell(x, y, w, h, fill, stroke, tag, txt, col) {
+    R(x, y, w, h, fill, stroke, 2);
+    if (w > 60 && h > 46) { T(tag, x + w / 2, y + h / 2 - 14, 22, col); T(txt, x + w / 2, y + h / 2 + 14, 20, col); }
+    else if (w > 34 && h > 24) T(txt, x + w / 2, y + h / 2, 16, col);
+  }
+  function draw() {
+    clear();
+    var a = st.a, b = st.b, c = st.c, d = st.d, s = Math.min(560 / (a + b), 360 / (c + d)), wa = a * s, wb = b * s, hc = c * s, hd = d * s;
+    var ox = (W - (wa + wb)) / 2 + 20, oy = 70;
+    cell(ox, oy, wa, hc, '#bfdbfe', '#1f3a8a', 'F', 'ac', '#1f3a8a');
+    cell(ox, oy + hc, wa, hd, '#fed7aa', '#c2410c', 'O', 'ad', '#9a3412');
+    cell(ox + wa, oy, wb, hc, '#bbf7d0', '#0f766e', 'I', 'bc', '#0f766e');
+    cell(ox + wa, oy + hc, wb, hd, '#fecaca', '#b91c1c', 'L', 'bd', '#b91c1c');
+    T('a', ox + wa / 2, oy - 18, 20); T('b', ox + wa + wb / 2, oy - 18, 20); T('c', ox - 20, oy + hc / 2, 20); T('d', ox - 20, oy + hc + hd / 2, 20);
+    $('eq').innerHTML = '(a + b)(c + d) = ' + sp('ac', '#1f3a8a') + ' + ' + sp('ad', '#c2410c') + ' + ' + sp('bc', '#0f766e') + ' + ' + sp('bd', '#b91c1c');
+  }
+  ['a', 'b', 'c', 'd'].forEach(function (k) { $(k).oninput = function () { st[k] = parseFloat(this.value); draw(); }; });
+  draw();
+
+})();
+</script>
+</body>
+</html>
