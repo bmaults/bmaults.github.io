@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Sum of the First n Integers: Why 1 + 2 + ... + n = n(n + 1)/2</title>
+<meta name="description" content="An interactive picture showing why the sum 1 + 2 + ... + n equals n times (n + 1) divided by 2, by joining two staircases into a rectangle.">
+<style>
+  body { font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; color: #1a1a1a; margin: 0; background: #fff; line-height: 1.45; }
+  main { max-width: 860px; margin: 0 auto; padding: 12px 14px 24px; }
+  h1 { font-size: 1.5rem; margin: 0.2em 0 0.4em; }
+  p { margin: 0.4em 0 0.8em; }
+  a { color: #1f3a8a; }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+  .tabs button, button.act { font: inherit; padding: 7px 14px; border: 2px solid #1f3a8a; background: #fff; color: #1f3a8a; border-radius: 6px; cursor: pointer; }
+  .tabs button[aria-pressed="true"] { background: #1f3a8a; color: #fff; }
+  button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+  canvas { width: 100%; height: auto; display: block; border: 1px solid #9ca3af; border-radius: 6px; background: #fff; }
+  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px 22px; margin: 12px 0; }
+  .controls label { display: block; font-size: 0.95rem; }
+  .controls input[type=range] { width: 100%; }
+  .readout { background: #f3f4f6; border-radius: 6px; padding: 8px 12px; margin: 8px 0; font-size: 1rem; }
+  .box { border: 1px solid #d1d5db; border-radius: 8px; padding: 10px 14px; margin: 12px 0; background: #f8fafc; }
+  table.t { border-collapse: collapse; margin: 6px 0; }
+  table.t th, table.t td { border: 1px solid #d1d5db; padding: 4px 12px; text-align: center; }
+  input[type=text] { font: inherit; padding: 5px 8px; border: 2px solid #9ca3af; border-radius: 6px; width: 15em; max-width: 100%; }
+</style>
+</head>
+<body>
+<main>
+  <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../">&larr; All sums and patterns demonstrations</a></nav>
+  <h1>The Sum of the First n Integers: Why 1 + 2 + ... + n = n(n + 1)/2</h1>
+  <p>Stack rows of 1, 2, 3, and so on up to n squares to make a staircase. Make a second copy, turn it around, and fit it against the first.</p>
+  <canvas id="cv" width="800" height="520" role="img" aria-label="A staircase of squares with rows of 1 up to n. A second staircase is turned around and joined to it, forming a rectangle n squares tall and n plus 1 squares wide."></canvas>
+  <div class="controls">
+    <label>Turn and join the copy <input type="range" id="t" min="0" max="1000" step="1" value="0"></label>
+    <label>n <input type="range" id="n" min="2" max="12" step="1" value="6"></label>
+    <label><input type="checkbox" id="anim"> Play the animation</label>
+  </div>
+  <div class="readout" id="eq" style="font-size:1.15rem"></div>
+  <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
+  <ol style="padding-left:1.4em">
+    <li style="margin-bottom:0.6em">Why does the second staircase fit exactly against the first one, with no gaps?</li>
+    <li style="margin-bottom:0.6em">The finished rectangle is n squares tall and n + 1 squares wide. Why is each staircase only half of it?</li>
+    <li style="margin-bottom:0.6em">Change n and watch the rectangle. What happens to its width compared with its height?</li>
+  </ol>
+</main>
+<script>
+(function () {
+  var cv = document.getElementById('cv'), ctx = cv ? cv.getContext('2d') : null, W = 800, H = 520;
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  if (cv) { cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+  function $(id) { return document.getElementById(id); }
+  function fmt(n) { return String(+n.toFixed(2)).replace('-', '\u2212'); }
+  function sgn(n) { return (n < 0 ? ' − ' : ' + ') + fmt(Math.abs(n)); }
+  function ease(u) { u = Math.max(0, Math.min(1, u)); return u * u * (3 - 2 * u); }
+  function R(x, y, w, h, fill, stroke, lw) {
+    ctx.fillStyle = fill; ctx.fillRect(x, y, w, h);
+    if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw || 2; ctx.strokeRect(x, y, w, h); }
+  }
+  function T(txt, x, y, size, col, align) {
+    ctx.font = 'bold ' + (size || 16) + 'px system-ui, sans-serif'; ctx.fillStyle = col || '#111';
+    ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle'; ctx.fillText(txt, x, y);
+  }
+  function lbl(t, x, y, w, h, col) { if (w > 38 && h > 24) T(t, x + w / 2, y + h / 2, Math.min(24, Math.max(12, Math.min(w, h) / 3)), col); }
+  function clear() { ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H); }
+  function dashRect(x, y, w, h, col, fill) {
+    if (fill) { ctx.fillStyle = fill; ctx.fillRect(x, y, w, h); }
+    ctx.save(); ctx.setLineDash([6, 5]); ctx.strokeStyle = col; ctx.lineWidth = 2.5; ctx.strokeRect(x, y, w, h); ctx.restore();
+  }
+  function setTabs(ids, on) { ids.forEach(function (id) { $(id).setAttribute('aria-pressed', id === on ? 'true' : 'false'); }); }
+  var animating = [], last = 0;
+  function onTick(fn) { animating.push(fn); }
+  function tick(ts) { var dt = ts - last; last = ts; animating.forEach(function (f) { f(dt); }); requestAnimationFrame(tick); }
+  requestAnimationFrame(tick);
+  function sp(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+
+  var st = { n: 6, t: 0 }, BL = '#1f3a8a', OR = '#c2410c';
+  function stairs(n, u, fill, stroke) { for (var i = 1; i <= n; i++) for (var j = 0; j < i; j++) R(j * u, (i - 1) * u, u, u, fill, stroke, 1.5); }
+  function draw() {
+    clear();
+    var n = st.n, t = st.t, e = ease(t), u = Math.min(46, 720 / (2 * n + 2), 380 / (n + 1)), tw = (2 * n + 2) * u, ox = (W - tw) / 2 + e * (n + 1) * u / 2, oy = (H - n * u) / 2 + 14;
+    ctx.save(); ctx.translate(ox, oy); stairs(n, u, '#bfdbfe', BL); ctx.restore();
+    var cx = (n * 0.5 + (n + 2) + (-n - 1) * e) * u, cy = n * 0.5 * u;
+    ctx.save(); ctx.translate(ox + cx, oy + cy); ctx.rotate(e * Math.PI); ctx.translate(-n * u / 2, -n * u / 2); stairs(n, u, '#fed7aa', OR); ctx.restore();
+    if (t < 0.05) { T('1 + 2 + ⋯ + n', ox + n * u / 2, oy - 22, 20, BL); T('n', ox - 18, oy + n * u / 2, 18); }
+    else if (t > 0.95) { T('n + 1', ox + (n + 1) * u / 2, oy - 18, 20); T('n', ox - 18, oy + n * u / 2, 18); }
+    $('eq').innerHTML = sp('1 + 2 + ⋯ + n', BL) + ' = ' + sp('½', OR) + ' · n(n + 1) = n(n + 1)/2';
+    $('t').value = Math.round(t * 1000);
+  }
+  $('t').oninput = function () { st.t = parseFloat(this.value) / 1000; draw(); };
+  $('n').oninput = function () { st.n = parseInt(this.value, 10); draw(); };
+  onTick(function (dt) { if ($('anim').checked) { st.t += dt / 4000; if (st.t > 1.3) st.t = 0; st.t = Math.min(st.t, 1); draw(); } });
+  draw();
+
+})();
+</script>
+</body>
+</html>
