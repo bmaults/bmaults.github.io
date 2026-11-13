@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Derivative as the Slope of the Tangent: Graphing f and f′</title>
+<meta name="description" content="An interactive picture linking a function, its tangent lines, and the graph of its derivative. The slope of the tangent becomes the height of the derivative graph.">
+<style>
+  body { font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; color: #1a1a1a; margin: 0; background: #fff; line-height: 1.45; }
+  main { max-width: 860px; margin: 0 auto; padding: 12px 14px 24px; }
+  h1 { font-size: 1.5rem; margin: 0.2em 0 0.4em; }
+  p { margin: 0.4em 0 0.8em; }
+  a { color: #1f3a8a; }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+  .tabs button, button.act { font: inherit; padding: 7px 14px; border: 2px solid #1f3a8a; background: #fff; color: #1f3a8a; border-radius: 6px; cursor: pointer; }
+  .tabs button[aria-pressed="true"] { background: #1f3a8a; color: #fff; }
+  button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+  canvas { width: 100%; height: auto; display: block; border: 1px solid #9ca3af; border-radius: 6px; background: #fff; }
+  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px 22px; margin: 12px 0; }
+  .controls label { display: block; font-size: 0.95rem; }
+  .controls input[type=range] { width: 100%; }
+  .readout { background: #f3f4f6; border-radius: 6px; padding: 8px 12px; margin: 8px 0; font-size: 1rem; }
+  .box { border: 1px solid #d1d5db; border-radius: 8px; padding: 10px 14px; margin: 12px 0; background: #f8fafc; }
+  table.t { border-collapse: collapse; margin: 6px 0; }
+  table.t th, table.t td { border: 1px solid #d1d5db; padding: 4px 12px; text-align: center; }
+  input[type=text] { font: inherit; padding: 5px 8px; border: 2px solid #9ca3af; border-radius: 6px; width: 15em; max-width: 100%; }
+</style>
+</head>
+<body>
+<main>
+  <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../">&larr; All differential calculus demonstrations</a></nav>
+  <h1>The Derivative as the Slope of the Tangent: Graphing f and f′</h1>
+  <p>The derivative at a point is the slope of the tangent line there. Move the point and watch the slope become the height of the lower graph.</p>
+  <div class="tabs" role="group" aria-label="Choose a function"><button type="button" id="t-cubic" aria-pressed="true">Cubic</button><button type="button" id="t-parabola" aria-pressed="false">Parabola</button><button type="button" id="t-wave" aria-pressed="false">Sine wave</button></div>
+  <canvas id="cv" width="800" height="520" role="img" aria-label="Two graphs. The top graph shows a curve with a tangent line at a moving point. The bottom graph shows the slope of the tangent, which is the derivative, at the same point."></canvas>
+  <div class="controls">
+    <label>Move the point <input type="range" id="x" min="0" max="1000" step="1" value="150"></label>
+    <label><input type="checkbox" id="anim"> Play the animation</label>
+  </div>
+  <div class="readout" id="note" aria-live="polite"></div>
+  <div class="readout" id="eq" style="font-size:1.1rem"></div>
+  <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
+  <ol style="padding-left:1.4em">
+    <li style="margin-bottom:0.6em">Where is f′ equal to zero, and what does the graph of f look like there?</li>
+    <li style="margin-bottom:0.6em">Where f is steepest, what does the graph of f′ look like?</li>
+  </ol>
+</main>
+<script>
+(function () {
+  var cv = document.getElementById('cv'), ctx = cv ? cv.getContext('2d') : null, W = 800, H = 520;
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  if (cv) { cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+  function $(id) { return document.getElementById(id); }
+  function fmt(n) { return String(+n.toFixed(2)).replace('-', '\u2212'); }
+  function sgn(n) { return (n < 0 ? ' − ' : ' + ') + fmt(Math.abs(n)); }
+  function ease(u) { u = Math.max(0, Math.min(1, u)); return u * u * (3 - 2 * u); }
+  function R(x, y, w, h, fill, stroke, lw) {
+    ctx.fillStyle = fill; ctx.fillRect(x, y, w, h);
+    if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw || 2; ctx.strokeRect(x, y, w, h); }
+  }
+  function T(txt, x, y, size, col, align) {
+    ctx.font = 'bold ' + (size || 16) + 'px system-ui, sans-serif'; ctx.fillStyle = col || '#111';
+    ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle'; ctx.fillText(txt, x, y);
+  }
+  function lbl(t, x, y, w, h, col) { if (w > 38 && h > 24) T(t, x + w / 2, y + h / 2, Math.min(24, Math.max(12, Math.min(w, h) / 3)), col); }
+  function clear() { ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H); }
+  function dashRect(x, y, w, h, col, fill) {
+    if (fill) { ctx.fillStyle = fill; ctx.fillRect(x, y, w, h); }
+    ctx.save(); ctx.setLineDash([6, 5]); ctx.strokeStyle = col; ctx.lineWidth = 2.5; ctx.strokeRect(x, y, w, h); ctx.restore();
+  }
+  function setTabs(ids, on) { ids.forEach(function (id) { $(id).setAttribute('aria-pressed', id === on ? 'true' : 'false'); }); }
+  var animating = [], last = 0;
+  function onTick(fn) { animating.push(fn); }
+  function tick(ts) { var dt = ts - last; last = ts; animating.forEach(function (f) { f(dt); }); requestAnimationFrame(tick); }
+  requestAnimationFrame(tick);
+  function sp(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+
+  var BLU = '#1f3a8a', RED = '#b91c1c', GRN = '#15803d', ORG = '#c2410c', INK = '#1f2937';
+  var FN = {
+    parabola: { f: function (x) { return 0.25 * x * x - 1; }, d: function (x) { return 0.5 * x; }, x0: -4, x1: 4, y0: -1.6, y1: 3.4 },
+    cubic: { f: function (x) { return (x * x * x - 4 * x) / 4; }, d: function (x) { return (3 * x * x - 4) / 4; }, x0: -3, x1: 3, y0: -4, y1: 4 },
+    wave: { f: function (x) { return 1.5 * Math.sin(x); }, d: function (x) { return 1.5 * Math.cos(x); }, x0: -4.5, x1: 4.5, y0: -2.4, y1: 2.4 },
+    corner: { f: function (x) { return 0.6 * Math.abs(x) - 1; }, d: function (x) { return x > 0 ? 0.6 : -0.6; }, x0: -4, x1: 4, y0: -1.6, y1: 3 }
+  };
+  function line(ax, ay, bx, by, col, w, dash) { ctx.save(); ctx.strokeStyle = col; ctx.lineWidth = w || 2; if (dash) ctx.setLineDash(dash); ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke(); ctx.restore(); }
+  function dot(x, y, r, col) { ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fillStyle = col; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke(); }
+  function View(px, py, pw, ph, x0, x1, y0, y1) {
+    var me = this; this.px = px; this.py = py; this.pw = pw; this.ph = ph; this.x0 = x0; this.x1 = x1; this.y0 = y0; this.y1 = y1;
+    this.X = function (x) { return px + (x - x0) / (x1 - x0) * pw; };
+    this.Y = function (y) { return py + ph - (y - y0) / (y1 - y0) * ph; };
+    this.invX = function (sx) { return x0 + (sx - px) / pw * (x1 - x0); };
+    this.on = function () { ctx.save(); ctx.beginPath(); ctx.rect(px, py, pw, ph); ctx.clip(); };
+    this.off = function () { ctx.restore(); };
+    this.axes = function () {
+      ctx.save(); ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1.5; ctx.strokeRect(px, py, pw, ph);
+      if (y0 < 0 && y1 > 0) line(px, me.Y(0), px + pw, me.Y(0), '#94a3b8', 1.5);
+      if (x0 < 0 && x1 > 0) line(me.X(0), py, me.X(0), py + ph, '#94a3b8', 1.5);
+      ctx.restore();
+    };
+    this.curve = function (fn, col, w, a, b) {
+      var i, n = 500, lo = a === undefined ? x0 : a, hi = b === undefined ? x1 : b;
+      me.on(); ctx.strokeStyle = col; ctx.lineWidth = w || 3; ctx.lineJoin = 'round'; ctx.beginPath();
+      for (i = 0; i <= n; i++) { var x = lo + (hi - lo) * i / n, y = fn(x); if (i) ctx.lineTo(me.X(x), me.Y(y)); else ctx.moveTo(me.X(x), me.Y(y)); }
+      ctx.stroke(); me.off();
+    };
+    this.slope = function (x, y, m, col, w, dash, half) {
+      var lo = half === undefined ? x0 : x - half, hi = half === undefined ? x1 : x + half;
+      me.on(); line(me.X(lo), me.Y(y + m * (lo - x)), me.X(hi), me.Y(y + m * (hi - x)), col, w, dash); me.off();
+    };
+  }
+  function tabsFor(names, onPick) {
+    var ids = names.map(function (n) { return 't-' + n; });
+    names.forEach(function (n) { $('t-' + n).onclick = function () { setTabs(ids, 't-' + n); onPick(n); }; });
+  }
+  function fnTabs(list) {
+    var labels = { parabola: 'Parabola', cubic: 'Cubic', wave: 'Sine wave', corner: 'Corner (absolute value)' };
+    return '<div class="tabs" role="group" aria-label="Choose a function">' + list.map(function (n, i) { return '<button type="button" id="t-' + n + '" aria-pressed="' + (i === 0 ? 'true' : 'false') + '">' + labels[n] + '</button>'; }).join('') + '</div>';
+  }
+
+  var st = { fn: 'cubic', s: 0.15, dir: 1 };
+  function drange(F) { var lo = 1e9, hi = -1e9, i; for (i = 0; i <= 200; i++) { var y = F.d(F.x0 + (F.x1 - F.x0) * i / 200); lo = Math.min(lo, y); hi = Math.max(hi, y); } var p = (hi - lo) * 0.12; return [lo - p, hi + p]; }
+  function crit(F) { var out = [], i, n = 600; for (i = 0; i < n; i++) { var x1 = F.x0 + (F.x1 - F.x0) * i / n, x2 = F.x0 + (F.x1 - F.x0) * (i + 1) / n; if (F.d(x1) * F.d(x2) < 0) { var lo = x1, hi = x2, k; for (k = 0; k < 40; k++) { var mid = (lo + hi) / 2; if (F.d(lo) * F.d(mid) <= 0) hi = mid; else lo = mid; } out.push((lo + hi) / 2); } } return out; }
+  function draw() {
+    clear();
+    var F = FN[st.fn], R2 = drange(F), v1 = new View(40, 16, 720, 236, F.x0, F.x1, F.y0, F.y1), v2 = new View(40, 286, 720, 216, F.x0, F.x1, R2[0], R2[1]);
+    var x = F.x0 + (F.x1 - F.x0) * st.s, y = F.f(x), d = F.d(x), col = d > 0.04 ? GRN : d < -0.04 ? RED : '#64748b';
+    v1.axes(); v2.axes();
+    crit(F).forEach(function (c) { line(v1.X(c), v1.py, v1.X(c), v2.py + v2.ph, '#cbd5e1', 1.5, [4, 5]); });
+    v1.curve(F.f, INK, 3); v2.curve(F.d, BLU, 3);
+    v1.slope(x, y, d, col, 4, null, 1.1);
+    line(v1.X(x), v1.Y(y), v1.X(x), v2.Y(d), '#94a3b8', 1.5, [5, 5]);
+    line(v2.X(x), v2.Y(0), v2.X(x), v2.Y(d), col, 5);
+    dot(v1.X(x), v1.Y(y), 7, INK); dot(v2.X(x), v2.Y(d), 7, col);
+    T('f', v1.px + 14, v1.py + 16, 18, INK); T('f′', v2.px + 16, v2.py + 16, 18, BLU);
+    $('note').textContent = d > 0.04 ? 'The tangent line rises, so the slope is positive and the lower graph is above its axis.' : d < -0.04 ? 'The tangent line falls, so the slope is negative and the lower graph is below its axis.' : 'The tangent line is flat, so the slope is zero and the lower graph touches its axis.';
+    $('eq').innerHTML = sp('f′(x)', BLU) + ' = the slope of the tangent line to ' + sp('f', INK) + ' at x';
+  }
+  tabsFor(['cubic', 'parabola', 'wave'], function (n) { st.fn = n; draw(); });
+  $('x').oninput = function () { st.s = parseFloat(this.value) / 1000; draw(); };
+  function fromPointer(ev) { var r = cv.getBoundingClientRect(), sx = (ev.clientX - r.left) * W / r.width, F = FN[st.fn], s = (sx - 40) / 720; st.s = Math.max(0, Math.min(1, s)); $('x').value = Math.round(st.s * 1000); draw(); }
+  var down = false; cv.addEventListener('pointerdown', function (e) { down = true; cv.setPointerCapture(e.pointerId); fromPointer(e); });
+  cv.addEventListener('pointermove', function (e) { if (down) fromPointer(e); }); cv.addEventListener('pointerup', function () { down = false; });
+  onTick(function (dt) { if ($('anim').checked) { st.s += st.dir * dt / 9000; if (st.s >= 1.05) st.dir = -1; if (st.s <= -0.05) st.dir = 1; st.s = Math.max(0, Math.min(1, st.s)); $('x').value = Math.round(st.s * 1000); draw(); } });
+  draw();
+
+})();
+</script>
+</body>
+</html>
