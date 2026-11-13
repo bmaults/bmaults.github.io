@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Factoring x² + bx + c with Algebra Tiles</title>
+<meta name="description" content="An interactive algebra tile demonstration of factoring trinomials: build a rectangle from x squared, x, and unit tiles, and see why the factors p and q multiply to c and add to b.">
+<style>
+  body { font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; color: #1a1a1a; margin: 0; background: #fff; line-height: 1.45; }
+  main { max-width: 860px; margin: 0 auto; padding: 12px 14px 24px; }
+  h1 { font-size: 1.5rem; margin: 0.2em 0 0.4em; }
+  p { margin: 0.4em 0 0.8em; }
+  a { color: #1f3a8a; }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+  .tabs button, button.act { font: inherit; padding: 7px 14px; border: 2px solid #1f3a8a; background: #fff; color: #1f3a8a; border-radius: 6px; cursor: pointer; }
+  .tabs button[aria-pressed="true"] { background: #1f3a8a; color: #fff; }
+  button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+  canvas { width: 100%; height: auto; display: block; border: 1px solid #9ca3af; border-radius: 6px; background: #fff; }
+  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px 22px; margin: 12px 0; }
+  .controls label { display: block; font-size: 0.95rem; }
+  .controls input[type=range] { width: 100%; }
+  .readout { background: #f3f4f6; border-radius: 6px; padding: 8px 12px; margin: 8px 0; font-size: 1rem; }
+  .box { border: 1px solid #d1d5db; border-radius: 8px; padding: 10px 14px; margin: 12px 0; background: #f8fafc; }
+  table.t { border-collapse: collapse; margin: 6px 0; }
+  table.t th, table.t td { border: 1px solid #d1d5db; padding: 4px 12px; text-align: center; }
+  input[type=text] { font: inherit; padding: 5px 8px; border: 2px solid #9ca3af; border-radius: 6px; width: 15em; max-width: 100%; }
+</style>
+</head>
+<body>
+<main>
+  <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../">&larr; All algebra demonstrations</a></nav>
+  <h1>Factoring x² + bx + c with Algebra Tiles</h1>
+  <p>Algebra tiles make factoring a trinomial into a puzzle: arrange one x² tile, some x tiles, and some unit tiles into a rectangle. The side lengths of the rectangle are the factors. Choose p and q to build the rectangle (x + p)(x + q), and see which trinomial it makes. In the length of the x tile, x is drawn as an arbitrary length, because x can be any number.</p>
+  <canvas id="cv" width="800" height="520" role="img" aria-label="Algebra tiles arranged into a rectangle with sides x plus p and x plus q."></canvas>
+  <div class="controls">
+    <label>p (rows of x tiles on top): <output id="pOut"></output><input type="range" id="p" min="1" max="9" step="1" value="3"></label>
+    <label>q (columns of x tiles on the right): <output id="qOut"></output><input type="range" id="q" min="1" max="9" step="1" value="4"></label>
+    <label><input type="checkbox" id="pairs"> Show the factor pairs of the constant term</label>
+  </div>
+  <div class="tabs">
+    <button type="button" class="act" id="newch">New challenge</button>
+    <button type="button" class="act" id="noch">Clear challenge</button>
+  </div>
+  <div class="readout" id="eq" aria-live="polite"></div>
+  <div class="readout" id="chal" aria-live="polite" style="display:none"></div>
+  <div class="box" id="pairBox" style="display:none"></div>
+  <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
+  <ol style="padding-left:1.4em">
+    <li style="margin-bottom:0.6em">Look at the rectangle for (x + 3)(x + 4). Where does each term of x² + 7x + 12 come from in the picture? Which tiles give the 7x, and which give the 12?</li>
+    <li style="margin-bottom:0.6em">Why must the number of unit tiles (the constant term) be the product pq, and the number of x tiles (the coefficient of x) be the sum p + q? Use the corner of unit squares and the two groups of x tiles in your answer.</li>
+    <li style="margin-bottom:0.6em">Start a challenge. Without moving the sliders, use the factor pairs to predict p and q. Then check. What is the strategy: which of the two numbers (the sum or the product) do you look at first?</li>
+    <li style="margin-bottom:0.6em">Make a trinomial where there are several factor pairs of the constant term, such as 12 or 24. How do you decide which pair is the right one?</li>
+    <li style="margin-bottom:0.6em">Can you build a rectangle for x² + 5x + 7 with whole-number p and q? What do the factor pairs of 7 tell you?</li>
+    <li style="margin-bottom:0.6em">This picture only handles positive numbers. How would the factoring x² − 5x + 6 = (x − 2)(x − 3) work with tiles? Think about what a negative tile means.</li>
+  </ol>
+</main>
+<script>
+(function () {
+  var cv = document.getElementById('cv'), ctx = cv ? cv.getContext('2d') : null, W = 800, H = 520;
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  if (cv) { cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+  function $(id) { return document.getElementById(id); }
+  function fmt(n) { return String(+n.toFixed(2)).replace('-', '\u2212'); }
+  function sgn(n) { return (n < 0 ? ' − ' : ' + ') + fmt(Math.abs(n)); }
+  function ease(u) { u = Math.max(0, Math.min(1, u)); return u * u * (3 - 2 * u); }
+  function R(x, y, w, h, fill, stroke, lw) {
+    ctx.fillStyle = fill; ctx.fillRect(x, y, w, h);
+    if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw || 2; ctx.strokeRect(x, y, w, h); }
+  }
+  function T(txt, x, y, size, col, align) {
+    ctx.font = 'bold ' + (size || 16) + 'px system-ui, sans-serif'; ctx.fillStyle = col || '#111';
+    ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle'; ctx.fillText(txt, x, y);
+  }
+  function lbl(t, x, y, w, h, col) { if (w > 38 && h > 24) T(t, x + w / 2, y + h / 2, Math.min(24, Math.max(12, Math.min(w, h) / 3)), col); }
+  function clear() { ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H); }
+  function dashRect(x, y, w, h, col, fill) {
+    if (fill) { ctx.fillStyle = fill; ctx.fillRect(x, y, w, h); }
+    ctx.save(); ctx.setLineDash([6, 5]); ctx.strokeStyle = col; ctx.lineWidth = 2.5; ctx.strokeRect(x, y, w, h); ctx.restore();
+  }
+  function setTabs(ids, on) { ids.forEach(function (id) { $(id).setAttribute('aria-pressed', id === on ? 'true' : 'false'); }); }
+  var animating = [], last = 0;
+  function onTick(fn) { animating.push(fn); }
+  function tick(ts) { var dt = ts - last; last = ts; animating.forEach(function (f) { f(dt); }); requestAnimationFrame(tick); }
+  requestAnimationFrame(tick);
+
+  var XD = 4.3, st = { p: 3, q: 4, target: null };
+  function pairsTable(b, c) {
+    var h = '<table class="t"><tr><th>Factors of ' + c + '</th><th>Sum</th></tr>';
+    for (var d = 1; d * d <= c; d++) if (c % d === 0) {
+      var hit = d + c / d === b; h += '<tr' + (hit ? ' style="background:#bbf7d0;font-weight:bold"' : '') + '><td>' + d + ' · ' + (c / d) + '</td><td>' + (d + c / d) + '</td></tr>';
+    }
+    return h + '</table>' + '<p style="margin:4px 0">The sum we want is ' + b + '.</p>';
+  }
+  function tile(x, y, w, h, fill, stroke, txt, col, size) { R(x + 1, y + 1, w - 2, h - 2, fill, stroke, 1.5); if (txt) T(txt, x + w / 2, y + h / 2, size || 14, col); }
+  function draw() {
+    clear();
+    var p = st.p, q = st.q, dw = XD + q, dh = XD + p, u = Math.min(46, 640 / dw, 380 / dh), ox = (W - dw * u) / 2, oy = (H - dh * u) / 2 + 14, i, j;
+    for (i = 0; i < p; i++) tile(ox, oy + i * u, XD * u, u, '#bbf7d0', '#0f766e', u >= 20 ? 'x' : '', '#0f766e');
+    for (i = 0; i < p; i++) for (j = 0; j < q; j++) tile(ox + XD * u + j * u, oy + i * u, u, u, '#fed7aa', '#c2410c', u >= 26 ? '1' : '', '#9a3412', 12);
+    tile(ox, oy + p * u, XD * u, XD * u, '#bfdbfe', '#1f3a8a', 'x²', '#1f3a8a', 24);
+    for (j = 0; j < q; j++) tile(ox + XD * u + j * u, oy + p * u, u, XD * u, '#bbf7d0', '#0f766e', u >= 20 ? 'x' : '', '#0f766e');
+    T('x', ox + XD * u / 2, oy - 14, 16); T('q', ox + XD * u + q * u / 2, oy - 14, 16);
+    T('x + q', ox + dw * u / 2, oy - 36, 18, '#1f3a8a');
+    T('p', ox - 16, oy + p * u / 2, 16); T('x', ox - 16, oy + p * u + XD * u / 2, 16); T('x + p', ox - 56, oy + dh * u / 2, 18, '#1f3a8a');
+    var b = p + q, c = p * q;
+    $('eq').textContent = 'x² + ' + b + 'x + ' + c + ' = (x + ' + p + ')(x + ' + q + ')     The rectangle uses 1 x² tile, ' + b + ' x tiles, and ' + c + ' unit tiles.';
+    $('pOut').textContent = p; $('qOut').textContent = q;
+    var tb = b, tc = c, ch = $('chal');
+    if (st.target) {
+      tb = st.target.b; tc = st.target.c; ch.style.display = '';
+      var ok = b === tb && c === tc;
+      ch.textContent = 'Challenge: factor x² + ' + tb + 'x + ' + tc + '. Your rectangle makes x² + ' + b + 'x + ' + c + '. ' + (ok ? 'It matches! x² + ' + tb + 'x + ' + tc + ' = (x + ' + p + ')(x + ' + q + ').' : 'Change p and q until the number of x tiles is ' + tb + ' and the number of unit tiles is ' + tc + '.');
+      ch.style.background = ok ? '#bbf7d0' : '#f3f4f6';
+    } else ch.style.display = 'none';
+    $('pairBox').style.display = $('pairs').checked ? '' : 'none';
+    if ($('pairs').checked) $('pairBox').innerHTML = pairsTable(tb, tc);
+  }
+  $('p').oninput = function () { st.p = parseInt(this.value, 10); draw(); };
+  $('q').oninput = function () { st.q = parseInt(this.value, 10); draw(); };
+  $('pairs').onchange = draw;
+  $('newch').onclick = function () {
+    var p0 = 1 + Math.floor(Math.random() * 9), q0 = 1 + Math.floor(Math.random() * 9);
+    st.target = { b: p0 + q0, c: p0 * q0 }; st.p = 1; st.q = 1; $('p').value = 1; $('q').value = 1; draw();
+  };
+  $('noch').onclick = function () { st.target = null; draw(); };
+  draw();
+
+})();
+</script>
+</body>
+</html>
