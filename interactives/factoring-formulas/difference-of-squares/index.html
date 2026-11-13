@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Difference of Squares: Why a² − b² = (a − b)(a + b)</title>
-<meta name="description" content="An interactive picture that cuts an L-shaped region of area a squared minus b squared into two rectangles and rearranges them into a rectangle of size (a plus b) by (a minus b).">
+<meta name="description" content="An interactive picture that cuts an L-shaped region of area a squared minus b squared into two rectangles and rearranges them into a rectangle with sides (a plus b) and (a minus b).">
 <style>
   body { font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; color: #1a1a1a; margin: 0; background: #fff; line-height: 1.45; }
   main { max-width: 860px; margin: 0 auto; padding: 12px 14px 24px; }
@@ -28,26 +28,22 @@
 </head>
 <body>
 <main>
-  <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../">&larr; All algebra demonstrations</a></nav>
+  <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../">&larr; All factoring formula demonstrations</a></nav>
   <h1>The Difference of Squares: Why a² − b² = (a − b)(a + b)</h1>
-  <p>Take a square with side a and cut a smaller square with side b out of one corner. The area left over is a² − b². Cut that L-shaped region into two rectangles and slide one of them to the other side. The pieces now form a single rectangle that is a + b long and a − b tall.</p>
-  <canvas id="cv" width="800" height="520" role="img" aria-label="An L-shaped region of area a squared minus b squared is cut into two rectangles and rearranged into one rectangle of size a plus b by a minus b."></canvas>
+  <p>Cut a small square out of the corner of a larger square. Then cut the L-shape that is left into two pieces and slide them together.</p>
+  <canvas id="cv" width="800" height="520" role="img" aria-label="An L-shaped region is cut into two rectangles and rearranged into one rectangle."></canvas>
   <div class="controls">
-    <label>Cut and slide: <output id="tOut"></output><input type="range" id="t" min="0" max="1000" step="1" value="0"></label>
-    <label>a: <output id="aOut"></output><input type="range" id="a" min="2" max="10" step="0.5" value="7"></label>
-    <label>b: <output id="bOut"></output><input type="range" id="b" min="0.5" max="9.5" step="0.5" value="3"></label>
+    <label>Cut and slide <input type="range" id="t" min="0" max="1000" step="1" value="0"></label>
+    <label>a <input type="range" id="a" min="2" max="10" step="0.5" value="7"></label>
+    <label>b <input type="range" id="b" min="0.5" max="9.5" step="0.5" value="3"></label>
     <label><input type="checkbox" id="anim"> Play the animation</label>
   </div>
-  <div class="readout" id="stage" aria-live="polite"></div>
-  <div class="readout" id="eq"></div>
+  <div class="readout" id="eq" style="font-size:1.15rem"></div>
   <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
   <ol style="padding-left:1.4em">
-    <li style="margin-bottom:0.6em">The L-shaped region has area a² − b². Explain why the two rectangles, after sliding, have a total area of (a + b)(a − b). Why does the area stay the same when you rearrange the pieces?</li>
-    <li style="margin-bottom:0.6em">Which rectangle did we turn, and why does the turned piece fit exactly against the other one? (Compare its sides, a − b and b, with the sides of the gap.)</li>
-    <li style="margin-bottom:0.6em">Use the idea to compute 97 × 103 quickly. Write 97 and 103 as 100 − 3 and 100 + 3, then find the corresponding values of a and b.</li>
-    <li style="margin-bottom:0.6em">The formula a² − b² = (a − b)(a + b) needs b to be smaller than a for this picture. What would the formula say if b were larger than a? Does it still hold algebraically?</li>
-    <li style="margin-bottom:0.6em">Why is there no similar factoring formula for a² + b² using real numbers? What happens if you try to draw a picture for it?</li>
-    <li style="margin-bottom:0.6em">Factor 49x² − 25 with the picture in mind. What are a and b, and what is the rectangle?</li>
+    <li style="margin-bottom:0.6em">Why does the area stay the same when the pieces are rearranged? What are the sides of the final rectangle?</li>
+    <li style="margin-bottom:0.6em">Which piece did we turn, and why does it fit exactly?</li>
+    <li style="margin-bottom:0.6em">Why is there no similar picture for a² + b²?</li>
   </ol>
 </main>
 <script>
@@ -78,6 +74,7 @@
   function onTick(fn) { animating.push(fn); }
   function tick(ts) { var dt = ts - last; last = ts; animating.forEach(function (f) { f(dt); }); requestAnimationFrame(tick); }
   requestAnimationFrame(tick);
+  function sp(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
 
   var st = { a: 7, b: 3, t: 0 };
   function draw() {
@@ -89,14 +86,11 @@
     var e = ease(t), cx0 = (a - b) / 2, cy0 = a - b / 2, cx1 = a + b / 2, cy1 = (a - b) / 2, cx = cx0 + (cx1 - cx0) * e, cy = cy0 + (cy1 - cy0) * e;
     ctx.save(); ctx.translate(px(cx), py(cy)); ctx.rotate(-e * Math.PI / 2);
     R(-(a - b) * s / 2, -b * s / 2, (a - b) * s, b * s, '#fed7aa', '#c2410c'); ctx.restore();
-    if (e < 0.05 || e > 0.95) { if (e < 0.05) lbl('b(a − b)', px(0), py(a), (a - b) * s, b * s, '#9a3412'); else lbl('b(a − b)', px(a), py(a - b), b * s, (a - b) * s, '#9a3412'); }
+    if (e < 0.05) lbl('b(a − b)', px(0), py(a), (a - b) * s, b * s, '#9a3412'); else if (e > 0.95) lbl('b(a − b)', px(a), py(a - b), b * s, (a - b) * s, '#9a3412');
     T('a − b', px(0) - 36, py((a - b) / 2), 16); T('a', px(a / 2), py(0) + 18, 18);
     if (t > 0.95) { T('b', px(a + b / 2), py(0) + 18, 18); T('Length a + b, height a − b', W / 2, 30, 20, '#1f3a8a'); }
-    $('stage').textContent = t < 0.05 ? 'Start: a square of side ' + fmt(a) + ' with a square of side ' + fmt(b) + ' removed. The area left is a² − b² = ' + fmt(a * a - b * b) + '.'
-      : t < 0.95 ? 'Cut the top piece off the L, turn it, and slide it next to the bottom piece.'
-      : 'The pieces form a rectangle with length a + b = ' + fmt(a + b) + ' and height a − b = ' + fmt(a - b) + '.';
-    $('eq').textContent = 'a² − b² = ' + fmt(a * a) + ' − ' + fmt(b * b) + ' = ' + fmt(a * a - b * b) + '     (a + b)(a − b) = ' + fmt(a + b) + ' · ' + fmt(a - b) + ' = ' + fmt((a + b) * (a - b));
-    $('tOut').textContent = Math.round(t * 100) + '%'; $('aOut').textContent = fmt(a); $('bOut').textContent = fmt(b); $('t').value = Math.round(t * 1000);
+    $('eq').innerHTML = sp('a² − b²', '#1f3a8a') + ' = (a + b)(a − b)';
+    $('t').value = Math.round(t * 1000);
   }
   $('t').oninput = function () { st.t = parseFloat(this.value) / 1000; draw(); };
   $('a').oninput = function () { st.a = parseFloat(this.value); if (st.b > st.a - 0.5) { st.b = st.a - 0.5; $('b').value = st.b; } draw(); };

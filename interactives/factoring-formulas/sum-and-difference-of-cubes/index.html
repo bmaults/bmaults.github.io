@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Factoring Sums and Differences of Cubes with SOAP</title>
+<meta name="description" content="A three-dimensional picture of why a cubed minus b cubed and a cubed plus b cubed factor the way they do, with the SOAP rule for the signs (same, opposite, always positive).">
+<style>
+  body { font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; color: #1a1a1a; margin: 0; background: #fff; line-height: 1.45; }
+  main { max-width: 860px; margin: 0 auto; padding: 12px 14px 24px; }
+  h1 { font-size: 1.5rem; margin: 0.2em 0 0.4em; }
+  p { margin: 0.4em 0 0.8em; }
+  a { color: #1f3a8a; }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+  .tabs button, button.act { font: inherit; padding: 7px 14px; border: 2px solid #1f3a8a; background: #fff; color: #1f3a8a; border-radius: 6px; cursor: pointer; }
+  .tabs button[aria-pressed="true"] { background: #1f3a8a; color: #fff; }
+  button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+  canvas { width: 100%; height: auto; display: block; border: 1px solid #9ca3af; border-radius: 6px; background: #fff; }
+  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px 22px; margin: 12px 0; }
+  .controls label { display: block; font-size: 0.95rem; }
+  .controls input[type=range] { width: 100%; }
+  .readout { background: #f3f4f6; border-radius: 6px; padding: 8px 12px; margin: 8px 0; font-size: 1rem; }
+  .box { border: 1px solid #d1d5db; border-radius: 8px; padding: 10px 14px; margin: 12px 0; background: #f8fafc; }
+  table.t { border-collapse: collapse; margin: 6px 0; }
+  table.t th, table.t td { border: 1px solid #d1d5db; padding: 4px 12px; text-align: center; }
+  input[type=text] { font: inherit; padding: 5px 8px; border: 2px solid #9ca3af; border-radius: 6px; width: 15em; max-width: 100%; }
+</style>
+</head>
+<body>
+<main>
+  <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../">&larr; All factoring formula demonstrations</a></nav>
+  <h1>Factoring Sums and Differences of Cubes with SOAP</h1>
+  <p>Factoring a sum or difference of cubes is about volume. Switch between the two cases, and use the slider to take the pieces apart or put them together. The signs in the factors follow the rule <b style="color:#0f766e">S</b>ame, <b style="color:#b91c1c">O</b>pposite, <b style="color:#1f3a8a">A</b>lways <b style="color:#1f3a8a">P</b>ositive (SOAP).</p>
+  <div class="tabs" role="group" aria-label="Difference or sum of cubes">
+    <button type="button" id="t-dif" aria-pressed="true">Difference of cubes</button>
+    <button type="button" id="t-sum" aria-pressed="false">Sum of cubes</button>
+  </div>
+  <canvas id="cv" width="800" height="520" role="img" aria-label="A three-dimensional picture of boxes that are pulled apart and reassembled to show how a sum or difference of cubes factors."></canvas>
+  <div class="controls">
+    <label id="eWrap">Pull the pieces apart <input type="range" id="e" min="0" max="1000" step="1" value="650"></label>
+    <label id="sWrap">Step <input type="range" id="step" min="0" max="2" step="1" value="0"></label>
+    <label>Size of the small cube <input type="range" id="b" min="1" max="5" step="0.25" value="2.5"></label>
+  </div>
+  <div class="readout" id="stage" aria-live="polite"></div>
+  <div class="readout" id="eq" style="font-size:1.15rem"></div>
+  <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
+  <ol style="padding-left:1.4em">
+    <li style="margin-bottom:0.6em">In the difference of cubes picture, how thick is each of the three pieces? Where do the three base areas show up in (a − b)(a² + ab + b²)?</li>
+    <li style="margin-bottom:0.6em">In the sum of cubes picture, the base of the prism is a rectangle with a square attached. Why does that make the middle term of a² − ab + b² negative?</li>
+    <li style="margin-bottom:0.6em">What happens to the three pieces in the first picture as the small cube gets close to the size of the big cube? What does that say about a³ − b³?</li>
+  </ol>
+</main>
+<script>
+(function () {
+  var cv = document.getElementById('cv'), ctx = cv ? cv.getContext('2d') : null, W = 800, H = 520;
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  if (cv) { cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+  function $(id) { return document.getElementById(id); }
+  function fmt(n) { return String(+n.toFixed(2)).replace('-', '\u2212'); }
+  function sgn(n) { return (n < 0 ? ' − ' : ' + ') + fmt(Math.abs(n)); }
+  function ease(u) { u = Math.max(0, Math.min(1, u)); return u * u * (3 - 2 * u); }
+  function R(x, y, w, h, fill, stroke, lw) {
+    ctx.fillStyle = fill; ctx.fillRect(x, y, w, h);
+    if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw || 2; ctx.strokeRect(x, y, w, h); }
+  }
+  function T(txt, x, y, size, col, align) {
+    ctx.font = 'bold ' + (size || 16) + 'px system-ui, sans-serif'; ctx.fillStyle = col || '#111';
+    ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle'; ctx.fillText(txt, x, y);
+  }
+  function lbl(t, x, y, w, h, col) { if (w > 38 && h > 24) T(t, x + w / 2, y + h / 2, Math.min(24, Math.max(12, Math.min(w, h) / 3)), col); }
+  function clear() { ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H); }
+  function dashRect(x, y, w, h, col, fill) {
+    if (fill) { ctx.fillStyle = fill; ctx.fillRect(x, y, w, h); }
+    ctx.save(); ctx.setLineDash([6, 5]); ctx.strokeStyle = col; ctx.lineWidth = 2.5; ctx.strokeRect(x, y, w, h); ctx.restore();
+  }
+  function setTabs(ids, on) { ids.forEach(function (id) { $(id).setAttribute('aria-pressed', id === on ? 'true' : 'false'); }); }
+  var animating = [], last = 0;
+  function onTick(fn) { animating.push(fn); }
+  function tick(ts) { var dt = ts - last; last = ts; animating.forEach(function (f) { f(dt); }); requestAnimationFrame(tick); }
+  requestAnimationFrame(tick);
+  function sp(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+
+  var st = { sum: false, e: 0.65, step: 0, b: 2.5 }, A = 6, GR = '#0f766e', RD = '#b91c1c', BL = '#1f3a8a', K = '#111';
+  var COL = { blue: [147, 197, 253], orange: [253, 186, 116], green: [134, 239, 172], purple: [196, 181, 253] };
+  function shade(c, f) { return 'rgb(' + Math.round(c[0] * f) + ',' + Math.round(c[1] * f) + ',' + Math.round(c[2] * f) + ')'; }
+  function box(x0, y0, z0, x1, y1, z1, c, lab, face) { return { x0: x0, y0: y0, z0: z0, x1: x1, y1: y1, z1: z1, c: COL[c], lab: lab, face: face }; }
+  function P(x, y, z) { return [(x - y) * 0.866, (x + y) * 0.5 - z]; }
+  function pieces() {
+    var a = A, b = Math.min(st.b, a - 0.5), g = st.e * 4, L = [];
+    if (!st.sum) {
+      L.push(box(0, 0, -g, a, a, a - b - g, 'blue', 'a²', 'top'));
+      L.push(box(-g, 0, a - b, a - b - g, a, a, 'orange', 'ab', 'x1'));
+      L.push(box(a - b + g, 0, a - b, a + g, a - b, a, 'green', 'b²', 'y1'));
+    } else if (st.step < 2) {
+      var h = st.step === 1 ? 1.3 : 0;
+      L.push(box(0, 0, 0, a, a - b, a, 'blue'));
+      L.push(box(0, 0, a + h, a, a - b, a + b + h, 'orange'));
+      L.push(box(0, a - b + h, 0, b, a + h, a, 'green'));
+      L.push(box(0, a - b + h, a + h, b, a + h, a + b + h, 'purple'));
+    } else {
+      L.push(box(0, 0, 0, a, a - b, a, 'blue'));
+      L.push(box(0, a - b, 0, b, a, a, 'green'));
+      L.push(box(b, a - b, 0, a, a, a, 'orange'));
+      L.push(box(a + 2, 0, 0, a + 2 + b, b, b, 'purple'));
+    }
+    return L;
+  }
+  function draw() {
+    clear();
+    var a = A, b = Math.min(st.b, a - 0.5), L = pieces(), mnx = 1e9, mxx = -1e9, mny = 1e9, mxy = -1e9;
+    L.forEach(function (p) { [p.x0, p.x1].forEach(function (x) { [p.y0, p.y1].forEach(function (y) { [p.z0, p.z1].forEach(function (z) { var q = P(x, y, z); mnx = Math.min(mnx, q[0]); mxx = Math.max(mxx, q[0]); mny = Math.min(mny, q[1]); mxy = Math.max(mxy, q[1]); }); }); }); });
+    var s = Math.min(48, 680 / (mxx - mnx), 330 / (mxy - mny)), ox = W / 2 - s * (mnx + mxx) / 2, oy = 250 - s * (mny + mxy) / 2;
+    function pp(x, y, z) { var q = P(x, y, z); return [ox + q[0] * s, oy + q[1] * s]; }
+    function poly(pts, fill) { ctx.beginPath(); pts.forEach(function (p, i) { if (i) ctx.lineTo(p[0], p[1]); else ctx.moveTo(p[0], p[1]); }); ctx.closePath(); ctx.fillStyle = fill; ctx.fill(); ctx.strokeStyle = '#1f2937'; ctx.lineWidth = 1.5; ctx.stroke(); }
+    L.slice().sort(function (p, q) { return (p.x0 + p.x1 + p.y0 + p.y1 + p.z0 + p.z1) - (q.x0 + q.x1 + q.y0 + q.y1 + q.z0 + q.z1); }).forEach(function (p) {
+      poly([pp(p.x0, p.y0, p.z1), pp(p.x1, p.y0, p.z1), pp(p.x1, p.y1, p.z1), pp(p.x0, p.y1, p.z1)], shade(p.c, 1));
+      poly([pp(p.x1, p.y0, p.z0), pp(p.x1, p.y1, p.z0), pp(p.x1, p.y1, p.z1), pp(p.x1, p.y0, p.z1)], shade(p.c, 0.86));
+      poly([pp(p.x0, p.y1, p.z0), pp(p.x1, p.y1, p.z0), pp(p.x1, p.y1, p.z1), pp(p.x0, p.y1, p.z1)], shade(p.c, 0.72));
+    });
+    L.forEach(function (p) {
+      if (!p.lab || (!st.sum && st.e < 0.2)) return; var c;
+      if (p.face === 'top') c = pp((p.x0 + p.x1) / 2, (p.y0 + p.y1) / 2, p.z1); else if (p.face === 'x1') c = pp(p.x1, (p.y0 + p.y1) / 2, (p.z0 + p.z1) / 2); else c = pp((p.x0 + p.x1) / 2, p.y1, (p.z0 + p.z1) / 2);
+      T(p.lab, c[0], c[1], 24, '#111');
+    });
+    var sg = st.sum ? '+' : '−', mg = st.sum ? '−' : '+';
+    if (!st.sum) {
+      T('Each piece is a − b thick', W / 2, 36, 22, K);
+      $('stage').textContent = 'A cube with a smaller cube removed from one corner. The leftover shell is cut into three pieces of the same thickness, with bases a², ab, and b².';
+    } else if (st.step < 2) {
+      var lx = pp(0, a, 0), ly = pp(0, a, a + b + (st.step === 1 ? 1.3 : 0));
+      ctx.strokeStyle = K; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(lx[0] - 40, lx[1]); ctx.lineTo(ly[0] - 40, ly[1]); ctx.stroke(); T('a + b', lx[0] - 74, (lx[1] + ly[1]) / 2, 20, K);
+      T('Base area: a² − ab + b²', W / 2, 36, 22, K);
+      $('stage').textContent = st.step === 0 ? 'A prism of height a + b. Its base is a rectangle (a by a − b) with a b by b square attached, so its base area is a² − ab + b².' : 'Cut the prism into four boxes.';
+    } else {
+      var q1 = pp(a, a, 0), q2 = pp(a + 2 + b, b, 0);
+      T('a³', q1[0], q1[1] + 26, 24, K); T('b³', q2[0], q2[1] + 26, 24, K);
+      $('stage').textContent = 'The same four boxes, put back together, make a cube of side a and a cube of side b. So the prism has volume a³ + b³.';
+    }
+    $('eq').innerHTML = (st.sum ? 'A³ + B³' : 'A³ − B³').replace(/A/g, 'a').replace(/B/g, 'b') + ' = (a ' + sp(sg, GR) + ' b)(a² ' + sp(mg, RD) + ' ab ' + sp('+', BL) + ' b²)';
+    $('eWrap').style.display = st.sum ? 'none' : ''; $('sWrap').style.display = st.sum ? '' : 'none';
+  }
+  function mode(sum) { st.sum = sum; setTabs(['t-dif', 't-sum'], sum ? 't-sum' : 't-dif'); draw(); }
+  $('t-dif').onclick = function () { mode(false); }; $('t-sum').onclick = function () { mode(true); };
+  $('e').oninput = function () { st.e = parseFloat(this.value) / 1000; draw(); };
+  $('step').oninput = function () { st.step = parseInt(this.value, 10); draw(); };
+  $('b').oninput = function () { st.b = parseFloat(this.value); draw(); };
+  draw();
+
+})();
+</script>
+</body>
+</html>

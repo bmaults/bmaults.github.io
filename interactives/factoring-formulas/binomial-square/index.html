@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Square of a Binomial: Why (a + b)² = a² + 2ab + b²</title>
+<meta name="description" content="An interactive area picture showing why (a + b) squared equals a squared plus 2ab plus b squared.">
+<style>
+  body { font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; color: #1a1a1a; margin: 0; background: #fff; line-height: 1.45; }
+  main { max-width: 860px; margin: 0 auto; padding: 12px 14px 24px; }
+  h1 { font-size: 1.5rem; margin: 0.2em 0 0.4em; }
+  p { margin: 0.4em 0 0.8em; }
+  a { color: #1f3a8a; }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+  .tabs button, button.act { font: inherit; padding: 7px 14px; border: 2px solid #1f3a8a; background: #fff; color: #1f3a8a; border-radius: 6px; cursor: pointer; }
+  .tabs button[aria-pressed="true"] { background: #1f3a8a; color: #fff; }
+  button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+  canvas { width: 100%; height: auto; display: block; border: 1px solid #9ca3af; border-radius: 6px; background: #fff; }
+  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px 22px; margin: 12px 0; }
+  .controls label { display: block; font-size: 0.95rem; }
+  .controls input[type=range] { width: 100%; }
+  .readout { background: #f3f4f6; border-radius: 6px; padding: 8px 12px; margin: 8px 0; font-size: 1rem; }
+  .box { border: 1px solid #d1d5db; border-radius: 8px; padding: 10px 14px; margin: 12px 0; background: #f8fafc; }
+  table.t { border-collapse: collapse; margin: 6px 0; }
+  table.t th, table.t td { border: 1px solid #d1d5db; padding: 4px 12px; text-align: center; }
+  input[type=text] { font: inherit; padding: 5px 8px; border: 2px solid #9ca3af; border-radius: 6px; width: 15em; max-width: 100%; }
+</style>
+</head>
+<body>
+<main>
+  <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../">&larr; All factoring formula demonstrations</a></nav>
+  <h1>The Square of a Binomial: Why (a + b)² = a² + 2ab + b²</h1>
+  <p>Why is (a + b)² not just a² + b²? Cut a square with side a + b into pieces and see.</p>
+  <canvas id="cv" width="800" height="520" role="img" aria-label="A square with side a plus b cut into four pieces: a squared, two rectangles of area ab, and b squared."></canvas>
+  <div class="controls">
+    <label>a <input type="range" id="a" min="1" max="10" step="0.5" value="5"></label>
+    <label>b <input type="range" id="b" min="0.5" max="10" step="0.5" value="3"></label>
+    <label>Pull the pieces apart <input type="range" id="gap" min="0" max="40" step="1" value="0"></label>
+  </div>
+  <div class="readout" id="eq" style="font-size:1.15rem"></div>
+  <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
+  <ol style="padding-left:1.4em">
+    <li style="margin-bottom:0.6em">Why are two of the four pieces the same size, and where does the 2ab come from?</li>
+    <li style="margin-bottom:0.6em">A common mistake is (a + b)² = a² + b². Which pieces does this leave out?</li>
+    <li style="margin-bottom:0.6em">How would the picture change for (a + b + c)²? How many pieces would there be?</li>
+  </ol>
+</main>
+<script>
+(function () {
+  var cv = document.getElementById('cv'), ctx = cv ? cv.getContext('2d') : null, W = 800, H = 520;
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  if (cv) { cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+  function $(id) { return document.getElementById(id); }
+  function fmt(n) { return String(+n.toFixed(2)).replace('-', '\u2212'); }
+  function sgn(n) { return (n < 0 ? ' − ' : ' + ') + fmt(Math.abs(n)); }
+  function ease(u) { u = Math.max(0, Math.min(1, u)); return u * u * (3 - 2 * u); }
+  function R(x, y, w, h, fill, stroke, lw) {
+    ctx.fillStyle = fill; ctx.fillRect(x, y, w, h);
+    if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw || 2; ctx.strokeRect(x, y, w, h); }
+  }
+  function T(txt, x, y, size, col, align) {
+    ctx.font = 'bold ' + (size || 16) + 'px system-ui, sans-serif'; ctx.fillStyle = col || '#111';
+    ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle'; ctx.fillText(txt, x, y);
+  }
+  function lbl(t, x, y, w, h, col) { if (w > 38 && h > 24) T(t, x + w / 2, y + h / 2, Math.min(24, Math.max(12, Math.min(w, h) / 3)), col); }
+  function clear() { ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H); }
+  function dashRect(x, y, w, h, col, fill) {
+    if (fill) { ctx.fillStyle = fill; ctx.fillRect(x, y, w, h); }
+    ctx.save(); ctx.setLineDash([6, 5]); ctx.strokeStyle = col; ctx.lineWidth = 2.5; ctx.strokeRect(x, y, w, h); ctx.restore();
+  }
+  function setTabs(ids, on) { ids.forEach(function (id) { $(id).setAttribute('aria-pressed', id === on ? 'true' : 'false'); }); }
+  var animating = [], last = 0;
+  function onTick(fn) { animating.push(fn); }
+  function tick(ts) { var dt = ts - last; last = ts; animating.forEach(function (f) { f(dt); }); requestAnimationFrame(tick); }
+  requestAnimationFrame(tick);
+  function sp(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+
+  var st = { a: 5, b: 3, gap: 0 };
+  function draw() {
+    clear();
+    var a = st.a, b = st.b, g = st.gap, tot = a + b, s = Math.min((H - 120 - g) / tot, (W - 160 - g) / tot);
+    var ox = (W - (s * tot + g)) / 2 + 14, oy = 70, xb = ox + a * s + g, yb = oy + a * s + g;
+    R(ox, oy, a * s, a * s, '#bfdbfe', '#1f3a8a'); R(xb, oy, b * s, a * s, '#fed7aa', '#c2410c');
+    R(ox, yb, a * s, b * s, '#fed7aa', '#c2410c'); R(xb, yb, b * s, b * s, '#bbf7d0', '#0f766e');
+    lbl('a²', ox, oy, a * s, a * s, '#1f3a8a'); lbl('ab', xb, oy, b * s, a * s, '#9a3412');
+    lbl('ab', ox, yb, a * s, b * s, '#9a3412'); lbl('b²', xb, yb, b * s, b * s, '#0f766e');
+    T('a', ox + a * s / 2, oy - 18, 18); T('b', xb + b * s / 2, oy - 18, 18); T('a', ox - 20, oy + a * s / 2, 18); T('b', ox - 20, yb + b * s / 2, 18);
+    $('eq').innerHTML = '(a + b)² = ' + sp('a²', '#1f3a8a') + ' + ' + sp('2ab', '#c2410c') + ' + ' + sp('b²', '#0f766e');
+  }
+  $('a').oninput = function () { st.a = parseFloat(this.value); draw(); };
+  $('b').oninput = function () { st.b = parseFloat(this.value); draw(); };
+  $('gap').oninput = function () { st.gap = parseFloat(this.value); draw(); };
+  draw();
+
+})();
+</script>
+</body>
+</html>
