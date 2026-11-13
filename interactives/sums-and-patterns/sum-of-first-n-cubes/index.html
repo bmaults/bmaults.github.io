@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Sum of the First n Cubes: 1³ + 2³ + ... + n³ = (1 + 2 + ... + n)²</title>
-<meta name="description" content="An interactive picture showing why the sum of the first n cubes equals the square of 1 + 2 + ... + n, using L-shaped pieces of area k cubed around a square.">
+<meta name="description" content="An interactive picture showing why the sum of the first n cubes equals the square of 1 + 2 + ... + n. L-shaped layers of area k cubed build a square, and each layer straightens into a bar k wide and k squared tall.">
 <style>
   body { font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; color: #1a1a1a; margin: 0; background: #fff; line-height: 1.45; }
   main { max-width: 860px; margin: 0 auto; padding: 12px 14px 24px; }
@@ -30,17 +30,19 @@
 <main>
   <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../">&larr; All sums and patterns demonstrations</a></nav>
   <h1>The Sum of the First n Cubes: 1³ + 2³ + ... + n³ = (1 + 2 + ... + n)²</h1>
-  <p>The side of the square is 1 + 2 + ⋯ + n. Each L-shaped layer has width k. Add layers one at a time.</p>
-  <canvas id="cv" width="800" height="520" role="img" aria-label="A square with side 1 plus 2 plus up to n, built from nested L-shaped layers. The layer of width k has area k cubed."></canvas>
+  <p>The side of this square is 1 + 2 + ⋯ + n, and it is built from L-shaped layers. The layer of width k can be straightened into a bar. Use the sliders to see how.</p>
+  <canvas id="cv" width="800" height="520" role="img" aria-label="A square with side 1 plus 2 plus up to n, built from L-shaped layers. Each layer of width k can be straightened into a bar k wide and k squared tall, so its area is k cubed."></canvas>
   <div class="controls">
-    <label>n <input type="range" id="n" min="1" max="8" step="1" value="4"></label>
+    <label>Number of L-shaped layers, n <input type="range" id="n" min="1" max="6" step="1" value="4"></label>
+    <label>Straighten the L-shapes <input type="range" id="u" min="0" max="1000" step="1" value="0"></label>
     <label><input type="checkbox" id="anim"> Play the animation</label>
   </div>
+  <div class="readout" id="note" aria-live="polite"></div>
   <div class="readout" id="eq" style="font-size:1.15rem"></div>
   <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
   <ol style="padding-left:1.4em">
     <li style="margin-bottom:0.6em">Can you prove this identity with induction?</li>
-    <li style="margin-bottom:0.6em">Why does the L-shaped layer of width k have area k³? Compare the squares with sides 1 + 2 + ⋯ + k and 1 + 2 + ⋯ + (k − 1).</li>
+    <li style="margin-bottom:0.6em">The bar for layer k is k wide and k² tall. Why does the L-shape have exactly that length when straightened?</li>
   </ol>
 </main>
 <script>
@@ -74,37 +76,52 @@
   function sp(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
 
   function halo(txt, x, y, size, col) { ctx.font = 'bold ' + size + 'px system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineWidth = 5; ctx.strokeStyle = '#fff'; ctx.strokeText(txt, x, y); ctx.fillStyle = col; ctx.fillText(txt, x, y); }
-  function wire(onChange) {
-    var acc = 0;
+  function hue(k) { return (k * 47 + 200) % 360; }
+  function layer(w, a, e, k, p, X, Y, u) {
+    var b = a + w, off = (1 - ease(p)) * 40, s, fill = 'hsl(' + hue(k) + ',70%,82%)', stroke = 'hsl(' + hue(k) + ',55%,32%)';
+    ctx.save(); ctx.globalAlpha = Math.min(1, p * 2);
+    R(X(a) + off, Y(b) - off, w * u, b * u, fill, stroke, 2);
+    ctx.strokeStyle = stroke; ctx.lineWidth = 1;
+    for (s = w; s < b - 1e-9; s += w) { ctx.beginPath(); ctx.moveTo(X(a) + off, Y(s) - off); ctx.lineTo(X(b) + off, Y(s) - off); ctx.stroke(); }
+    if (a > 0) {
+      ctx.save(); ctx.translate(X(a) + off, Y(a) - off - w * u * e); ctx.rotate(e * Math.PI / 2);
+      R(-a * u, -w * u, a * u, w * u, fill, stroke, 2);
+      ctx.strokeStyle = stroke; ctx.lineWidth = 1;
+      for (s = Math.ceil((b + 1e-9) / w) * w; s < b + a - 1e-9; s += w) { ctx.beginPath(); ctx.moveTo(-(s - b) * u, -w * u); ctx.lineTo(-(s - b) * u, 0); ctx.stroke(); }
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+  function wire() {
     $('n').oninput = function () { var v = parseInt(this.value, 10); st.prog = v > st.n ? 0 : 1; st.n = v; draw(); };
+    $('u').oninput = function () { st.e = parseFloat(this.value) / 1000; draw(); };
     onTick(function (dt) {
       var need = false;
       if (st.prog < 1) { st.prog = Math.min(1, st.prog + dt / 600); need = true; }
-      if ($('anim').checked && st.prog >= 1) { acc += dt; if (acc > 900) { acc = 0; st.n = st.n >= N ? 1 : st.n + 1; st.prog = st.n === 1 ? 1 : 0; $('n').value = st.n; need = true; } }
+      if ($('anim').checked) { st.e += st.dir * dt / 2500; if (st.e >= 1.4) st.dir = -1; if (st.e <= -0.4) st.dir = 1; need = true; }
+      st.e = Math.max(0, Math.min(1, st.e)); $('u').value = Math.round(st.e * 1000);
       if (need) draw();
     });
   }
 
-  var N = 8, st = { n: 4, prog: 1 }, BL = '#1f3a8a', OR = '#c2410c';
+  var N = 6, st = { n: 4, prog: 1, e: 0, dir: 1 }, BL = '#1f3a8a', OR = '#c2410c';
   function Tk(k) { return k * (k + 1) / 2; }
   function draw() {
     clear();
-    var n = st.n, u = Math.min(11.5, 400 / Tk(N)), ox = (W - Tk(N) * u) / 2, oy = H - 74, k;
+    var n = st.n, e = st.e, TN = Tk(n), u = Math.min(36, 400 / (TN + (n * n - TN) * e)), oy = H - 64, ox = (W - TN * u) / 2, k;
     function X(x) { return ox + x * u; } function Y(y) { return oy - y * u; }
-    for (k = 1; k <= n; k++) {
-      var p = k === n ? st.prog : 1, e = ease(p), off = (1 - e) * 40, a = Tk(k - 1), b = Tk(k), h = (k * 47 + 200) % 360;
-      var pts = [[a, 0], [b, 0], [b, b], [0, b], [0, a], [a, a]];
-      ctx.save(); ctx.globalAlpha = Math.min(1, p * 2); ctx.beginPath();
-      pts.forEach(function (q, i) { var x = X(q[0]) + off, y = Y(q[1]) - off; if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y); });
-      ctx.closePath(); ctx.fillStyle = 'hsl(' + h + ',70%,82%)'; ctx.fill(); ctx.strokeStyle = 'hsl(' + h + ',55%,32%)'; ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
-    }
+    for (k = 1; k <= n; k++) layer(k, Tk(k - 1), e, k, k === n ? st.prog : 1, X, Y, u);
     if (st.prog >= 1) {
-      for (k = 1; k <= n; k++) {
-        halo(String(k), X(Tk(k - 1) + k / 2), Y(0) + 16, 13, '#111'); halo(String(k), X(0) - 14, Y(Tk(k - 1) + k / 2), 13, '#111');
-        if (k >= 2) halo(k + '³', X(Tk(k - 1) + k / 2), Y(Tk(k) / 2), 14, '#111');
+      if (e < 0.03) {
+        for (k = 1; k <= n; k++) { halo(String(k), X(Tk(k - 1) + k / 2), Y(0) + 16, 13, '#111'); halo(String(k), X(0) - 14, Y(Tk(k - 1) + k / 2), 13, '#111'); }
+        halo('1 + 2 + ⋯ + n', X(Tk(n) / 2), Y(0) + 42, 18, '#111');
       }
-      halo('1 + 2 + ⋯ + n', X(Tk(n) / 2), Y(0) + 42, 18, '#111');
+      if (e > 0.97) for (k = 1; k <= n; k++) {
+        halo(String(k), X(Tk(k - 1) + k / 2), Y(0) + 16, 13, '#111'); halo(k + '²', X(Tk(k - 1) + k / 2), Y(k * k) - 14, 14, '#111');
+        if (k >= 2) halo(k + '³', X(Tk(k - 1) + k / 2), Y(k * k / 2), 15, '#111');
+      }
     }
+    $('note').textContent = e < 0.03 ? 'The side of the square is 1 + 2 + ⋯ + n. Each L-shaped layer has width k, one for each k.' : e > 0.97 ? 'The L of width k straightens into a bar k wide and k² tall. Cut it every k squares and you get k squares of size k by k, so its area is k³. The bars fill the same area as the square.' : 'Each L-shaped layer is turned and slid up into a straight bar. The area does not change.';
     $('eq').innerHTML = sp('1³ + 2³ + ⋯ + n³', BL) + ' = (' + sp('1 + 2 + ⋯ + n', OR) + ')²';
   }
   wire(); draw();
