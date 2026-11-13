@@ -93,21 +93,25 @@
       L.push(box(-g, 0, a - b, a - b - g, a, a, 'orange', 'ab', 'x1'));
       L.push(box(a - b + g, 0, a - b, a + g, a - b, a, 'green', 'b²', 'y1'));
     } else {
-      var u = st.step, LF = a;
+      var u = st.step;
       function S(u0, u1) { return ease((u - u0) / (u1 - u0)); }
       function mix(p, q, m) { return p + (q - p) * m; }
       L.push(box(0, 0, 0, a, a - b, a, 'blue'));
       L.push(box(0, a - b, 0, b, a, a, 'green'));
-      var m = S(0.15, 0.45), lz = LF * S(0, 0.15);
-      L.push(box(mix(b, 0, m), mix(a - b, 0, m), lz, a, mix(a, a - b, m), a + lz - (a - b) * m, 'orange'));
-      var lz2 = LF * S(0.5, 0.6), my = S(0.6, 0.7), mx = S(0.7, 0.9);
+      var rr = Math.sqrt((a - b) * (a - b) + b * b + a * a) / 2, ch = a + rr + 0.2;
+      var lift = S(0, 0.2), rot = S(0.2, 0.5), low = S(0.5, 0.65);
+      var cx = mix((a + b) / 2, a / 2, rot), cy = mix(a - b / 2, (a - b) / 2, rot), cz = mix(mix(a / 2, ch, lift), a + b / 2, low);
+      if (rot === 0) L.push(box(cx - (a - b) / 2, cy - b / 2, cz - a / 2, cx + (a - b) / 2, cy + b / 2, cz + a / 2, 'orange'));
+      else if (rot === 1) L.push(box(cx - a / 2, cy - (a - b) / 2, cz - b / 2, cx + a / 2, cy + (a - b) / 2, cz + b / 2, 'orange'));
+      else L.push({ rot: true, c: COL.orange, cx: cx, cy: cy, cz: cz, th: rot * 2 * Math.PI / 3, hx: (a - b) / 2, hy: b / 2, hz: a / 2 });
+      var lz2 = a * S(0.68, 0.78), my = S(0.78, 0.87), mx = S(0.87, 1);
       L.push(box(mix(a + 3.5, 0, mx), mix(0, a - b, my), lz2, mix(a + 3.5 + b, b, mx), mix(b, a, my), lz2 + b, 'purple'));
     }
     return L;
   }
   function draw() {
     clear();
-    var a = A, b = Math.min(st.b, a - 0.5), L = pieces(), FB = st.sum ? [{ x0: 0, y0: 0, z0: 0, x1: a + 3.5 + b, y1: a, z1: 2 * a }] : L, mnx = 1e9, mxx = -1e9, mny = 1e9, mxy = -1e9;
+    var a = A, b = Math.min(st.b, a - 0.5), L = pieces(), rr = Math.sqrt((a - b) * (a - b) + b * b + a * a) / 2, FB = st.sum ? [{ x0: Math.min(0, a / 2 - rr), y0: Math.min(0, (a - b) / 2 - rr), z0: 0, x1: Math.max(a + 3.5 + b, (a + b) / 2 + rr), y1: Math.max(a, a - b / 2 + rr), z1: a + 2 * rr + 0.3 }] : L, mnx = 1e9, mxx = -1e9, mny = 1e9, mxy = -1e9;
     FB.forEach(function (p) { [p.x0, p.x1].forEach(function (x) { [p.y0, p.y1].forEach(function (y) { [p.z0, p.z1].forEach(function (z) { var q = P(x, y, z); mnx = Math.min(mnx, q[0]); mxx = Math.max(mxx, q[0]); mny = Math.min(mny, q[1]); mxy = Math.max(mxy, q[1]); }); }); }); });
     var s = Math.min(48, 680 / (mxx - mnx), 330 / (mxy - mny)), ox = W / 2 - s * (mnx + mxx) / 2, oy = 250 - s * (mny + mxy) / 2;
     function pp(x, y, z) { var q = P(x, y, z); return [ox + q[0] * s, oy + q[1] * s]; }
@@ -123,11 +127,24 @@
       while (rest.length) { var k = 0, mm, nn; for (mm = 0; mm < rest.length; mm++) { var ok = true; for (nn = 0; nn < rest.length; nn++) { if (nn !== mm && bf(rest[nn], rest[mm]) && !bf(rest[mm], rest[nn])) { ok = false; break; } } if (ok) { k = mm; break; } } out.push(rest.splice(k, 1)[0]); }
       return out;
     }
-    (st.sum ? order(L) : L.slice().sort(function (p, q) { return (p.x0 + p.x1 + p.y0 + p.y1 + p.z0 + p.z1) - (q.x0 + q.x1 + q.y0 + q.y1 + q.z0 + q.z1); })).forEach(function (p) {
+    function rotBox(p) {
+      var k = 1 / Math.sqrt(3), cs = Math.cos(p.th), sn = Math.sin(p.th);
+      function Rv(w) { var d = k * (w[0] + w[1] + w[2]), cr = [k * (w[2] - w[1]), k * (w[0] - w[2]), k * (w[1] - w[0])]; return [w[0] * cs + cr[0] * sn + k * d * (1 - cs), w[1] * cs + cr[1] * sn + k * d * (1 - cs), w[2] * cs + cr[2] * sn + k * d * (1 - cs)]; }
+      var half = [p.hx, p.hy, p.hz], ax, sg2;
+      for (ax = 0; ax < 3; ax++) for (sg2 = -1; sg2 <= 1; sg2 += 2) {
+        var nl = [0, 0, 0]; nl[ax] = sg2; var nw = Rv(nl);
+        if (nw[0] + nw[1] + nw[2] <= 1e-9) continue;
+        var u1 = (ax + 1) % 3, u2 = (ax + 2) % 3, pts = [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(function (uv) { var v = [0, 0, 0]; v[ax] = sg2 * half[ax]; v[u1] = uv[0] * half[u1]; v[u2] = uv[1] * half[u2]; var w = Rv(v); return pp(p.cx + w[0], p.cy + w[1], p.cz + w[2]); });
+        var f = Math.max(0.55, Math.min(1, 0.86 * nw[0] + 0.72 * nw[1] + nw[2]));
+        poly(pts, shade(p.c, f));
+      }
+    }
+    (st.sum ? order(L.filter(function (p) { return !p.rot; })) : L.slice().sort(function (p, q) { return (p.x0 + p.x1 + p.y0 + p.y1 + p.z0 + p.z1) - (q.x0 + q.x1 + q.y0 + q.y1 + q.z0 + q.z1); })).forEach(function (p) {
       poly([pp(p.x0, p.y0, p.z1), pp(p.x1, p.y0, p.z1), pp(p.x1, p.y1, p.z1), pp(p.x0, p.y1, p.z1)], shade(p.c, 1));
       poly([pp(p.x1, p.y0, p.z0), pp(p.x1, p.y1, p.z0), pp(p.x1, p.y1, p.z1), pp(p.x1, p.y0, p.z1)], shade(p.c, 0.86));
       poly([pp(p.x0, p.y1, p.z0), pp(p.x1, p.y1, p.z0), pp(p.x1, p.y1, p.z1), pp(p.x0, p.y1, p.z1)], shade(p.c, 0.72));
     });
+    L.forEach(function (p) { if (p.rot) rotBox(p); });
     L.forEach(function (p) {
       if (!p.lab || (!st.sum && st.e < 0.2)) return; var c;
       if (p.face === 'top') c = pp((p.x0 + p.x1) / 2, (p.y0 + p.y1) / 2, p.z1); else if (p.face === 'x1') c = pp(p.x1, (p.y0 + p.y1) / 2, (p.z0 + p.z1) / 2); else c = pp((p.x0 + p.x1) / 2, p.y1, (p.z0 + p.z1) / 2);
@@ -143,10 +160,14 @@
       cubeLabels(0, 0, 0, a, 'a');
       var e1 = pp(a - b / 2, a, a), e2 = pp(a, a - b / 2, a), e3 = pp(a, a, a - b / 2);
       TL('b', e1[0] - 14, e1[1] - 10, RD); TL('b', e2[0] + 14, e2[1] - 10, RD); TL('b', e3[0] + 14, e3[1], RD);
+      var f1 = pp(gb / 2, a, a), f2 = pp(a, gb / 2, a), f3 = pp(a, a, gb / 2);
+      TL('a − b', f1[0] - 22, f1[1] - 10, BL); TL('a − b', f2[0] + 22, f2[1] - 10, BL); TL('a − b', f3[0] + 30, f3[1], BL);
       T('Start with a³ − b³', W / 2, 36, 22, K);
       $('stage').textContent = 'A cube of side a with a cube of side b (dashed) removed from one corner. Pull the pieces apart to see how the leftover is cut.';
     } else if (!st.sum) {
       T('Each piece is a − b thick', W / 2, 36, 22, K);
+      var gg = st.e * 4, h1 = pp(a, a, (a - b) / 2 - gg), h2 = pp((a - b - 2 * gg) / 2, a, a), h3 = pp(a + gg, (a - b) / 2, a);
+      TL('a − b', h1[0] + 30, h1[1], BL); TL('a − b', h2[0] - 22, h2[1] - 10, BL); TL('a − b', h3[0] + 22, h3[1] - 10, BL);
       $('stage').textContent = 'A cube with a smaller cube removed from one corner. The leftover shell is cut into three pieces of the same thickness, with bases a², ab, and b².';
     } else {
       var tt = st.step;
@@ -160,8 +181,8 @@
         T('Base area: a² − ab + b²', W / 2, 36, 22, K);
         $('stage').textContent = 'A prism of height a + b. Its base is a rectangle (a by a − b) with a b by b square attached, so its base area is a² − ab + b².';
       } else {
-        T('The big cube is cut into three boxes; stack them with the small cube', W / 2, 36, 20, K);
-        $('stage').textContent = 'The same four boxes, rearranged, so the volume stays a³ + b³.';
+        T('Turn and move the boxes to stack them into a prism', W / 2, 36, 22, K);
+        $('stage').textContent = 'The orange box is turned and moved without changing its size, so the total volume stays a³ + b³.';
       }
     }
     $('eq').innerHTML = (st.sum ? 'A³ + B³' : 'A³ − B³').replace(/A/g, 'a').replace(/B/g, 'b') + ' = (a ' + sp(sg, GR) + ' b)(a² ' + sp(mg, RD) + ' ab ' + sp('+', BL) + ' b²)';
