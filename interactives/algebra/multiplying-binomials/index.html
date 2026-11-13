@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Multiplying Binomials with an Area Model (FOIL)</title>
+<meta name="description" content="An interactive area model that shows why FOIL gives four terms when multiplying two binomials, and how the same picture multiplies two-digit numbers like 23 times 47.">
+<style>
+  body { font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; color: #1a1a1a; margin: 0; background: #fff; line-height: 1.45; }
+  main { max-width: 860px; margin: 0 auto; padding: 12px 14px 24px; }
+  h1 { font-size: 1.5rem; margin: 0.2em 0 0.4em; }
+  p { margin: 0.4em 0 0.8em; }
+  a { color: #1f3a8a; }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+  .tabs button, button.act { font: inherit; padding: 7px 14px; border: 2px solid #1f3a8a; background: #fff; color: #1f3a8a; border-radius: 6px; cursor: pointer; }
+  .tabs button[aria-pressed="true"] { background: #1f3a8a; color: #fff; }
+  button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+  canvas { width: 100%; height: auto; display: block; border: 1px solid #9ca3af; border-radius: 6px; background: #fff; }
+  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px 22px; margin: 12px 0; }
+  .controls label { display: block; font-size: 0.95rem; }
+  .controls input[type=range] { width: 100%; }
+  .readout { background: #f3f4f6; border-radius: 6px; padding: 8px 12px; margin: 8px 0; font-size: 1rem; }
+  .box { border: 1px solid #d1d5db; border-radius: 8px; padding: 10px 14px; margin: 12px 0; background: #f8fafc; }
+  table.t { border-collapse: collapse; margin: 6px 0; }
+  table.t th, table.t td { border: 1px solid #d1d5db; padding: 4px 12px; text-align: center; }
+  input[type=text] { font: inherit; padding: 5px 8px; border: 2px solid #9ca3af; border-radius: 6px; width: 15em; max-width: 100%; }
+</style>
+</head>
+<body>
+<main>
+  <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../">&larr; All algebra demonstrations</a></nav>
+  <h1>Multiplying Binomials with an Area Model (FOIL)</h1>
+  <p>To multiply (a + b)(c + d), draw a rectangle that is a + b wide and c + d tall and cut it into four pieces. Each piece is one of the four products in FOIL: <b style="color:#1f3a8a">F</b>irst (ac), <b style="color:#c2410c">O</b>uter (ad), <b style="color:#0f766e">I</b>nner (bc), and <b style="color:#b91c1c">L</b>ast (bd). The same picture explains how to multiply two-digit numbers, such as 23 × 47 = (20 + 3)(40 + 7).</p>
+  <div class="tabs" role="group" aria-label="Examples">
+    <button type="button" class="act" id="e1">23 × 47</button>
+    <button type="button" class="act" id="e2">13 × 12</button>
+    <button type="button" class="act" id="e3">36 × 28</button>
+  </div>
+  <canvas id="cv" width="800" height="520" role="img" aria-label="A rectangle of width a plus b and height c plus d cut into four pieces labeled F, O, I, and L."></canvas>
+  <div class="controls">
+    <label>a: <output id="aOut"></output><input type="range" id="a" min="1" max="100" step="1" value="20"></label>
+    <label>b: <output id="bOut"></output><input type="range" id="b" min="1" max="100" step="1" value="3"></label>
+    <label>c: <output id="cOut"></output><input type="range" id="c" min="1" max="100" step="1" value="40"></label>
+    <label>d: <output id="dOut"></output><input type="range" id="d" min="1" max="100" step="1" value="7"></label>
+    <label><input type="checkbox" id="scale" checked> Draw the pieces to scale</label>
+  </div>
+  <div class="readout" id="eq" aria-live="polite"></div>
+  <div class="readout" id="sum"></div>
+  <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
+  <ol style="padding-left:1.4em">
+    <li style="margin-bottom:0.6em">Why does FOIL always give four terms? Use the picture to explain where each of the four products comes from, and why no product is missed.</li>
+    <li style="margin-bottom:0.6em">Use the picture to compute 23 × 47 by adding four partial products. Which is the biggest piece, and which is the smallest? Check the total by multiplying directly.</li>
+    <li style="margin-bottom:0.6em">Turn off "Draw the pieces to scale." Which products are hard to see in the scaled picture when one of the numbers is much smaller than the other? Why is it still important to include them?</li>
+    <li style="margin-bottom:0.6em">Describe the picture for (a + b)(c + d + e). How many pieces are there, and how many terms does the product have?</li>
+    <li style="margin-bottom:0.6em">If a = c and b = d, the rectangle is a square. Which pieces become equal, and how does this connect to (a + b)² = a² + 2ab + b²?</li>
+    <li style="margin-bottom:0.6em">FOIL is a memory aid for two binomials only. Why does the area picture still work for polynomials with three or more terms, when FOIL does not?</li>
+  </ol>
+</main>
+<script>
+(function () {
+  var cv = document.getElementById('cv'), ctx = cv ? cv.getContext('2d') : null, W = 800, H = 520;
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  if (cv) { cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+  function $(id) { return document.getElementById(id); }
+  function fmt(n) { return String(+n.toFixed(2)).replace('-', '\u2212'); }
+  function sgn(n) { return (n < 0 ? ' − ' : ' + ') + fmt(Math.abs(n)); }
+  function ease(u) { u = Math.max(0, Math.min(1, u)); return u * u * (3 - 2 * u); }
+  function R(x, y, w, h, fill, stroke, lw) {
+    ctx.fillStyle = fill; ctx.fillRect(x, y, w, h);
+    if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw || 2; ctx.strokeRect(x, y, w, h); }
+  }
+  function T(txt, x, y, size, col, align) {
+    ctx.font = 'bold ' + (size || 16) + 'px system-ui, sans-serif'; ctx.fillStyle = col || '#111';
+    ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle'; ctx.fillText(txt, x, y);
+  }
+  function lbl(t, x, y, w, h, col) { if (w > 38 && h > 24) T(t, x + w / 2, y + h / 2, Math.min(24, Math.max(12, Math.min(w, h) / 3)), col); }
+  function clear() { ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H); }
+  function dashRect(x, y, w, h, col, fill) {
+    if (fill) { ctx.fillStyle = fill; ctx.fillRect(x, y, w, h); }
+    ctx.save(); ctx.setLineDash([6, 5]); ctx.strokeStyle = col; ctx.lineWidth = 2.5; ctx.strokeRect(x, y, w, h); ctx.restore();
+  }
+  function setTabs(ids, on) { ids.forEach(function (id) { $(id).setAttribute('aria-pressed', id === on ? 'true' : 'false'); }); }
+  var animating = [], last = 0;
+  function onTick(fn) { animating.push(fn); }
+  function tick(ts) { var dt = ts - last; last = ts; animating.forEach(function (f) { f(dt); }); requestAnimationFrame(tick); }
+  requestAnimationFrame(tick);
+
+  var st = { a: 20, b: 3, c: 40, d: 7, scale: true };
+  function draw() {
+    clear();
+    var a = st.a, b = st.b, c = st.c, d = st.d, mw = 620, mh = 380, wa, wb, hc, hd;
+    if (st.scale) { var s = Math.min(mw / (a + b), mh / (c + d)); wa = a * s; wb = b * s; hc = c * s; hd = d * s; }
+    else { wa = mw * 0.5; wb = mw * 0.5; hc = mh * 0.5; hd = mh * 0.5; }
+    var ox = (W - (wa + wb)) / 2 + 30, oy = 62;
+    function cell(x, y, w, h, fill, stroke, tag, txt, col) {
+      R(x, y, w, h, fill, stroke, 2);
+      if (w > 70 && h > 40) { T(tag, x + w / 2, y + h / 2 - 12, 20, col); T(txt, x + w / 2, y + h / 2 + 12, 15, col); }
+      else if (w > 28 && h > 20) T(tag, x + w / 2, y + h / 2, 14, col);
+    }
+    cell(ox, oy, wa, hc, '#bfdbfe', '#1f3a8a', 'F', 'ac = ' + a * c, '#1f3a8a');
+    cell(ox, oy + hc, wa, hd, '#fed7aa', '#c2410c', 'O', 'ad = ' + a * d, '#9a3412');
+    cell(ox + wa, oy, wb, hc, '#bbf7d0', '#0f766e', 'I', 'bc = ' + b * c, '#0f766e');
+    cell(ox + wa, oy + hc, wb, hd, '#fecaca', '#b91c1c', 'L', 'bd = ' + b * d, '#b91c1c');
+    T('a = ' + a, ox + wa / 2, oy - 34, 16); T('b = ' + b, ox + wa + wb / 2, oy - 34, 16);
+    T('a + b = ' + (a + b), ox + (wa + wb) / 2, oy - 12, 16, '#1f3a8a');
+    ctx.textAlign = 'right'; T('c = ' + c, ox - 10, oy + hc / 2, 16, '#111', 'right'); T('d = ' + d, ox - 10, oy + hc + hd / 2, 16, '#111', 'right');
+    T('c + d = ' + (c + d), ox - 10, oy + hc + hd + 20, 16, '#1f3a8a', 'right');
+    T('F: ac = ' + a * c, 120, H - 26, 15, '#1f3a8a'); T('O: ad = ' + a * d, 320, H - 26, 15, '#9a3412'); T('I: bc = ' + b * c, 520, H - 26, 15, '#0f766e'); T('L: bd = ' + b * d, 700, H - 26, 15, '#b91c1c');
+    $('eq').textContent = '(a + b)(c + d) = (' + a + ' + ' + b + ')(' + c + ' + ' + d + ') = ' + (a + b) + ' · ' + (c + d) + ' = ' + (a + b) * (c + d);
+    $('sum').textContent = 'F + O + I + L = ac + ad + bc + bd = ' + a * c + ' + ' + a * d + ' + ' + b * c + ' + ' + b * d + ' = ' + (a * c + a * d + b * c + b * d);
+    ['a', 'b', 'c', 'd'].forEach(function (k) { $(k + 'Out').textContent = st[k]; $(k).value = st[k]; });
+  }
+  ['a', 'b', 'c', 'd'].forEach(function (k) { $(k).oninput = function () { st[k] = parseInt(this.value, 10); draw(); }; });
+  $('scale').onchange = function () { st.scale = this.checked; draw(); };
+  function pre(a, b, c, d) { return function () { st.a = a; st.b = b; st.c = c; st.d = d; draw(); }; }
+  $('e1').onclick = pre(20, 3, 40, 7); $('e2').onclick = pre(10, 3, 10, 2); $('e3').onclick = pre(30, 6, 20, 8);
+  draw();
+
+})();
+</script>
+</body>
+</html>

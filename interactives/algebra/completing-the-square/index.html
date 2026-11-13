@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Completing the Square with Rectangles</title>
+<meta name="description" content="An interactive picture showing why completing the square works: cut the bx strip in half, glue the halves to a square of side x, and fill in the missing corner of area (b/2) squared.">
+<style>
+  body { font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; color: #1a1a1a; margin: 0; background: #fff; line-height: 1.45; }
+  main { max-width: 860px; margin: 0 auto; padding: 12px 14px 24px; }
+  h1 { font-size: 1.5rem; margin: 0.2em 0 0.4em; }
+  p { margin: 0.4em 0 0.8em; }
+  a { color: #1f3a8a; }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+  .tabs button, button.act { font: inherit; padding: 7px 14px; border: 2px solid #1f3a8a; background: #fff; color: #1f3a8a; border-radius: 6px; cursor: pointer; }
+  .tabs button[aria-pressed="true"] { background: #1f3a8a; color: #fff; }
+  button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+  canvas { width: 100%; height: auto; display: block; border: 1px solid #9ca3af; border-radius: 6px; background: #fff; }
+  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px 22px; margin: 12px 0; }
+  .controls label { display: block; font-size: 0.95rem; }
+  .controls input[type=range] { width: 100%; }
+  .readout { background: #f3f4f6; border-radius: 6px; padding: 8px 12px; margin: 8px 0; font-size: 1rem; }
+  .box { border: 1px solid #d1d5db; border-radius: 8px; padding: 10px 14px; margin: 12px 0; background: #f8fafc; }
+  table.t { border-collapse: collapse; margin: 6px 0; }
+  table.t th, table.t td { border: 1px solid #d1d5db; padding: 4px 12px; text-align: center; }
+  input[type=text] { font: inherit; padding: 5px 8px; border: 2px solid #9ca3af; border-radius: 6px; width: 15em; max-width: 100%; }
+</style>
+</head>
+<body>
+<main>
+  <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../">&larr; All algebra demonstrations</a></nav>
+  <h1>Completing the Square with Rectangles</h1>
+  <p>To complete the square for x² + bx, think of x² as a square with side x and bx as a strip that is x tall and b wide. Cut the strip in half and glue one half to the top of the square. The picture is now a big square with one corner missing. The missing corner is a small square with side b/2, so its area is (b/2)². Move the slider to watch it happen.</p>
+  <canvas id="cv" width="800" height="520" role="img" aria-label="A square of side x with two rectangles of size x by b over 2 attached, and a small missing corner square of area b over 2 squared."></canvas>
+  <div class="controls">
+    <label>Cut and glue: <output id="tOut"></output><input type="range" id="t" min="0" max="1000" step="1" value="0"></label>
+    <label>x: <output id="xOut"></output><input type="range" id="x" min="1" max="8" step="0.5" value="4"></label>
+    <label>b: <output id="bOut"></output><input type="range" id="b" min="1" max="12" step="1" value="6"></label>
+    <label>c (for the equation below): <output id="cOut"></output><input type="range" id="c" min="-20" max="40" step="1" value="5"></label>
+    <label><input type="checkbox" id="anim"> Play the animation</label>
+  </div>
+  <div class="readout" id="stage" aria-live="polite"></div>
+  <div class="readout" id="eq"></div>
+  <div class="readout" id="solve"></div>
+  <p>The picture shows b as a positive number. For x² − bx, the same idea works with (x − b/2)², and the algebra in the last line above handles negative values of b in the same way.</p>
+  <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
+  <ol style="padding-left:1.4em">
+    <li style="margin-bottom:0.6em">At the start, the area of the picture is x² + bx. After the cut and glue, the area is still x² + bx, but the shape is a square with a corner missing. Why does cutting the strip in half make this work? What would go wrong if you cut the strip into thirds?</li>
+    <li style="margin-bottom:0.6em">What is the side length of the big square once the corner is filled in? Use the picture to explain why x² + bx + (b/2)² = (x + b/2)².</li>
+    <li style="margin-bottom:0.6em">Try x = 4 and b = 6. How much area did you have to add to complete the square? Check that it equals (b/2)².</li>
+    <li style="margin-bottom:0.6em">Completing the square adds (b/2)² to make a perfect square. Why does the number you add depend only on b and not on x?</li>
+    <li style="margin-bottom:0.6em">Look at the equation at the bottom. How does the number c − (b/2)² tell you whether the equation x² + bx + c = 0 has real solutions? Find a value of c where there are no real solutions and explain it.</li>
+    <li style="margin-bottom:0.6em">The quadratic formula is what you get when you complete the square on ax² + bx + c = 0 in general. Which step in the picture corresponds to the (b/2)² under the square root?</li>
+  </ol>
+</main>
+<script>
+(function () {
+  var cv = document.getElementById('cv'), ctx = cv ? cv.getContext('2d') : null, W = 800, H = 520;
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  if (cv) { cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+  function $(id) { return document.getElementById(id); }
+  function fmt(n) { return String(+n.toFixed(2)).replace('-', '\u2212'); }
+  function sgn(n) { return (n < 0 ? ' − ' : ' + ') + fmt(Math.abs(n)); }
+  function ease(u) { u = Math.max(0, Math.min(1, u)); return u * u * (3 - 2 * u); }
+  function R(x, y, w, h, fill, stroke, lw) {
+    ctx.fillStyle = fill; ctx.fillRect(x, y, w, h);
+    if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw || 2; ctx.strokeRect(x, y, w, h); }
+  }
+  function T(txt, x, y, size, col, align) {
+    ctx.font = 'bold ' + (size || 16) + 'px system-ui, sans-serif'; ctx.fillStyle = col || '#111';
+    ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle'; ctx.fillText(txt, x, y);
+  }
+  function lbl(t, x, y, w, h, col) { if (w > 38 && h > 24) T(t, x + w / 2, y + h / 2, Math.min(24, Math.max(12, Math.min(w, h) / 3)), col); }
+  function clear() { ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H); }
+  function dashRect(x, y, w, h, col, fill) {
+    if (fill) { ctx.fillStyle = fill; ctx.fillRect(x, y, w, h); }
+    ctx.save(); ctx.setLineDash([6, 5]); ctx.strokeStyle = col; ctx.lineWidth = 2.5; ctx.strokeRect(x, y, w, h); ctx.restore();
+  }
+  function setTabs(ids, on) { ids.forEach(function (id) { $(id).setAttribute('aria-pressed', id === on ? 'true' : 'false'); }); }
+  var animating = [], last = 0;
+  function onTick(fn) { animating.push(fn); }
+  function tick(ts) { var dt = ts - last; last = ts; animating.forEach(function (f) { f(dt); }); requestAnimationFrame(tick); }
+  requestAnimationFrame(tick);
+
+  var st = { x: 4, b: 6, t: 0, c: 5 };
+  function draw() {
+    clear();
+    var x = st.x, b = st.b, h = b / 2, t = st.t, s = Math.min(52, 500 / (x + b), 400 / (x + h)), ox = (W - (x + b) * s) / 2, oy = H - 70;
+    function px(u) { return ox + u * s; } function py(u) { return oy - u * s; }
+    R(px(0), py(x), x * s, x * s, '#bfdbfe', '#1f3a8a'); T('x²', px(x / 2), py(x / 2), 22, '#1f3a8a');
+    R(px(x), py(x), h * s, x * s, '#fed7aa', '#c2410c'); T('bx/2', px(x + h / 2), py(x / 2), 14, '#9a3412');
+    var e = ease(t / 0.7), cx = (x + 1.5 * h) + (x / 2 - x - 1.5 * h) * e, cy = x / 2 + (x + h / 2 - x / 2) * e;
+    ctx.save(); ctx.translate(px(cx), py(cy)); ctx.rotate(-e * Math.PI / 2);
+    R(-h * s / 2, -x * s / 2, h * s, x * s, '#fdba74', '#c2410c'); ctx.restore(); T('bx/2', px(cx), py(cy), 14, '#9a3412');
+    var al = ease((t - 0.7) / 0.3);
+    if (t > 0.2) dashRect(px(x), py(x + h), h * s, h * s, '#0f766e');
+    if (al > 0) { ctx.save(); ctx.globalAlpha = al; R(px(x), py(x + h), h * s, h * s, '#bbf7d0', '#0f766e'); ctx.restore(); }
+    if (t > 0.2 && h * s > 34) T('(b/2)²', px(x + h / 2), py(x + h / 2), 14, '#0f766e');
+    T('x', px(x / 2), py(0) + 18, 18); T('b/2', px(x + h / 2), py(0) + 18, 16);
+    if (e < 0.3) T('b/2', px(x + 1.5 * h), py(0) + 18, 16);
+    if (t >= 0.95) T('Side length: x + b/2', W / 2, 30, 20, '#1f3a8a');
+    var msg = t < 0.05 ? 'Start: a square x by x, plus a strip x tall and b wide. The total area is x² + bx = ' + fmt(x * x + b * x) + '.'
+      : t < 0.7 ? 'Cut the strip in half, and turn one half to the top of the square. The total area is still ' + fmt(x * x + b * x) + '.'
+      : 'The shape is a square with one corner missing. The missing corner has area (b/2)² = ' + fmt(h * h) + '. Adding it gives a square with side x + b/2.';
+    $('stage').textContent = msg;
+    $('eq').textContent = 'x² + bx + (b/2)² = ' + fmt(x * x) + ' + ' + fmt(b * x) + ' + ' + fmt(h * h) + ' = ' + fmt(x * x + b * x + h * h) + '     (x + b/2)² = (' + fmt(x + h) + ')² = ' + fmt((x + h) * (x + h));
+    var c = st.c, k = c - h * h, d = h * h - c, sol;
+    if (d < 0) sol = 'Since (x + ' + fmt(h) + ')² = ' + fmt(d) + ' is negative, there are no real solutions.';
+    else if (d === 0) sol = 'Then (x + ' + fmt(h) + ')² = 0, so x = ' + fmt(-h) + '.';
+    else sol = 'Then (x + ' + fmt(h) + ')² = ' + fmt(d) + ', so x = ' + fmt(-h) + ' ± ' + fmt(Math.sqrt(d)) + ', which gives x = ' + fmt(-h + Math.sqrt(d)) + ' or x = ' + fmt(-h - Math.sqrt(d)) + '.';
+    $('solve').textContent = 'Using it: x² + ' + fmt(b) + 'x' + sgn(c) + ' = (x + ' + fmt(h) + ')²' + sgn(k) + '.  ' + sol;
+    $('tOut').textContent = Math.round(t * 100) + '%'; $('xOut').textContent = fmt(x); $('bOut').textContent = fmt(b); $('cOut').textContent = fmt(c);
+    $('t').value = Math.round(t * 1000);
+  }
+  $('t').oninput = function () { st.t = parseFloat(this.value) / 1000; draw(); };
+  $('x').oninput = function () { st.x = parseFloat(this.value); draw(); };
+  $('b').oninput = function () { st.b = parseFloat(this.value); draw(); };
+  $('c').oninput = function () { st.c = parseFloat(this.value); draw(); };
+  onTick(function (dt) { if ($('anim').checked) { st.t += dt / 4500; if (st.t > 1.25) st.t = 0; st.t = Math.min(st.t, 1); draw(); } });
+  draw();
+
+})();
+</script>
+</body>
+</html>
