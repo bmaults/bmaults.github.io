@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Pythagorean Theorem: A Proof by Rearranging Triangles</title>
+<meta name="description" content="An interactive proof of the Pythagorean theorem a squared plus b squared equals c squared, by moving four right triangles inside a square of side a plus b.">
+<style>
+  body { font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; color: #1a1a1a; margin: 0; background: #fff; line-height: 1.45; }
+  main { max-width: 860px; margin: 0 auto; padding: 12px 14px 24px; }
+  h1 { font-size: 1.5rem; margin: 0.2em 0 0.4em; }
+  p { margin: 0.4em 0 0.8em; }
+  a { color: #1f3a8a; }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+  .tabs button, button.act { font: inherit; padding: 7px 14px; border: 2px solid #1f3a8a; background: #fff; color: #1f3a8a; border-radius: 6px; cursor: pointer; }
+  .tabs button[aria-pressed="true"] { background: #1f3a8a; color: #fff; }
+  button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+  canvas { width: 100%; height: auto; display: block; border: 1px solid #9ca3af; border-radius: 6px; background: #fff; }
+  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px 22px; margin: 12px 0; }
+  .controls label { display: block; font-size: 0.95rem; }
+  .controls input[type=range] { width: 100%; }
+  .readout { background: #f3f4f6; border-radius: 6px; padding: 8px 12px; margin: 8px 0; font-size: 1rem; }
+  .box { border: 1px solid #d1d5db; border-radius: 8px; padding: 10px 14px; margin: 12px 0; background: #f8fafc; }
+  table.t { border-collapse: collapse; margin: 6px 0; }
+  table.t th, table.t td { border: 1px solid #d1d5db; padding: 4px 12px; text-align: center; }
+  input[type=text] { font: inherit; padding: 5px 8px; border: 2px solid #9ca3af; border-radius: 6px; width: 15em; max-width: 100%; }
+</style>
+</head>
+<body>
+<main>
+  <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../">&larr; All sums and patterns demonstrations</a></nav>
+  <h1>The Pythagorean Theorem: A Proof by Rearranging Triangles</h1>
+  <p>Two squares with the same side, a + b, each contain four identical right triangles. The triangles move from one arrangement to the other, and the leftover area has to stay the same.</p>
+  <canvas id="cv" width="800" height="520" role="img" aria-label="A square with side a plus b holding four right triangles. In one arrangement the leftover region is two squares, a squared and b squared. After the triangles move, the leftover region is one tilted square, c squared."></canvas>
+  <div class="controls">
+    <label>Move the triangles <input type="range" id="t" min="0" max="1000" step="1" value="0"></label>
+    <label>a <input type="range" id="a" min="1" max="9" step="0.5" value="4"></label>
+    <label>b <input type="range" id="b" min="1" max="9" step="0.5" value="3"></label>
+    <label><input type="checkbox" id="anim"> Play the animation</label>
+  </div>
+  <div class="readout" id="eq" style="font-size:1.15rem"></div>
+  <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
+  <ol style="padding-left:1.4em">
+    <li style="margin-bottom:0.6em">Why must the tilted shape in the second picture be a square? What do the angles at each corner add up to?</li>
+    <li style="margin-bottom:0.6em">The triangles cover the same area in both pictures. What does that say about the leftover regions?</li>
+  </ol>
+</main>
+<script>
+(function () {
+  var cv = document.getElementById('cv'), ctx = cv ? cv.getContext('2d') : null, W = 800, H = 520;
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  if (cv) { cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+  function $(id) { return document.getElementById(id); }
+  function fmt(n) { return String(+n.toFixed(2)).replace('-', '\u2212'); }
+  function sgn(n) { return (n < 0 ? ' − ' : ' + ') + fmt(Math.abs(n)); }
+  function ease(u) { u = Math.max(0, Math.min(1, u)); return u * u * (3 - 2 * u); }
+  function R(x, y, w, h, fill, stroke, lw) {
+    ctx.fillStyle = fill; ctx.fillRect(x, y, w, h);
+    if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw || 2; ctx.strokeRect(x, y, w, h); }
+  }
+  function T(txt, x, y, size, col, align) {
+    ctx.font = 'bold ' + (size || 16) + 'px system-ui, sans-serif'; ctx.fillStyle = col || '#111';
+    ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle'; ctx.fillText(txt, x, y);
+  }
+  function lbl(t, x, y, w, h, col) { if (w > 38 && h > 24) T(t, x + w / 2, y + h / 2, Math.min(24, Math.max(12, Math.min(w, h) / 3)), col); }
+  function clear() { ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H); }
+  function dashRect(x, y, w, h, col, fill) {
+    if (fill) { ctx.fillStyle = fill; ctx.fillRect(x, y, w, h); }
+    ctx.save(); ctx.setLineDash([6, 5]); ctx.strokeStyle = col; ctx.lineWidth = 2.5; ctx.strokeRect(x, y, w, h); ctx.restore();
+  }
+  function setTabs(ids, on) { ids.forEach(function (id) { $(id).setAttribute('aria-pressed', id === on ? 'true' : 'false'); }); }
+  var animating = [], last = 0;
+  function onTick(fn) { animating.push(fn); }
+  function tick(ts) { var dt = ts - last; last = ts; animating.forEach(function (f) { f(dt); }); requestAnimationFrame(tick); }
+  requestAnimationFrame(tick);
+  function sp(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+
+  var st = { a: 4, b: 3, t: 0 }, BL = '#1f3a8a', GR = '#0f766e', PU = '#7c3aed';
+  function tris(a, b) {
+    var L2 = [[[0, 0], [a, 0], [0, b]], [[a, 0], [a + b, 0], [a + b, a]], [[a + b, a], [a + b, a + b], [b, a + b]], [[0, b], [b, a + b], [0, a + b]]];
+    var L1 = [[[0, a], [a, a], [0, a + b]], [[a, a + b], [0, a + b], [a, a]], [[a + b, 0], [a, 0], [a + b, a]], [[a, a], [a + b, a], [a, 0]]];
+    return { L2: L2, L1: L1 };
+  }
+  function cen(P) { return [(P[0][0] + P[1][0] + P[2][0]) / 3, (P[0][1] + P[1][1] + P[2][1]) / 3]; }
+  function dist(p, q) { return Math.hypot(p[0] - q[0], p[1] - q[1]); }
+  function area2(P) { return (P[1][0] - P[0][0]) * (P[2][1] - P[0][1]) - (P[2][0] - P[0][0]) * (P[1][1] - P[0][1]); }
+  function match(P, Q) {
+    var perms = [[0, 1, 2], [0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0]], k, best = null;
+    for (k = 0; k < 6; k++) {
+      var m = perms[k].map(function (i) { return Q[i]; });
+      if (Math.abs(dist(P[0], P[1]) - dist(m[0], m[1])) < 1e-6 && Math.abs(dist(P[1], P[2]) - dist(m[1], m[2])) < 1e-6 && area2(P) * area2(m) > 0) { best = m; break; }
+    }
+    return best || Q;
+  }
+  function draw() {
+    clear();
+    var a = st.a, b = st.b, t = st.t, e = ease(t), s = a + b, u = Math.min(46, 400 / s), ox = (W - s * u) / 2, oy = (H - s * u) / 2 + 14;
+    function X(x) { return ox + x * u; } function Y(y) { return oy + (s - y) * u; }
+    function poly(pts, fill, stroke, lw) { ctx.beginPath(); pts.forEach(function (p, i) { if (i) ctx.lineTo(X(p[0]), Y(p[1])); else ctx.moveTo(X(p[0]), Y(p[1])); }); ctx.closePath(); ctx.fillStyle = fill; ctx.fill(); ctx.strokeStyle = stroke; ctx.lineWidth = lw || 2; ctx.stroke(); }
+    ctx.save(); ctx.globalAlpha = 1 - e;
+    poly([[0, 0], [a, 0], [a, a], [0, a]], '#bfdbfe', BL); poly([[a, a], [s, a], [s, s], [a, s]], '#bbf7d0', GR); ctx.restore();
+    ctx.save(); ctx.globalAlpha = e; poly([[a, 0], [s, a], [b, s], [0, b]], '#ddd6fe', PU); ctx.restore();
+    poly([[0, 0], [s, 0], [s, s], [0, s]], 'rgba(0,0,0,0)', '#111', 2.5);
+    var T0 = tris(a, b), i;
+    for (i = 0; i < 4; i++) {
+      var P = T0.L2[i], Q = match(P, T0.L1[i]), cP = cen(P), cQ = cen(Q);
+      var aP = Math.atan2(P[0][1] - cP[1], P[0][0] - cP[0]), aQ = Math.atan2(Q[0][1] - cQ[1], Q[0][0] - cQ[0]), d = aQ - aP;
+      while (d > Math.PI) d -= 2 * Math.PI; while (d < -Math.PI) d += 2 * Math.PI;
+      var th = d * (1 - e), cx = cQ[0] + (cP[0] - cQ[0]) * e, cy = cQ[1] + (cP[1] - cQ[1]) * e;
+      var pts = Q.map(function (v) { var dx = v[0] - cQ[0], dy = v[1] - cQ[1], c = Math.cos(-d * e), sn = Math.sin(-d * e); return null; });
+      pts = P.map(function (v) { var dx = v[0] - cP[0], dy = v[1] - cP[1], ang = d * (1 - e) * -1 + 0, c = Math.cos(d * (1 - e)), sn = Math.sin(d * (1 - e)); return [cx + dx * c - dy * sn, cy + dx * sn + dy * c]; });
+      poly(pts, '#fed7aa', '#c2410c', 2);
+    }
+    if (t < 0.05) { T('a²', X(a / 2), Y(a / 2), 26, BL); T('b²', X(a + b / 2), Y(a + b / 2), 26, GR); }
+    else if (t > 0.95) { T('c²', X(s / 2), Y(s / 2), 28, PU); T('c', X(a + b / 2) + 18, Y(a / 2) + 14, 18, PU); }
+    T('a', X(a / 2), Y(0) + 18, 18); T('b', X(a + b / 2), Y(0) + 18, 18); T('b', X(0) - 16, Y(a + b / 2), 18); T('a', X(0) - 16, Y(a / 2), 18);
+    T('a', X(a / 2), Y(s) - 16, 18); T('b', X(a + b / 2), Y(s) - 16, 18); T('a', X(s) + 16, Y(a / 2), 18); T('b', X(s) + 16, Y(a + b / 2), 18);
+    $('eq').innerHTML = sp('a²', BL) + ' + ' + sp('b²', GR) + ' = ' + sp('c²', PU);
+    $('t').value = Math.round(t * 1000);
+  }
+  $('t').oninput = function () { st.t = parseFloat(this.value) / 1000; draw(); };
+  $('a').oninput = function () { st.a = parseFloat(this.value); draw(); };
+  $('b').oninput = function () { st.b = parseFloat(this.value); draw(); };
+  onTick(function (dt) { if ($('anim').checked) { st.t += dt / 4000; if (st.t > 1.3) st.t = 0; st.t = Math.min(st.t, 1); draw(); } });
+  draw();
+
+})();
+</script>
+</body>
+</html>
