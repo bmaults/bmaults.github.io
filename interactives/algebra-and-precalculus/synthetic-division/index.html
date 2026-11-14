@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Synthetic Division and the Remainder Theorem</title>
+<meta name="description" content="Step-by-step animation of synthetic division with a graph showing that the remainder equals p(a), the Remainder Theorem and the Factor Theorem.">
+<style>
+  body { font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; color: #1a1a1a; margin: 0; background: #fff; line-height: 1.45; }
+  main { max-width: 860px; margin: 0 auto; padding: 12px 14px 24px; }
+  h1 { font-size: 1.5rem; margin: 0.2em 0 0.4em; }
+  p { margin: 0.4em 0 0.8em; }
+  a { color: #1f3a8a; }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+  .tabs button, button.act { font: inherit; padding: 7px 14px; border: 2px solid #1f3a8a; background: #fff; color: #1f3a8a; border-radius: 6px; cursor: pointer; }
+  .tabs button[aria-pressed="true"] { background: #1f3a8a; color: #fff; }
+  button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+  canvas { width: 100%; height: auto; display: block; border: 1px solid #9ca3af; border-radius: 6px; background: #fff; }
+  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px 22px; margin: 12px 0; }
+  .controls label { display: block; font-size: 0.95rem; }
+  .controls input[type=range] { width: 100%; }
+  .readout { background: #f3f4f6; border-radius: 6px; padding: 8px 12px; margin: 8px 0; font-size: 1rem; }
+  .box { border: 1px solid #d1d5db; border-radius: 8px; padding: 10px 14px; margin: 12px 0; background: #f8fafc; }
+  table.t { border-collapse: collapse; margin: 6px 0; }
+  table.t th, table.t td { border: 1px solid #d1d5db; padding: 4px 12px; text-align: center; }
+  input[type=text] { font: inherit; padding: 5px 8px; border: 2px solid #9ca3af; border-radius: 6px; width: 15em; max-width: 100%; }
+</style>
+</head>
+<body>
+<main>
+  <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../">&larr; All algebra and precalculus demonstrations</a></nav>
+  <h1>Synthetic Division and the Remainder Theorem</h1>
+  <p>Divide a polynomial by x − a one step at a time. Choose a polynomial, set a, and press Next step. The graph shows that the remainder is the value of the polynomial at a.</p>
+  <div class="tabs"><button type="button" class="act" id="p1" aria-pressed="false">Example 1</button><button type="button" class="act" id="p2" aria-pressed="false">Example 2</button><button type="button" class="act" id="p3" aria-pressed="false">Example 3</button></div>
+  <div class="tabs"><button type="button" class="act" id="back">Back</button><button type="button" class="act" id="next">Next step</button><button type="button" class="act" id="play">Play all</button></div>
+  <canvas id="cv" width="800" height="520" role="img" aria-label="Synthetic division table for a polynomial divided by x minus a, with a graph of the polynomial below. At the end, the remainder is marked as the height of the graph at x equals a."></canvas>
+  <div class="controls"><label>a (dividing by x − a) <input type="range" id="a" min="-4" max="4" step="1" value="2"></label></div>
+  <div class="readout" id="note" aria-live="polite"></div>
+  <div class="readout" id="eq" style="font-size:1.1rem"></div>
+  <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
+  <ol style="padding-left:1.4em">
+    <li style="margin-bottom:0.6em">Which values of a give remainder zero? What do those values look like on the graph?</li>
+    <li style="margin-bottom:0.6em">Why do you need a zero in the table for a missing power of x?</li>
+  </ol>
+</main>
+<script>
+(function () {
+  var cv = document.getElementById('cv'), ctx = cv ? cv.getContext('2d') : null, W = 800, H = 520;
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  if (cv) { cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+  function $(id) { return document.getElementById(id); }
+  function fmt(n) { return String(+n.toFixed(2)).replace('-', '\u2212'); }
+  function sgn(n) { return (n < 0 ? ' − ' : ' + ') + fmt(Math.abs(n)); }
+  function ease(u) { u = Math.max(0, Math.min(1, u)); return u * u * (3 - 2 * u); }
+  function R(x, y, w, h, fill, stroke, lw) {
+    ctx.fillStyle = fill; ctx.fillRect(x, y, w, h);
+    if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw || 2; ctx.strokeRect(x, y, w, h); }
+  }
+  function T(txt, x, y, size, col, align) {
+    ctx.font = 'bold ' + (size || 16) + 'px system-ui, sans-serif'; ctx.fillStyle = col || '#111';
+    ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle'; ctx.fillText(txt, x, y);
+  }
+  function lbl(t, x, y, w, h, col) { if (w > 38 && h > 24) T(t, x + w / 2, y + h / 2, Math.min(24, Math.max(12, Math.min(w, h) / 3)), col); }
+  function clear() { ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H); }
+  function dashRect(x, y, w, h, col, fill) {
+    if (fill) { ctx.fillStyle = fill; ctx.fillRect(x, y, w, h); }
+    ctx.save(); ctx.setLineDash([6, 5]); ctx.strokeStyle = col; ctx.lineWidth = 2.5; ctx.strokeRect(x, y, w, h); ctx.restore();
+  }
+  function setTabs(ids, on) { ids.forEach(function (id) { $(id).setAttribute('aria-pressed', id === on ? 'true' : 'false'); }); }
+  var animating = [], last = 0;
+  function onTick(fn) { animating.push(fn); }
+  function tick(ts) { var dt = ts - last; last = ts; animating.forEach(function (f) { f(dt); }); requestAnimationFrame(tick); }
+  requestAnimationFrame(tick);
+  function sp(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+
+  var BLU = '#1f3a8a', RED = '#b91c1c', GRN = '#15803d', ORG = '#c2410c', INK = '#1f2937';
+  var FN = {
+    parabola: { f: function (x) { return 0.25 * x * x - 1; }, d: function (x) { return 0.5 * x; }, x0: -4, x1: 4, y0: -1.6, y1: 3.4 },
+    cubic: { f: function (x) { return (x * x * x - 4 * x) / 4; }, d: function (x) { return (3 * x * x - 4) / 4; }, x0: -3, x1: 3, y0: -4, y1: 4 },
+    wave: { f: function (x) { return 1.5 * Math.sin(x); }, d: function (x) { return 1.5 * Math.cos(x); }, x0: -4.5, x1: 4.5, y0: -2.4, y1: 2.4 },
+    corner: { f: function (x) { return 0.6 * Math.abs(x) - 1; }, d: function (x) { return x > 0 ? 0.6 : -0.6; }, x0: -4, x1: 4, y0: -1.6, y1: 3 }
+  };
+  function line(ax, ay, bx, by, col, w, dash) { ctx.save(); ctx.strokeStyle = col; ctx.lineWidth = w || 2; if (dash) ctx.setLineDash(dash); ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke(); ctx.restore(); }
+  function dot(x, y, r, col) { ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fillStyle = col; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke(); }
+  function View(px, py, pw, ph, x0, x1, y0, y1) {
+    var me = this; this.px = px; this.py = py; this.pw = pw; this.ph = ph; this.x0 = x0; this.x1 = x1; this.y0 = y0; this.y1 = y1;
+    this.X = function (x) { return px + (x - x0) / (x1 - x0) * pw; };
+    this.Y = function (y) { return py + ph - (y - y0) / (y1 - y0) * ph; };
+    this.invX = function (sx) { return x0 + (sx - px) / pw * (x1 - x0); };
+    this.on = function () { ctx.save(); ctx.beginPath(); ctx.rect(px, py, pw, ph); ctx.clip(); };
+    this.off = function () { ctx.restore(); };
+    this.axes = function () {
+      ctx.save(); ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1.5; ctx.strokeRect(px, py, pw, ph);
+      if (y0 < 0 && y1 > 0) line(px, me.Y(0), px + pw, me.Y(0), '#94a3b8', 1.5);
+      if (x0 < 0 && x1 > 0) line(me.X(0), py, me.X(0), py + ph, '#94a3b8', 1.5);
+      ctx.restore();
+    };
+    this.curve = function (fn, col, w, a, b) {
+      var i, n = 500, lo = a === undefined ? x0 : a, hi = b === undefined ? x1 : b;
+      me.on(); ctx.strokeStyle = col; ctx.lineWidth = w || 3; ctx.lineJoin = 'round'; ctx.beginPath();
+      for (i = 0; i <= n; i++) { var x = lo + (hi - lo) * i / n, y = fn(x); if (i) ctx.lineTo(me.X(x), me.Y(y)); else ctx.moveTo(me.X(x), me.Y(y)); }
+      ctx.stroke(); me.off();
+    };
+    this.slope = function (x, y, m, col, w, dash, half) {
+      var lo = half === undefined ? x0 : x - half, hi = half === undefined ? x1 : x + half;
+      me.on(); line(me.X(lo), me.Y(y + m * (lo - x)), me.X(hi), me.Y(y + m * (hi - x)), col, w, dash); me.off();
+    };
+  }
+  function tabsFor(names, onPick) {
+    var ids = names.map(function (n) { return 't-' + n; });
+    names.forEach(function (n) { $('t-' + n).onclick = function () { setTabs(ids, 't-' + n); onPick(n); }; });
+  }
+  function fnTabs(list) {
+    var labels = { parabola: 'Parabola', cubic: 'Cubic', wave: 'Sine wave', corner: 'Corner (absolute value)' };
+    return '<div class="tabs" role="group" aria-label="Choose a function">' + list.map(function (n, i) { return '<button type="button" id="t-' + n + '" aria-pressed="' + (i === 0 ? 'true' : 'false') + '">' + labels[n] + '</button>'; }).join('') + '</div>';
+  }
+
+  function tabBtns(ids, cb, def) {
+    ids.forEach(function (id) { $(id).onclick = function () {
+      ids.forEach(function (j) { var on = j === id; $(j).setAttribute('aria-pressed', on); $(j).style.background = on ? '#1e3a8a' : ''; $(j).style.color = on ? '#fff' : ''; });
+      cb(id); }; });
+    $(def).onclick();
+  }
+  function clipTo(v, f) { ctx.save(); ctx.beginPath(); ctx.rect(v.px, v.py, v.pw, v.ph); ctx.clip(); f(); ctx.restore(); }
+  function plot(v, fn, col, w, dash) {
+    var N = 600, pen = false, i, x, y;
+    clipTo(v, function () {
+      ctx.strokeStyle = col; ctx.lineWidth = w; ctx.setLineDash(dash || []); ctx.beginPath();
+      for (i = 0; i <= N; i++) {
+        x = v.x0 + (v.x1 - v.x0) * i / N; y = fn(x);
+        if (!isFinite(y) || Math.abs(y) > 1e3) { pen = false; continue; }
+        if (pen) ctx.lineTo(v.X(x), v.Y(y)); else { ctx.moveTo(v.X(x), v.Y(y)); pen = true; }
+      }
+      ctx.stroke();
+    });
+  }
+
+  var PO = { p1: { c: [1, -6, 11, -6], y: 20 }, p2: { c: [2, -3, -11, 6], y: 30 }, p3: { c: [1, 0, 0, 0, -16], y: 30 } };
+  var cur = 'p1', a = 2, step = 0, auto = 0, playing = false;
+  function sup(n) { return n === 1 ? '' : n === 0 ? '' : '<sup>' + n + '</sup>'; }
+  function poly(c) {
+    var n = c.length - 1, s = '', k, d, v;
+    for (k = 0; k <= n; k++) { v = c[k]; if (v === 0) continue; d = n - k; var ab = Math.abs(v), t = (d > 0 && ab === 1 ? '' : ab) + (d > 0 ? 'x' + sup(d) : ''); s += (s ? (v < 0 ? ' − ' : ' + ') : (v < 0 ? '−' : '')) + t; }
+    return s;
+  }
+  function pv(c, x) { var s = 0; c.forEach(function (v) { s = s * x + v; }); return s; }
+  function calc() { var c = PO[cur].c, b = [c[0]], pr = [null], j; for (j = 1; j < c.length; j++) { pr[j] = a * b[j - 1]; b[j] = c[j] + pr[j]; } return { c: c, b: b, pr: pr, n: c.length - 1 }; }
+  function sgn(v) { return v < 0 ? '−' + (-v) : '' + v; }
+  function draw() {
+    clear(); var m = calc(), n = m.n, last = 1 + 2 * n, j, X = function (i) { return 200 + i * 105; }, done = step >= last;
+    T('a', 80, 30, 14, '#64748b'); T(sgn(a), 80, 70, 26, ORG);
+    line(140, 36, 140, 135, '#475569', 2.5); line(150, 135, X(n) + 50, 135, '#475569', 2.5);
+    function cell(x, y, txt, col, hl) { if (hl) { ctx.fillStyle = '#fef08a'; ctx.fillRect(x - 36, y - 24, 72, 44); } T(txt, x, y + 9, 26, col); }
+    for (j = 0; j <= n; j++) cell(X(j), 70, sgn(m.c[j]), INK, false);
+    if (step >= 1) cell(X(0), 175, sgn(m.b[0]), BLU, step === 1);
+    for (j = 1; j <= n; j++) {
+      if (step >= 2 * j) cell(X(j), 112, sgn(m.pr[j]), ORG, step === 2 * j);
+      if (step >= 2 * j + 1) { if (j === n) { ctx.fillStyle = step === last ? '#fed7aa' : '#fef08a'; ctx.fillRect(X(j) - 36, 151, 72, 44); ctx.strokeStyle = ORG; ctx.lineWidth = 3; ctx.strokeRect(X(j) - 36, 151, 72, 44); T(sgn(m.b[j]), X(j), 184, 26, ORG); } else cell(X(j), 175, sgn(m.b[j]), BLU, step === 2 * j + 1); }
+    }
+    if (done) { T('quotient coefficients', (X(0) + X(n - 1)) / 2, 212, 14, BLU); T('remainder', X(n), 212, 14, ORG); }
+    var v = new View(40, 235, 720, 270, -5, 5, -PO[cur].y, PO[cur].y); v.axes();
+    var c = m.c; clipTo(v, function () { line(v.X(a), v.py, v.X(a), v.py + v.ph, '#94a3b8', 1.5, [6, 5]); }); plot(v, function (x) { return pv(c, x); }, BLU, 4);
+    T('x = ' + a, v.X(a) + (a > 3 ? -30 : 30), v.py + 14, 13, '#64748b');
+    var note, r = m.b[n];
+    if (step === 0) note = 'Write a to the left, and the coefficients of the polynomial across the top. Include a zero for any missing power.';
+    else if (step === 1) note = 'Bring down the first coefficient.';
+    else if (step <= last) { j = Math.floor(step / 2); note = step % 2 === 0 ? 'Multiply the last bottom number, ' + sgn(m.b[j - 1]) + ', by a = ' + sgn(a) + ', and write ' + sgn(m.pr[j]) + ' under the next coefficient.' : 'Add the column: ' + sgn(m.c[j]) + ' + ' + sgn(m.pr[j]) + ' = ' + sgn(m.b[j]) + '.'; }
+    var eq = sp('p(x)', BLU) + ' = ' + poly(m.c);
+    if (done) { dot(v.X(a), v.Y(r), 8, ORG); line(v.px, v.Y(r), v.X(a), v.Y(r), ORG, 1.5, [5, 4]); T('p(' + a + ') = ' + r, v.X(a) + (a > 3 ? -50 : 56), v.Y(r) - 14, 15, ORG);
+      note = r === 0 ? 'The remainder is 0, so x − ' + sgn(a) + ' is a factor, and ' + a + ' is a root: the graph crosses the x-axis there.' : 'The remainder is ' + r + ', which equals p(' + a + ') = ' + pv(c, a) + ', the height of the graph at x = ' + a + '. This is the Remainder Theorem.';
+      eq += '<br>= (x ' + (a < 0 ? '+ ' + (-a) : '− ' + a) + ')(' + poly(m.b.slice(0, n)) + ') ' + (r < 0 ? '− ' + (-r) : '+ ' + r); }
+    $('note').textContent = note; $('eq').innerHTML = eq;
+  }
+  function lastStep() { return 1 + 2 * (PO[cur].c.length - 1); }
+  $('next').onclick = function () { if (step < lastStep()) step++; draw(); };
+  $('back').onclick = function () { if (step > 0) step--; playing = false; $('play').textContent = 'Play all'; draw(); };
+  $('play').onclick = function () { if (step >= lastStep()) step = 0; playing = !playing; this.textContent = playing ? 'Pause' : 'Play all'; auto = 0; draw(); };
+  $('a').oninput = function () { a = parseInt(this.value, 10); step = 0; playing = false; $('play').textContent = 'Play all'; draw(); };
+  onTick(function (dt) { if (!playing) return; auto += dt; if (auto > 1100) { auto = 0; if (step < lastStep()) step++; else { playing = false; $('play').textContent = 'Play all'; } draw(); } });
+  tabBtns(['p1', 'p2', 'p3'], function (id) { cur = id; step = 0; playing = false; $('play').textContent = 'Play all'; draw(); }, 'p1');
+
+})();
+</script>
+</body>
+</html>
