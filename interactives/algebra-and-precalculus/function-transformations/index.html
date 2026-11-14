@@ -25,26 +25,47 @@
   table.t th, table.t td { border: 1px solid #d1d5db; padding: 4px 12px; text-align: center; }
   input[type=text] { font: inherit; padding: 5px 8px; border: 2px solid #9ca3af; border-radius: 6px; width: 15em; max-width: 100%; }
 </style>
+<style>
+  .playbtn { font: inherit; font-weight: 600; padding: 8px 18px; border: 2px solid #166534; background: #15803d; color: #fff; border-radius: 6px; cursor: pointer; }
+  .playbtn[aria-pressed="true"] { background: #fff; color: #15803d; }
+  #eq { min-height: 2.6em; overflow-x: auto; overflow-y: hidden; line-height: 1.9; }
+  mjx-container { max-width: 100%; }
+</style>
+<script>window.MathJax = { tex: { inlineMath: [['\\(', '\\)']] }, svg: { fontCache: 'global' }, startup: { typeset: false, ready: function () { MathJax.startup.defaultReady(); MathJax.startup.promise = MathJax.startup.promise.then(function () { return MathJax.typesetPromise(); }).catch(function () {}); } } };</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var proto = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML'), tc = Object.getOwnPropertyDescriptor(Node.prototype, 'textContent');
+  function ts(el) { if (window.MathJax && MathJax.startup && MathJax.typesetPromise) { MathJax.startup.promise = MathJax.startup.promise.then(function () { MathJax.startup.document.clear(); return MathJax.typesetPromise([el]); }).catch(function () {}); } }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  document.querySelectorAll('main [id], main .readout, main .box').forEach(function (el) {
+    if (!/^(DIV|P|SPAN|TD)$/.test(el.tagName)) return;
+    var cur = null;
+    Object.defineProperty(el, 'innerHTML', { configurable: true, get: function () { return proto.get.call(el); }, set: function (h) { if (h === cur) return; cur = h; proto.set.call(el, h); ts(el); } });
+    Object.defineProperty(el, 'textContent', { configurable: true, get: function () { return tc.get.call(el); }, set: function (t) { el.innerHTML = esc(t); } });
+  });
+});
+</script>
 </head>
 <body>
 <main>
   <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../">&larr; All algebra and precalculus demonstrations</a></nav>
   <h1>Function Transformations: Shifts, Stretches, and Reflections</h1>
-  <p>Choose a parent function and apply shifts, stretches, and reflections. The dashed gray curve is the parent <i>f</i>, and the blue curve is the transformed <i>g</i>.</p>
-  <div class="tabs"><button type="button" class="act" id="f_sq" aria-pressed="false">x²</button><button type="button" class="act" id="f_cu" aria-pressed="false">x³</button><button type="button" class="act" id="f_ab" aria-pressed="false">|x|</button><button type="button" class="act" id="f_sr" aria-pressed="false">√x</button><button type="button" class="act" id="f_si" aria-pressed="false">sin x</button></div>
+  <p>Choose a parent function and apply shifts, stretches, and reflections. The dashed gray curve is the parent \(f\), and the blue curve is the transformed \(g\).</p>
+  <div class="readout" id="eq" style="font-size:1.1rem"></div>
+  <div class="tabs"><button type="button" class="act" id="f_sq" aria-pressed="false">\(x^{2}\)</button><button type="button" class="act" id="f_cu" aria-pressed="false">\(x^{3}\)</button><button type="button" class="act" id="f_ab" aria-pressed="false">\(|x|\)</button><button type="button" class="act" id="f_sr" aria-pressed="false">\(\sqrt{x}\)</button><button type="button" class="act" id="f_si" aria-pressed="false">\(\sin x\)</button></div>
   <canvas id="cv" width="800" height="520" role="img" aria-label="Graph of a parent function in dashed gray and its transformed version in blue."></canvas>
   <div class="controls">
-    <label>Vertical stretch a <input type="range" id="a" min="-3" max="3" step="0.25" value="1"></label>
-    <label>Horizontal stretch b <input type="range" id="b" min="-3" max="3" step="0.25" value="1"></label>
-    <label>Right shift h <input type="range" id="h" min="-4" max="4" step="0.25" value="0"></label>
-    <label>Up shift k <input type="range" id="k" min="-3" max="3" step="0.25" value="0"></label>
+    <label>Vertical stretch \(a\) <input type="range" id="a" min="-3" max="3" step="0.25" value="1"></label>
+    <label>Horizontal stretch \(b\) <input type="range" id="b" min="-3" max="3" step="0.25" value="1"></label>
+    <label>Right shift \(h\) <input type="range" id="h" min="-4" max="4" step="0.25" value="0"></label>
+    <label>Up shift \(k\) <input type="range" id="k" min="-3" max="3" step="0.25" value="0"></label>
   </div>
   <div class="readout" id="note" aria-live="polite"></div>
-  <div class="readout" id="eq" style="font-size:1.1rem"></div>
   <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
   <ol style="padding-left:1.4em">
-    <li style="margin-bottom:0.6em">Which transformations change the x-coordinates of points on the graph, and which change the y-coordinates?</li>
-    <li style="margin-bottom:0.6em">Why does a positive h move the graph to the right?</li>
+    <li style="margin-bottom:0.6em">Which transformations change the \(x\)-coordinates of points on the graph, and which change the \(y\)-coordinates?</li>
+    <li style="margin-bottom:0.6em">Why does a positive \(h\) move the graph to the right?</li>
   </ol>
 </main>
 <script>
@@ -75,7 +96,9 @@
   function onTick(fn) { animating.push(fn); }
   function tick(ts) { var dt = ts - last; last = ts; animating.forEach(function (f) { f(dt); }); requestAnimationFrame(tick); }
   requestAnimationFrame(tick);
-  function sp(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+  function sp(t, c) { var g = sp.g || (sp.g = document.createElement('canvas').getContext('2d')); g.fillStyle = c; var h = g.fillStyle.replace('#', ''); return '\\textcolor[RGB]{' + parseInt(h.substr(0, 2), 16) + ',' + parseInt(h.substr(2, 2), 16) + ',' + parseInt(h.substr(4, 2), 16) + '}{' + t + '}'; }
+  function hs(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+  function halo(txt, x, y, size, col, al) { ctx.font = 'bold ' + (size || 16) + 'px system-ui, sans-serif'; ctx.textAlign = al || 'center'; ctx.textBaseline = 'middle'; ctx.lineWidth = 4; ctx.strokeStyle = '#fff'; ctx.lineJoin = 'round'; ctx.strokeText(txt, x, y); ctx.fillStyle = col || '#111'; ctx.fillText(txt, x, y); }
 
   var BLU = '#1f3a8a', RED = '#b91c1c', GRN = '#15803d', ORG = '#c2410c', INK = '#1f2937';
   var FN = {
@@ -139,18 +162,18 @@
     });
   }
 
-  var F = { f_sq: [function (x) { return x * x; }, 'x²'], f_cu: [function (x) { return x * x * x; }, 'x³'], f_ab: [function (x) { return Math.abs(x); }, '|x|'], f_sr: [function (x) { return x < 0 ? NaN : Math.sqrt(x); }, '√x'], f_si: [function (x) { return Math.sin(x); }, 'sin x'] };
+  var F = { f_sq: [function (x) { return x * x; }, 'x^{2}'], f_cu: [function (x) { return x * x * x; }, 'x^{3}'], f_ab: [function (x) { return Math.abs(x); }, '|x|'], f_sr: [function (x) { return x < 0 ? NaN : Math.sqrt(x); }, '\\sqrt{x}'], f_si: [function (x) { return Math.sin(x); }, '\\sin x'] };
   var cur = 'f_sq', q = { a: 1, b: 1, h: 0, k: 0 };
   function draw() {
     clear(); var v = new View(40, 20, 720, 480, -6, 6, -4, 4), f = F[cur][0];
     v.axes(); plot(v, f, '#94a3b8', 2.5, [7, 6]);
     plot(v, function (x) { return q.a * f(q.b * (x - q.h)) + q.k; }, BLU, 4);
     var notes = [];
-    if (q.a < 0) notes.push('a is negative, so the graph is flipped over the x-axis.'); else if (Math.abs(q.a) > 1) notes.push('|a| > 1 stretches the graph vertically.'); else if (q.a !== 1) notes.push('|a| < 1 compresses the graph vertically.');
-    if (q.b < 0) notes.push('b is negative, so the graph is flipped over the y-axis.'); else if (q.b > 1) notes.push('b > 1 squeezes the graph horizontally.'); else if (q.b < 1 && q.b !== 1) notes.push('b < 1 stretches the graph horizontally.');
-    if (q.h !== 0) notes.push('h moves the graph ' + (q.h > 0 ? 'right' : 'left') + '.'); if (q.k !== 0) notes.push('k moves the graph ' + (q.k > 0 ? 'up' : 'down') + '.');
-    $('note').textContent = notes.length ? notes.join(' ') : 'With a = b = 1 and h = k = 0, g is the same as f.';
-    $('eq').innerHTML = sp('g(x)', BLU) + ' = ' + sp('a', ORG) + ' · f( ' + sp('b', ORG) + ' (x − ' + sp('h', ORG) + ') ) + ' + sp('k', ORG) + ' &nbsp;&nbsp; with &nbsp; f(x) = ' + F[cur][1] + ' &nbsp; a = ' + q.a + ', b = ' + q.b + ', h = ' + q.h + ', k = ' + q.k;
+    if (q.a < 0) notes.push('\\(a\\) is negative, so the graph is flipped over the x-axis.'); else if (Math.abs(q.a) > 1) notes.push('\\(|a| > 1\\) stretches the graph vertically.'); else if (q.a !== 1) notes.push('\\(|a| < 1\\) compresses the graph vertically.');
+    if (q.b < 0) notes.push('\\(b\\) is negative, so the graph is flipped over the y-axis.'); else if (q.b > 1) notes.push('\\(b > 1\\) squeezes the graph horizontally.'); else if (q.b < 1 && q.b !== 1) notes.push('\\(b < 1\\) stretches the graph horizontally.');
+    if (q.h !== 0) notes.push('\\(h\\) moves the graph ' + (q.h > 0 ? 'right' : 'left') + '.'); if (q.k !== 0) notes.push('\\(k\\) moves the graph ' + (q.k > 0 ? 'up' : 'down') + '.');
+    $('note').innerHTML = notes.length ? notes.join(' ') : 'With \\(a = b = 1\\) and \\(h = k = 0\\), \\(g\\) is the same as \\(f\\).';
+    $('eq').innerHTML = '\\(' + sp('g(x)', BLU) + ' = ' + sp('a', ORG) + '\\,f\\left(' + sp('b', ORG) + '(x - ' + sp('h', ORG) + ')\\right) + ' + sp('k', ORG) + '\\)' + ' &nbsp; with \\(f(x) = ' + F[cur][1] + '\\), &nbsp; \\(a = ' + q.a + ',\\ b = ' + q.b + ',\\ h = ' + q.h + ',\\ k = ' + q.k + '\\)';
   }
   ['a', 'b', 'h', 'k'].forEach(function (id) { $(id).oninput = function () { q[id] = parseFloat(this.value); draw(); }; });
   tabBtns(['f_sq', 'f_cu', 'f_ab', 'f_sr', 'f_si'], function (id) { cur = id; draw(); }, 'f_sq');

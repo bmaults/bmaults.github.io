@@ -31,6 +31,27 @@
   "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
 } }
 </script>
+<style>
+  .playbtn { font: inherit; font-weight: 600; padding: 8px 18px; border: 2px solid #166534; background: #15803d; color: #fff; border-radius: 6px; cursor: pointer; }
+  .playbtn[aria-pressed="true"] { background: #fff; color: #15803d; }
+  #eq { min-height: 2.6em; overflow-x: auto; overflow-y: hidden; line-height: 1.9; }
+  mjx-container { max-width: 100%; }
+</style>
+<script>window.MathJax = { tex: { inlineMath: [['\\(', '\\)']] }, svg: { fontCache: 'global' }, startup: { typeset: false, ready: function () { MathJax.startup.defaultReady(); MathJax.startup.promise = MathJax.startup.promise.then(function () { return MathJax.typesetPromise(); }).catch(function () {}); } } };</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var proto = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML'), tc = Object.getOwnPropertyDescriptor(Node.prototype, 'textContent');
+  function ts(el) { if (window.MathJax && MathJax.startup && MathJax.typesetPromise) { MathJax.startup.promise = MathJax.startup.promise.then(function () { MathJax.startup.document.clear(); return MathJax.typesetPromise([el]); }).catch(function () {}); } }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  document.querySelectorAll('main [id], main .readout, main .box').forEach(function (el) {
+    if (!/^(DIV|P|SPAN|TD)$/.test(el.tagName)) return;
+    var cur = null;
+    Object.defineProperty(el, 'innerHTML', { configurable: true, get: function () { return proto.get.call(el); }, set: function (h) { if (h === cur) return; cur = h; proto.set.call(el, h); ts(el); } });
+    Object.defineProperty(el, 'textContent', { configurable: true, get: function () { return tc.get.call(el); }, set: function (t) { el.innerHTML = esc(t); } });
+  });
+});
+</script>
 </head>
 <body>
 <main>
@@ -51,9 +72,9 @@
 
   <div class="two">
     <div class="controls">
-      <label>Tilt of the plane, t: <output id="tOut"></output>
+      <label>Tilt of the plane, \(t\): <output id="tOut"></output>
         <input type="range" id="t" min="0" max="90" step="0.5" value="30"></label>
-      <label>Half-angle of the cone, &alpha;: <output id="aOut"></output>
+      <label>Half-angle of the cone, \(\alpha\): <output id="aOut"></output>
         <input type="range" id="alpha" min="20" max="60" step="1" value="35"></label>
       <label>Distance of the plane from the apex: <output id="kOut"></output>
         <input type="range" id="k" min="0.4" max="4" step="0.05" value="1.5"></label>
@@ -67,15 +88,15 @@
   </div>
 
   <p><span class="sw" style="border-color:#dc2626"></span>the conic section &nbsp; <span class="sw" style="border-color:#f97316"></span>the cutting plane &nbsp; <span class="sw" style="border-color:#2563eb"></span>the cone</p>
-  <p>The tilt t is the angle between the cutting plane and a plane perpendicular to the axis of the cone. If t = 0 the cut is a circle. As t increases the cut stays an ellipse until the plane becomes parallel to a line on the cone (a generator). That happens when t = 90&deg; &minus; &alpha;, and the cut is a parabola. Past that, the plane cuts both halves of the cone and the cut is a hyperbola with two branches. The eccentricity of the curve is e = sin t / cos &alpha;.</p>
+  <p>The tilt \(t\) is the angle between the cutting plane and a plane perpendicular to the axis of the cone. If \(t = 0\) the cut is a circle. As \(t\) increases the cut stays an ellipse until the plane becomes parallel to a line on the cone (a generator). That happens when \(t = 90^{\circ} - \alpha\), and the cut is a parabola. Past that, the plane cuts both halves of the cone and the cut is a hyperbola with two branches. The eccentricity of the curve is \(\displaystyle e = \frac{\sin t}{\cos\alpha}\).</p>
   <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
   <ol style="padding-left:1.4em">
-    <li style="margin-bottom:0.6em">Start with the plane perpendicular to the axis and slowly increase the tilt. Describe how the curve changes. What is special about the tilt t = 90° − α, and why does the curve change type there?</li>
+    <li style="margin-bottom:0.6em">Start with the plane perpendicular to the axis and slowly increase the tilt. Describe how the curve changes. What is special about the tilt \(t = 90^{\circ} - \alpha\), and why does the curve change type there?</li>
     <li style="margin-bottom:0.6em">Why does a hyperbola have two branches? Where does each branch come from on the cone?</li>
-    <li style="margin-bottom:0.6em">Make the cone narrower by decreasing α. How does the tilt at which you get a parabola change? Explain this using the angle of the lines on the cone.</li>
+    <li style="margin-bottom:0.6em">Make the cone narrower by decreasing \(\alpha\). How does the tilt at which you get a parabola change? Explain this using the angle of the lines on the cone.</li>
     <li style="margin-bottom:0.6em">The plane in this demo never passes through the apex. Predict what the cut looks like when the plane does pass through the apex, for a small tilt, for the tilt of a parabola, and for a large tilt.</li>
     <li style="margin-bottom:0.6em">Watch the eccentricity as you increase the tilt. What value does it have for a circle? For a parabola? What does that suggest about how “stretched” each curve is?</li>
-    <li style="margin-bottom:0.6em">Use the face-on view. Is there any tilt where the face-on view of an ellipse is a perfect circle other than t = 0? Explain your answer.</li>
+    <li style="margin-bottom:0.6em">Use the face-on view. Is there any tilt where the face-on view of an ellipse is a perfect circle other than \(t = 0\)? Explain your answer.</li>
   </ol>
 </main>
 
@@ -231,7 +252,7 @@ function text() {
     ellipse: 'The tilt is less than ' + par.toFixed(1) + '°, so the plane cuts only one half of the cone in a closed curve.',
     parabola: 'The tilt equals 90° − α = ' + par.toFixed(1) + '°, so the plane is parallel to a line on the cone.',
     hyperbola: 'The tilt is more than ' + par.toFixed(1) + '°, so the plane cuts both halves of the cone.' }[type];
-  $('info').textContent = 'The section is ' + (type === 'ellipse' ? 'an ' : 'a ') + type + '. ' + why + ' Eccentricity e = sin t / cos α = ' + (type === 'circle' ? '0' : e.toFixed(3)) + '.';
+  $('info').textContent = 'The section is ' + (type === 'ellipse' ? 'an ' : 'a ') + type + '. ' + why + ' Eccentricity \\(e = \\dfrac{\\sin t}{\\cos\\alpha} = ' + (type === 'circle' ? '0' : e.toFixed(3)) + '\\).';
   $('tOut').textContent = st.t.toFixed(1) + '°'; $('aOut').textContent = st.alpha + '°'; $('kOut').textContent = st.k.toFixed(2);
   fc.setAttribute('aria-label', 'The cut seen face-on: ' + (type === 'ellipse' ? 'an ' : 'a ') + type);
 }

@@ -25,26 +25,47 @@
   table.t th, table.t td { border: 1px solid #d1d5db; padding: 4px 12px; text-align: center; }
   input[type=text] { font: inherit; padding: 5px 8px; border: 2px solid #9ca3af; border-radius: 6px; width: 15em; max-width: 100%; }
 </style>
+<style>
+  .playbtn { font: inherit; font-weight: 600; padding: 8px 18px; border: 2px solid #166534; background: #15803d; color: #fff; border-radius: 6px; cursor: pointer; }
+  .playbtn[aria-pressed="true"] { background: #fff; color: #15803d; }
+  #eq { min-height: 2.6em; overflow-x: auto; overflow-y: hidden; line-height: 1.9; }
+  mjx-container { max-width: 100%; }
+</style>
+<script>window.MathJax = { tex: { inlineMath: [['\\(', '\\)']] }, svg: { fontCache: 'global' }, startup: { typeset: false, ready: function () { MathJax.startup.defaultReady(); MathJax.startup.promise = MathJax.startup.promise.then(function () { return MathJax.typesetPromise(); }).catch(function () {}); } } };</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var proto = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML'), tc = Object.getOwnPropertyDescriptor(Node.prototype, 'textContent');
+  function ts(el) { if (window.MathJax && MathJax.startup && MathJax.typesetPromise) { MathJax.startup.promise = MathJax.startup.promise.then(function () { MathJax.startup.document.clear(); return MathJax.typesetPromise([el]); }).catch(function () {}); } }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  document.querySelectorAll('main [id], main .readout, main .box').forEach(function (el) {
+    if (!/^(DIV|P|SPAN|TD)$/.test(el.tagName)) return;
+    var cur = null;
+    Object.defineProperty(el, 'innerHTML', { configurable: true, get: function () { return proto.get.call(el); }, set: function (h) { if (h === cur) return; cur = h; proto.set.call(el, h); ts(el); } });
+    Object.defineProperty(el, 'textContent', { configurable: true, get: function () { return tc.get.call(el); }, set: function (t) { el.innerHTML = esc(t); } });
+  });
+});
+</script>
 </head>
 <body>
 <main>
   <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../">&larr; All factoring formula demonstrations</a></nav>
   <h1>Completing the Square with Rectangles</h1>
-  <p>The expression x² + bx is a square with a strip beside it. Cut the strip in half and move one half to the top. What is missing?</p>
+  <p>The expression \(x^2 + bx\) is a square with a strip beside it. Cut the strip in half and move one half to the top. What is missing?</p>
+  <div class="readout" id="eq" style="font-size:1.15rem"></div>
   <canvas id="cv" width="800" height="520" role="img" aria-label="A square of side x with two rectangles attached and a missing corner square."></canvas>
   <div class="controls">
     <label>Cut and glue <input type="range" id="t" min="0" max="1000" step="1" value="0"></label>
-    <label>x <input type="range" id="x" min="1" max="8" step="0.5" value="4"></label>
-    <label>b <input type="range" id="b" min="1" max="12" step="1" value="6"></label>
-    <label><input type="checkbox" id="anim"> Play the animation</label>
+    <label>\(x\) <input type="range" id="x" min="1" max="8" step="0.5" value="4"></label>
+    <label>\(b\) <input type="range" id="b" min="1" max="12" step="1" value="6"></label>
+    <div><button type="button" class="playbtn" id="anim" aria-pressed="false">&#9654; Play the animation</button><script>(function(){var b=document.getElementById("anim"),on=false;function paint(){b.setAttribute("aria-pressed",on);b.textContent=(on?"\u23F8 Pause the animation":"\u25B6 Play the animation");}Object.defineProperty(b,"checked",{get:function(){return on;},set:function(v){on=!!v;paint();}});b.addEventListener("click",function(){on=!on;paint();b.dispatchEvent(new Event("change"));});paint();})();</script></div>
   </div>
   <div class="readout" id="stage" aria-live="polite"></div>
-  <div class="readout" id="eq" style="font-size:1.15rem"></div>
   <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
   <ol style="padding-left:1.4em">
     <li style="margin-bottom:0.6em">Why does cutting the strip in half make the picture almost a square? What would go wrong with thirds?</li>
-    <li style="margin-bottom:0.6em">What is the side length of the big square once the corner is filled in? Use the picture to explain x² + bx + (b/2)² = (x + b/2)².</li>
-    <li style="margin-bottom:0.6em">Make b larger. Why does the size of the missing corner depend only on b and not on x?</li>
+    <li style="margin-bottom:0.6em">What is the side length of the big square once the corner is filled in? Use the picture to explain \(x^2 + bx + \left(\frac{b}{2}\right)^2 = \left(x + \frac{b}{2}\right)^2\).</li>
+    <li style="margin-bottom:0.6em">Make \(b\) larger. Why does the size of the missing corner depend only on \(b\) and not on \(x\)?</li>
   </ol>
 </main>
 <script>
@@ -75,7 +96,9 @@
   function onTick(fn) { animating.push(fn); }
   function tick(ts) { var dt = ts - last; last = ts; animating.forEach(function (f) { f(dt); }); requestAnimationFrame(tick); }
   requestAnimationFrame(tick);
-  function sp(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+  function sp(t, c) { var g = sp.g || (sp.g = document.createElement('canvas').getContext('2d')); g.fillStyle = c; var h = g.fillStyle.replace('#', ''); return '\\textcolor[RGB]{' + parseInt(h.substr(0, 2), 16) + ',' + parseInt(h.substr(2, 2), 16) + ',' + parseInt(h.substr(4, 2), 16) + '}{' + t + '}'; }
+  function hs(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+  function halo(txt, x, y, size, col, al) { ctx.font = 'bold ' + (size || 16) + 'px system-ui, sans-serif'; ctx.textAlign = al || 'center'; ctx.textBaseline = 'middle'; ctx.lineWidth = 4; ctx.strokeStyle = '#fff'; ctx.lineJoin = 'round'; ctx.strokeText(txt, x, y); ctx.fillStyle = col || '#111'; ctx.fillText(txt, x, y); }
 
   var st = { x: 4, b: 6, t: 0 };
   function draw() {
@@ -94,10 +117,10 @@
     T('x', px(x / 2), py(0) + 18, 18); T('b/2', px(x + h / 2), py(0) + 18, 16);
     if (e < 0.3) T('b/2', px(x + 1.5 * h), py(0) + 18, 16);
     if (t >= 0.95) T('Side length: x + b/2', W / 2, 30, 20, '#1f3a8a');
-    $('stage').textContent = t < 0.05 ? 'A square of side x and a strip of area bx: together they make x² + bx.'
+    $('stage').textContent = t < 0.05 ? 'A square of side \\(x\\) and a strip of area \\(bx\\): together they make \\(x^2 + bx\\).'
       : t < 0.7 ? 'Cut the strip in half and move one half to the top.'
-      : 'One corner is missing, with area (b/2)². Adding it completes the square.';
-    $('eq').innerHTML = sp('x²', '#1f3a8a') + ' + ' + sp('bx', '#c2410c') + ' + ' + sp('(b/2)²', '#0f766e') + ' = (x + b/2)²';
+      : 'One corner is missing, with area \\(\\left(\\frac{b}{2}\\right)^2\\). Adding it completes the square.';
+    $('eq').innerHTML = '\\(' + sp('x^2', '#1f3a8a') + ' + ' + sp('bx', '#c2410c') + ' + ' + sp('\\left(\\frac{b}{2}\\right)^2', '#0f766e') + ' = \\left(x + \\frac{b}{2}\\right)^2\\)';
     $('t').value = Math.round(t * 1000);
   }
   $('t').oninput = function () { st.t = parseFloat(this.value) / 1000; draw(); };

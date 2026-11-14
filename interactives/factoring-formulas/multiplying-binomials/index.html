@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Multiplying Binomials with an Area Model (FOIL)</title>
-<meta name="description" content="An interactive area model that shows why FOIL gives four terms when multiplying two binomials.">
+<title>Multiplying Binomials with an Area Model: FOIL and Squares</title>
+<meta name="description" content="An interactive area model showing why FOIL gives four terms when multiplying two binomials, and why (a + b) squared equals a squared plus 2ab plus b squared.">
 <style>
   body { font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; color: #1a1a1a; margin: 0; background: #fff; line-height: 1.45; }
   main { max-width: 860px; margin: 0 auto; padding: 12px 14px 24px; }
@@ -25,25 +25,49 @@
   table.t th, table.t td { border: 1px solid #d1d5db; padding: 4px 12px; text-align: center; }
   input[type=text] { font: inherit; padding: 5px 8px; border: 2px solid #9ca3af; border-radius: 6px; width: 15em; max-width: 100%; }
 </style>
+<style>
+  .playbtn { font: inherit; font-weight: 600; padding: 8px 18px; border: 2px solid #166534; background: #15803d; color: #fff; border-radius: 6px; cursor: pointer; }
+  .playbtn[aria-pressed="true"] { background: #fff; color: #15803d; }
+  #eq { min-height: 2.6em; overflow-x: auto; overflow-y: hidden; line-height: 1.9; }
+  mjx-container { max-width: 100%; }
+</style>
+<script>window.MathJax = { tex: { inlineMath: [['\\(', '\\)']] }, svg: { fontCache: 'global' }, startup: { typeset: false, ready: function () { MathJax.startup.defaultReady(); MathJax.startup.promise = MathJax.startup.promise.then(function () { return MathJax.typesetPromise(); }).catch(function () {}); } } };</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var proto = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML'), tc = Object.getOwnPropertyDescriptor(Node.prototype, 'textContent');
+  function ts(el) { if (window.MathJax && MathJax.startup && MathJax.typesetPromise) { MathJax.startup.promise = MathJax.startup.promise.then(function () { MathJax.startup.document.clear(); return MathJax.typesetPromise([el]); }).catch(function () {}); } }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  document.querySelectorAll('main [id], main .readout, main .box').forEach(function (el) {
+    if (!/^(DIV|P|SPAN|TD)$/.test(el.tagName)) return;
+    var cur = null;
+    Object.defineProperty(el, 'innerHTML', { configurable: true, get: function () { return proto.get.call(el); }, set: function (h) { if (h === cur) return; cur = h; proto.set.call(el, h); ts(el); } });
+    Object.defineProperty(el, 'textContent', { configurable: true, get: function () { return tc.get.call(el); }, set: function (t) { el.innerHTML = esc(t); } });
+  });
+});
+</script>
 </head>
 <body>
 <main>
   <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../">&larr; All factoring formula demonstrations</a></nav>
-  <h1>Multiplying Binomials with an Area Model (FOIL)</h1>
-  <p>Multiplying two binomials is finding the area of a rectangle cut into four pieces. Each piece is one term of FOIL. Change the sliders to change the sizes of the pieces.</p>
-  <canvas id="cv" width="800" height="520" role="img" aria-label="A rectangle of width a plus b and height c plus d cut into four pieces labeled F, O, I, and L."></canvas>
-  <div class="controls">
-    <label>a <input type="range" id="a" min="1" max="8" step="0.5" value="5"></label>
-    <label>b <input type="range" id="b" min="1" max="8" step="0.5" value="3"></label>
-    <label>c <input type="range" id="c" min="1" max="8" step="0.5" value="4"></label>
-    <label>d <input type="range" id="d" min="1" max="8" step="0.5" value="2"></label>
-  </div>
+  <h1>Multiplying Binomials with an Area Model: FOIL and Squares</h1>
+  <p>Multiplying two binomials is finding the area of a rectangle cut into four pieces, and each piece is one term of FOIL. Choose \((a + b)(c + d)\) to change all four side lengths. Choose \((a + b)^2\) to make the rectangle a square.</p>
   <div class="readout" id="eq" style="font-size:1.15rem"></div>
+  <div class="tabs"><button type="button" id="mProd" aria-pressed="true">\((a + b)(c + d)\)</button><button type="button" id="mSq" aria-pressed="false">\((a + b)^2\)</button></div>
+  <canvas id="cv" width="800" height="520" role="img" aria-label="A rectangle of width a plus b and height c plus d cut into four pieces labeled F, O, I, and L. In the square version, c equals a and d equals b."></canvas>
+  <div class="controls">
+    <label>\(a\) <input type="range" id="a" min="1" max="8" step="0.5" value="5"></label>
+    <label>\(b\) <input type="range" id="b" min="1" max="8" step="0.5" value="3"></label>
+    <label id="cW">\(c\) <input type="range" id="c" min="1" max="8" step="0.5" value="4"></label>
+    <label id="dW">\(d\) <input type="range" id="d" min="1" max="8" step="0.5" value="2"></label>
+    <label>Pull the pieces apart <input type="range" id="gap" min="0" max="40" step="1" value="0"></label>
+  </div>
   <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
   <ol style="padding-left:1.4em">
     <li style="margin-bottom:0.6em">Where does each of the four terms of FOIL come from in the picture? Why are there exactly four?</li>
-    <li style="margin-bottom:0.6em">What would the picture look like for (a + b)(c + d + e)? How many pieces would there be?</li>
-    <li style="margin-bottom:0.6em">Make a = c and b = d. What kind of rectangle do you get, and which pieces are equal?</li>
+    <li style="margin-bottom:0.6em">In the square version, two of the pieces are the same size. Where does the \(2ab\) come from?</li>
+    <li style="margin-bottom:0.6em">A common mistake is \((a + b)^2 = a^2 + b^2\). Which pieces does this leave out?</li>
+    <li style="margin-bottom:0.6em">What would the picture look like for \((a + b)(c + d + e)\)? How many pieces would there be?</li>
   </ol>
 </main>
 <script>
@@ -74,9 +98,11 @@
   function onTick(fn) { animating.push(fn); }
   function tick(ts) { var dt = ts - last; last = ts; animating.forEach(function (f) { f(dt); }); requestAnimationFrame(tick); }
   requestAnimationFrame(tick);
-  function sp(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+  function sp(t, c) { var g = sp.g || (sp.g = document.createElement('canvas').getContext('2d')); g.fillStyle = c; var h = g.fillStyle.replace('#', ''); return '\\textcolor[RGB]{' + parseInt(h.substr(0, 2), 16) + ',' + parseInt(h.substr(2, 2), 16) + ',' + parseInt(h.substr(4, 2), 16) + '}{' + t + '}'; }
+  function hs(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+  function halo(txt, x, y, size, col, al) { ctx.font = 'bold ' + (size || 16) + 'px system-ui, sans-serif'; ctx.textAlign = al || 'center'; ctx.textBaseline = 'middle'; ctx.lineWidth = 4; ctx.strokeStyle = '#fff'; ctx.lineJoin = 'round'; ctx.strokeText(txt, x, y); ctx.fillStyle = col || '#111'; ctx.fillText(txt, x, y); }
 
-  var st = { a: 5, b: 3, c: 4, d: 2 };
+  var st = { a: 5, b: 3, c: 4, d: 2, gap: 0, mode: 'prod' };
   function cell(x, y, w, h, fill, stroke, tag, txt, col) {
     R(x, y, w, h, fill, stroke, 2);
     if (w > 60 && h > 46) { T(tag, x + w / 2, y + h / 2 - 14, 22, col); T(txt, x + w / 2, y + h / 2 + 14, 20, col); }
@@ -84,16 +110,20 @@
   }
   function draw() {
     clear();
-    var a = st.a, b = st.b, c = st.c, d = st.d, s = Math.min(560 / (a + b), 360 / (c + d)), wa = a * s, wb = b * s, hc = c * s, hd = d * s;
-    var ox = (W - (wa + wb)) / 2 + 20, oy = 70;
-    cell(ox, oy, wa, hc, '#bfdbfe', '#1f3a8a', 'F', 'ac', '#1f3a8a');
-    cell(ox, oy + hc, wa, hd, '#fed7aa', '#c2410c', 'O', 'ad', '#9a3412');
-    cell(ox + wa, oy, wb, hc, '#bbf7d0', '#0f766e', 'I', 'bc', '#0f766e');
-    cell(ox + wa, oy + hc, wb, hd, '#fecaca', '#b91c1c', 'L', 'bd', '#b91c1c');
-    T('a', ox + wa / 2, oy - 18, 20); T('b', ox + wa + wb / 2, oy - 18, 20); T('c', ox - 20, oy + hc / 2, 20); T('d', ox - 20, oy + hc + hd / 2, 20);
-    $('eq').innerHTML = '(a + b)(c + d) = ' + sp('ac', '#1f3a8a') + ' + ' + sp('ad', '#c2410c') + ' + ' + sp('bc', '#0f766e') + ' + ' + sp('bd', '#b91c1c');
+    var sq = st.mode === 'sq', a = st.a, b = st.b, c = sq ? a : st.c, d = sq ? b : st.d, g = st.gap;
+    var s = Math.min((W - 170 - g) / (a + b), (H - 130 - g) / (c + d)), wa = a * s, wb = b * s, hc = c * s, hd = d * s;
+    var ox = (W - (wa + wb + g)) / 2 + 24, oy = 70, x2 = ox + wa + g, y2 = oy + hc + g;
+    cell(ox, oy, wa, hc, '#bfdbfe', '#1f3a8a', 'F', sq ? 'a²' : 'ac', '#1f3a8a');
+    cell(ox, y2, wa, hd, '#fed7aa', '#c2410c', 'O', sq ? 'ab' : 'ad', '#9a3412');
+    cell(x2, oy, wb, hc, sq ? '#fed7aa' : '#bbf7d0', sq ? '#c2410c' : '#0f766e', 'I', sq ? 'ab' : 'bc', sq ? '#9a3412' : '#0f766e');
+    cell(x2, y2, wb, hd, sq ? '#bbf7d0' : '#fecaca', sq ? '#0f766e' : '#b91c1c', 'L', sq ? 'b²' : 'bd', sq ? '#0f766e' : '#b91c1c');
+    T('a', ox + wa / 2, oy - 18, 20); T('b', x2 + wb / 2, oy - 18, 20); T(sq ? 'a' : 'c', ox - 20, oy + hc / 2, 20); T(sq ? 'b' : 'd', ox - 20, y2 + hd / 2, 20);
+    $('eq').innerHTML = sq ? '\\((a + b)^2 = ' + sp('a^2', '#1f3a8a') + ' + ' + sp('2ab', '#c2410c') + ' + ' + sp('b^2', '#0f766e') + '\\)'
+      : '\\((a + b)(c + d) = ' + sp('ac', '#1f3a8a') + ' + ' + sp('ad', '#c2410c') + ' + ' + sp('bc', '#0f766e') + ' + ' + sp('bd', '#b91c1c') + '\\)';
   }
-  ['a', 'b', 'c', 'd'].forEach(function (k) { $(k).oninput = function () { st[k] = parseFloat(this.value); draw(); }; });
+  ['a', 'b', 'c', 'd', 'gap'].forEach(function (k) { $(k).oninput = function () { st[k] = parseFloat(this.value); draw(); }; });
+  function mode(m) { st.mode = m; setTabs(['mProd', 'mSq'], m === 'sq' ? 'mSq' : 'mProd'); $('cW').style.display = $('dW').style.display = m === 'sq' ? 'none' : ''; draw(); }
+  $('mProd').onclick = function () { mode('prod'); }; $('mSq').onclick = function () { mode('sq'); };
   draw();
 
 })();

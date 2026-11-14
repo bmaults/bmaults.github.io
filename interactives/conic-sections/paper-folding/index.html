@@ -21,38 +21,60 @@
   .legend span { display: inline-block; margin-right: 14px; }
   .sw { display: inline-block; width: 22px; height: 0; border-top: 4px solid; vertical-align: middle; margin-right: 5px; }
 </style>
+<style>
+  .playbtn { font: inherit; font-weight: 600; padding: 8px 18px; border: 2px solid #166534; background: #15803d; color: #fff; border-radius: 6px; cursor: pointer; }
+  .playbtn[aria-pressed="true"] { background: #fff; color: #15803d; }
+  #eq { min-height: 2.6em; overflow-x: auto; overflow-y: hidden; line-height: 1.9; }
+  mjx-container { max-width: 100%; }
+</style>
+<script>window.MathJax = { tex: { inlineMath: [['\\(', '\\)']] }, svg: { fontCache: 'global' }, startup: { typeset: false, ready: function () { MathJax.startup.defaultReady(); MathJax.startup.promise = MathJax.startup.promise.then(function () { return MathJax.typesetPromise(); }).catch(function () {}); } } };</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var proto = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML'), tc = Object.getOwnPropertyDescriptor(Node.prototype, 'textContent');
+  function ts(el) { if (window.MathJax && MathJax.startup && MathJax.typesetPromise) { MathJax.startup.promise = MathJax.startup.promise.then(function () { MathJax.startup.document.clear(); return MathJax.typesetPromise([el]); }).catch(function () {}); } }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  document.querySelectorAll('main [id], main .readout, main .box').forEach(function (el) {
+    if (!/^(DIV|P|SPAN|TD)$/.test(el.tagName)) return;
+    var cur = null;
+    Object.defineProperty(el, 'innerHTML', { configurable: true, get: function () { return proto.get.call(el); }, set: function (h) { if (h === cur) return; cur = h; proto.set.call(el, h); ts(el); } });
+    Object.defineProperty(el, 'textContent', { configurable: true, get: function () { return tc.get.call(el); }, set: function (t) { el.innerHTML = esc(t); } });
+  });
+});
+</script>
 </head>
 <body>
 <main>
   <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../" style="color:#1f3a8a">&larr; All conic section demonstrations</a></nav>
   <h1>Paper Folding and the Conics</h1>
-  <p>Take a circle drawn on a sheet of paper, with a point F marked somewhere on the sheet. Choose a point Q on the circle and fold the paper so that Q lands exactly on F. The crease is a straight line. Repeat for many points Q around the circle, and the creases outline a curve. Drag F to see which curve you get.</p>
+  <p>Take a circle drawn on a sheet of paper, with a point \(F\) marked somewhere on the sheet. Choose a point \(Q\) on the circle and fold the paper so that \(Q\) lands exactly on \(F\). The crease is a straight line. Repeat for many points \(Q\) around the circle, and the creases outline a curve. Drag \(F\) to see which curve you get.</p>
+  <div class="readout" id="eq" aria-live="polite"></div>
 
   <div class="tabs" role="group" aria-label="What to fold onto F">
-    <button type="button" id="m-circle" aria-pressed="true">Fold points of a circle onto F</button>
-    <button type="button" id="m-line" aria-pressed="false">Fold points of a line onto F</button>
+    <button type="button" id="m-circle" aria-pressed="true">Fold points of a circle onto \(F\)</button>
+    <button type="button" id="m-line" aria-pressed="false">Fold points of a line onto \(F\)</button>
   </div>
   <div class="tabs" role="group" aria-label="Jump to a position of F" id="jumps">
-    <button type="button" id="j-in">F inside the circle</button>
-    <button type="button" id="j-center">F at the center</button>
-    <button type="button" id="j-out">F outside the circle</button>
+    <button type="button" id="j-in">\(F\) inside the circle</button>
+    <button type="button" id="j-center">\(F\) at the center</button>
+    <button type="button" id="j-out">\(F\) outside the circle</button>
   </div>
 
   <canvas id="cv" width="800" height="560" tabindex="0" role="img" aria-label="A circle with a point F and many fold lines whose envelope is a conic section."></canvas>
 
   <div class="controls">
-    <label id="eWrap">Distance CF divided by the radius, e: <output id="eOut"></output>
+    <label id="eWrap">Distance \(CF\) divided by the radius, \(e\): <output id="eOut"></output>
       <input type="range" id="e" min="0" max="2" step="0.01" value="0.5"></label>
-    <label id="rWrap">Radius R of the circle: <output id="rOut"></output>
+    <label id="rWrap">Radius \(R\) of the circle: <output id="rOut"></output>
       <input type="range" id="R" min="2" max="5" step="0.1" value="4.5"></label>
-    <label id="pWrap" style="display:none">Distance from F to the line: <output id="pOut"></output>
+    <label id="pWrap" style="display:none">Distance from \(F\) to the line: <output id="pOut"></output>
       <input type="range" id="p" min="0.5" max="7" step="0.05" value="3"></label>
     <label>Highlighted fold: <output id="hOut"></output>
       <input type="range" id="h" min="0" max="1000" step="1" value="150"></label>
     <label>Number of creases: <output id="nOut"></output>
       <input type="range" id="n" min="6" max="120" step="1" value="36"></label>
-    <label><input type="checkbox" id="conic" checked> Show the curve traced by the touching points T</label>
-    <label><input type="checkbox" id="anim"> Animate the highlighted fold</label>
+    <label><input type="checkbox" id="conic" checked> Show the curve traced by the touching points \(T\)</label>
+    <div><button type="button" class="playbtn" id="anim" aria-pressed="false">&#9654; Animate the highlighted fold</button><script>(function(){var b=document.getElementById("anim"),on=false;function paint(){b.setAttribute("aria-pressed",on);b.textContent=(on?"\u23F8 Animate the highlighted fold":"\u25B6 Animate the highlighted fold");}Object.defineProperty(b,"checked",{get:function(){return on;},set:function(v){on=!!v;paint();}});b.addEventListener("click",function(){on=!on;paint();b.dispatchEvent(new Event("change"));});paint();})();</script></div>
   </div>
 
   <p class="legend" aria-hidden="true">
@@ -61,20 +83,19 @@
     <span><i class="sw" style="border-color:#0f766e"></i>point T where the crease touches the curve</span>
   </p>
 
-  <div class="readout" id="eq" aria-live="polite"></div>
   <div class="readout" id="info"></div>
   <p id="note"></p>
 
-  <p>The crease for Q is the perpendicular bisector of the segment QF, so every point on the crease is the same distance from Q as from F. The point T is where the crease meets the line from the center C to Q (in the circle view) or the vertical line through Q (in the line view). Because T is on the crease, TF = TQ. That one fact is enough to show what curve T traces.</p>
+  <p>The crease for \(Q\) is the perpendicular bisector of the segment \(QF\), so every point on the crease is the same distance from \(Q\) as from \(F\). The point \(T\) is where the crease meets the line from the center \(C\) to \(Q\) (in the circle view) or the vertical line through \(Q\) (in the line view). Because \(T\) is on the crease, \(TF = TQ\). That one fact is enough to show what curve \(T\) traces.</p>
 
   <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
   <ol style="padding-left:1.4em">
-    <li style="margin-bottom:0.6em">Why is the crease the perpendicular bisector of QF? Explain why every point on the crease is the same distance from Q as from F.</li>
-    <li style="margin-bottom:0.6em">With F inside the circle, T lies on the segment from C to Q. Explain why TF + TC = R for every choice of Q. What does this say about the curve that T traces?</li>
-    <li style="margin-bottom:0.6em">Move F to the center of the circle. What curve do the creases outline, and what is its radius in terms of R? Explain why, using the position of T.</li>
-    <li style="margin-bottom:0.6em">Move F outside the circle. T is now on the line CQ but outside the segment. Explain why |TF − TC| = R, and what curve this gives.</li>
-    <li style="margin-bottom:0.6em">In the line view, why is TF equal to the distance from T to the line? What does this say about the curve, and where are its focus and directrix?</li>
-    <li style="margin-bottom:0.6em">Each crease touches the curve at exactly one point, so it is a tangent line. In the circle view with F inside, the crease bisects angle FTQ, and Q is on the extension of CT. Use this to show that the tangent line at T makes equal angles with TF and TC, and explain how this gives the reflection property of the ellipse.</li>
+    <li style="margin-bottom:0.6em">Why is the crease the perpendicular bisector of \(QF\)? Explain why every point on the crease is the same distance from \(Q\) as from \(F\).</li>
+    <li style="margin-bottom:0.6em">With \(F\) inside the circle, \(T\) lies on the segment from \(C\) to \(Q\). Explain why \(TF + TC = R\) for every choice of \(Q\). What does this say about the curve that \(T\) traces?</li>
+    <li style="margin-bottom:0.6em">Move \(F\) to the center of the circle. What curve do the creases outline, and what is its radius in terms of \(R\)? Explain why, using the position of \(T\).</li>
+    <li style="margin-bottom:0.6em">Move \(F\) outside the circle. \(T\) is now on the line \(CQ\) but outside the segment. Explain why \(|TF - TC| = R\), and what curve this gives.</li>
+    <li style="margin-bottom:0.6em">In the line view, why is \(TF\) equal to the distance from \(T\) to the line? What does this say about the curve, and where are its focus and directrix?</li>
+    <li style="margin-bottom:0.6em">Each crease touches the curve at exactly one point, so it is a tangent line. In the circle view with F inside, the crease bisects angle \(FTQ\), and \(Q\) is on the extension of \(CT\). Use this to show that the tangent line at \(T\) makes equal angles with \(TF\) and \(TC\), and explain how this gives the reflection property of the ellipse.</li>
   </ol>
 </main>
 
@@ -154,18 +175,18 @@
       var e = Math.hypot(F[0], F[1]) / st.R, tc = T ? Math.hypot(T[0], T[1]) : NaN;
       $('eOut').textContent = f2(e); $('rOut').textContent = f2(st.R); $('e').value = Math.min(2, e);
       var kind = e < 0.02 ? 'circle' : e < 0.985 ? 'ellipse' : e < 1.015 ? 'degenerate' : 'hyperbola';
-      if (!T) $('eq').textContent = 'For this fold the crease is parallel to the line CQ, so there is no touching point T. Move the highlighted fold a little.';
-      else if (e < 1) $('eq').textContent = 'TF = ' + f3(tf) + '    TC = ' + f3(tc) + '    TF + TC = ' + f3(tf + tc) + '    R = ' + f3(st.R);
-      else $('eq').textContent = 'TF = ' + f3(tf) + '    TC = ' + f3(tc) + '    |TF − TC| = ' + f3(Math.abs(tf - tc)) + '    R = ' + f3(st.R);
-      var names = { circle: 'F is at the center, so the creases outline a circle of radius R / 2.', ellipse: 'F is inside the circle, so the creases outline an ellipse with foci F and C. Here e = ' + f2(e) + ' is also the eccentricity of the ellipse.',
-        degenerate: 'F is on the circle. Every crease passes through a point of the segment CF, and the ellipse has collapsed to that segment.', hyperbola: 'F is outside the circle, so the creases outline a hyperbola with foci F and C, and eccentricity e = ' + f2(e) + '.' };
+      if (!T) $('eq').textContent = 'For this fold the crease is parallel to the line \\(CQ\\), so there is no touching point \\(T\\). Move the highlighted fold a little.';
+      else if (e < 1) $('eq').textContent = '\\(TF = ' + f3(tf) + '\\quad TC = ' + f3(tc) + '\\quad TF + TC = ' + f3(tf + tc) + '\\quad R = ' + f3(st.R) + '\\)';
+      else $('eq').textContent = '\\(TF = ' + f3(tf) + '\\quad TC = ' + f3(tc) + '\\quad |TF - TC| = ' + f3(Math.abs(tf - tc)) + '\\quad R = ' + f3(st.R) + '\\)';
+      var names = { circle: '\\(F\\) is at the center, so the creases outline a circle of radius \\(R / 2\\).', ellipse: '\\(F\\) is inside the circle, so the creases outline an ellipse with foci \\(F\\) and \\(C\\). Here \\(e = ' + f2(e) + '\\) is also the eccentricity of the ellipse.',
+        degenerate: '\\(F\\) is on the circle. Every crease passes through a point of the segment \\(CF\\), and the ellipse has collapsed to that segment.', hyperbola: '\\(F\\) is outside the circle, so the creases outline a hyperbola with foci \\(F\\) and \\(C\\), and eccentricity \\(e = ' + f2(e) + '\\).' };
       $('info').textContent = names[kind];
-      $('note').textContent = 'The sum TF + TC stays equal to R as long as F is inside the circle. When F is outside, the difference |TF − TC| stays equal to R.';
+      $('note').textContent = 'The sum \\(TF + TC\\) stays equal to \\(R\\) as long as \\(F\\) is inside the circle. When \\(F\\) is outside, the difference \\(|TF - TC|\\) stays equal to \\(R\\).';
     } else {
       var p = F[1] - LY; $('pOut').textContent = f2(p); $('p').value = p;
-      $('eq').textContent = T ? 'TF = ' + f3(tf) + '    distance from T to the line = ' + f3(Math.abs(T[1] - LY)) : '';
-      $('info').textContent = 'The creases outline a parabola. Its focus is F, its directrix is the line, and its focal length is ' + f2(p / 2) + ' (half the distance from F to the line).';
-      $('note').textContent = 'Every point T on the curve is as far from F as it is from the line, which is the focus and directrix definition of a parabola.';
+      $('eq').textContent = T ? '\\(TF = ' + f3(tf) + '\\quad \\text{distance from } T \\text{ to the line} = ' + f3(Math.abs(T[1] - LY)) + '\\)' : '';
+      $('info').textContent = 'The creases outline a parabola. Its focus is \\(F\\), its directrix is the line, and its focal length is ' + f2(p / 2) + ' (half the distance from F to the line).';
+      $('note').textContent = 'Every point \\(T\\) on the curve is as far from \\(F\\) as it is from the line, which is the focus and directrix definition of a parabola.';
     }
   }
   function setMode(m) {

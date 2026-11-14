@@ -23,12 +23,34 @@
   .legend span { display: inline-block; margin-right: 14px; }
   .sw { display: inline-block; width: 22px; height: 0; border-top: 4px solid; vertical-align: middle; margin-right: 5px; }
 </style>
+<style>
+  .playbtn { font: inherit; font-weight: 600; padding: 8px 18px; border: 2px solid #166534; background: #15803d; color: #fff; border-radius: 6px; cursor: pointer; }
+  .playbtn[aria-pressed="true"] { background: #fff; color: #15803d; }
+  #eq { min-height: 2.6em; overflow-x: auto; overflow-y: hidden; line-height: 1.9; }
+  mjx-container { max-width: 100%; }
+</style>
+<script>window.MathJax = { tex: { inlineMath: [['\\(', '\\)']] }, svg: { fontCache: 'global' }, startup: { typeset: false, ready: function () { MathJax.startup.defaultReady(); MathJax.startup.promise = MathJax.startup.promise.then(function () { return MathJax.typesetPromise(); }).catch(function () {}); } } };</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var proto = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML'), tc = Object.getOwnPropertyDescriptor(Node.prototype, 'textContent');
+  function ts(el) { if (window.MathJax && MathJax.startup && MathJax.typesetPromise) { MathJax.startup.promise = MathJax.startup.promise.then(function () { MathJax.startup.document.clear(); return MathJax.typesetPromise([el]); }).catch(function () {}); } }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  document.querySelectorAll('main [id], main .readout, main .box').forEach(function (el) {
+    if (!/^(DIV|P|SPAN|TD)$/.test(el.tagName)) return;
+    var cur = null;
+    Object.defineProperty(el, 'innerHTML', { configurable: true, get: function () { return proto.get.call(el); }, set: function (h) { if (h === cur) return; cur = h; proto.set.call(el, h); ts(el); } });
+    Object.defineProperty(el, 'textContent', { configurable: true, get: function () { return tc.get.call(el); }, set: function (t) { el.innerHTML = esc(t); } });
+  });
+});
+</script>
 </head>
 <body>
 <main>
   <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../" style="color:#1f3a8a">&larr; All conic section demonstrations</a></nav>
   <h1>Sums and Differences of Distances to the Foci</h1>
-  <p>An ellipse is the set of points P for which the sum of the distances to two fixed points F₁ and F₂ (the foci) is a constant, PF₁ + PF₂ = 2a. A hyperbola is the set of points for which the difference of the distances is a constant, |PF₁ − PF₂| = 2a. Drag P and watch the two distances. The bars below the picture show the two distances side by side.</p>
+  <p>An ellipse is the set of points \(P\) for which the sum of the distances to two fixed points \(F_1\) and \(F_2\) (the foci) is a constant, \(PF_1 + PF_2 = 2a\). A hyperbola is the set of points for which the difference of the distances is a constant, \(|PF_1 - PF_2| = 2a\). Drag \(P\) and watch the two distances. The bars below the picture show the two distances side by side.</p>
+  <div class="readout" id="eq" aria-live="polite"></div>
 
   <div class="tabs" role="group" aria-label="Choose a conic section">
     <button type="button" id="b-ellipse" aria-pressed="true">Ellipse (sum)</button>
@@ -39,33 +61,32 @@
   <canvas id="bars" width="800" height="110" role="img" aria-label="Bars showing the two distances from P to the foci."></canvas>
 
   <div class="controls">
-    <label>Half of the constant, a: <output id="aOut"></output>
+    <label>Half of the constant, \(a\): <output id="aOut"></output>
       <input type="range" id="a" min="1" max="6" step="0.05" value="2"></label>
-    <label>Eccentricity e = c / a: <output id="eOut"></output>
+    <label>Eccentricity \(e = c / a\): <output id="eOut"></output>
       <input type="range" id="e" step="0.01"></label>
-    <label><input type="checkbox" id="snap" checked> Keep P on the curve</label>
+    <label><input type="checkbox" id="snap" checked> Keep \(P\) on the curve</label>
   </div>
 
   <p class="legend" aria-hidden="true">
-    <span><i class="sw" style="border-color:#c2410c"></i>PF₁</span>
-    <span><i class="sw" style="border-color:#0f766e"></i>PF₂</span>
-    <span><i class="sw" style="border-color:#b91c1c"></i>the constant 2a</span>
+    <span><i class="sw" style="border-color:#c2410c"></i>\(PF_1\)</span>
+    <span><i class="sw" style="border-color:#0f766e"></i>\(PF_2\)</span>
+    <span><i class="sw" style="border-color:#b91c1c"></i>the constant \(2a\)</span>
   </p>
 
-  <div class="readout" id="eq" aria-live="polite"></div>
   <div class="readout" id="info"></div>
   <p id="note"></p>
 
-  <p>The foci are at (−c, 0) and (c, 0), with c = a · e. For an ellipse, b² = a² − c², and for a hyperbola, b² = c² − a². Turn off "Keep P on the curve" to drag P anywhere in the plane and compare the sum or difference there with the constant 2a.</p>
+  <p>The foci are at \((-c, 0)\) and \((c, 0)\), with \(c = a e\). For an ellipse, \(b^2 = a^2 - c^2\), and for a hyperbola, \(b^2 = c^2 - a^2\). Turn off "Keep \(P\) on the curve" to drag \(P\) anywhere in the plane and compare the sum or difference there with the constant \(2a\).</p>
 
   <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
   <ol style="padding-left:1.4em">
-    <li style="margin-bottom:0.6em">In the ellipse view, turn off "Keep P on the curve" and drag P around. When is the sum PF₁ + PF₂ less than 2a, and when is it greater? Explain why that sum is smaller inside the ellipse and larger outside.</li>
-    <li style="margin-bottom:0.6em">Drag P onto the segment joining the two foci. What is the sum there, and why? Is it possible for the sum to be smaller than that anywhere in the plane? (Think about the triangle inequality.) What does this tell you about how large 2a must be compared with 2c for an ellipse to exist?</li>
-    <li style="margin-bottom:0.6em">A gardener drives two stakes 4 feet apart, ties a loop of string 14 feet long around them, and draws with a pencil that keeps the string taut. Explain why the pencil traces an ellipse. Find a, c, and b for this ellipse, and set the sliders to check your answer.</li>
-    <li style="margin-bottom:0.6em">In the ellipse view, move e toward 0, and then toward 1. What happens to the shape, and what happens to the foci? Explain each case using the idea that PF₁ + PF₂ is constant.</li>
-    <li style="margin-bottom:0.6em">Switch to the hyperbola. Drag P to each branch with "Keep P on the curve" on. Which distance is larger on the left branch, and which on the right? What would the difference of distances be on the vertical axis, and why is that axis not part of the hyperbola?</li>
-    <li style="margin-bottom:0.6em">For any point P at all, the triangle inequality gives |PF₁ − PF₂| ≤ 2c. Use this to explain why a hyperbola needs a to be less than c, which is the same as e greater than 1.</li>
+    <li style="margin-bottom:0.6em">In the ellipse view, turn off "Keep \(P\) on the curve" and drag \(P\) around. When is the sum \(PF_1 + PF_2\) less than \(2a\), and when is it greater? Explain why that sum is smaller inside the ellipse and larger outside.</li>
+    <li style="margin-bottom:0.6em">Drag \(P\) onto the segment joining the two foci. What is the sum there, and why? Is it possible for the sum to be smaller than that anywhere in the plane? (Think about the triangle inequality.) What does this tell you about how large \(2a\) must be compared with \(2c\) for an ellipse to exist?</li>
+    <li style="margin-bottom:0.6em">A gardener drives two stakes 4 feet apart, ties a loop of string 14 feet long around them, and draws with a pencil that keeps the string taut. Explain why the pencil traces an ellipse. Find \(a\), \(c\), and \(b\) for this ellipse, and set the sliders to check your answer.</li>
+    <li style="margin-bottom:0.6em">In the ellipse view, move \(e\) toward 0, and then toward 1. What happens to the shape, and what happens to the foci? Explain each case using the idea that \(PF_1 + PF_2\) is constant.</li>
+    <li style="margin-bottom:0.6em">Switch to the hyperbola. Drag \(P\) to each branch with "Keep \(P\) on the curve" on. Which distance is larger on the left branch, and which on the right? What would the difference of distances be on the vertical axis, and why is that axis not part of the hyperbola?</li>
+    <li style="margin-bottom:0.6em">For any point \(P\) at all, the triangle inequality gives \(|PF_1 - PF_2| \le 2c\). Use this to explain why a hyperbola needs \(a\) to be less than \(c\), which is the same as \(e\) greater than 1.</li>
   </ol>
 </main>
 
@@ -142,7 +163,7 @@
       bx.fillStyle = '#b91c1c'; bx.font = '13px system-ui, sans-serif'; bx.textAlign = 'left'; bx.fillText('2a = ' + f2(two), x0 + two * k + 6, 22);
       bx.fillStyle = '#374151'; bx.fillText('The two bars are placed end to end. The red line marks the constant 2a.', x0, 80);
       var sum = d1 + d2; loc = Math.abs(sum - two) < tol ? 'on the ellipse' : sum < two ? 'inside the ellipse' : 'outside the ellipse';
-      $('eq').textContent = 'PF₁ = ' + f3(d1) + '    PF₂ = ' + f3(d2) + '    PF₁ + PF₂ = ' + f3(sum) + '    2a = ' + f3(two) + '    P is ' + loc;
+      $('eq').textContent = '\\(PF_1 = ' + f3(d1) + '\\quad PF_2 = ' + f3(d2) + '\\quad PF_1 + PF_2 = ' + f3(sum) + '\\quad 2a = ' + f3(two) + '\\)  P is ' + loc;
     } else {
       k = 700 / (3 * g.c);
       bar(x0, 12, d1 * k, 22, '#c2410c', 'PF₁ = ' + f2(d1)); bar(x0, 40, d2 * k, 22, '#0f766e', 'PF₂ = ' + f2(d2));
@@ -151,13 +172,13 @@
       bx.fillStyle = '#b91c1c'; bx.font = '13px system-ui, sans-serif'; bx.textAlign = 'left';
       bx.fillText('red part: |PF₁ − PF₂| = ' + f2(big - small) + '     the constant 2a = ' + f2(two), x0, 86);
       var df = big - small; loc = Math.abs(df - two) < tol ? 'on the hyperbola' : df > two ? 'inside a branch (on the same side as a focus)' : 'between the branches';
-      $('eq').textContent = 'PF₁ = ' + f3(d1) + '    PF₂ = ' + f3(d2) + '    |PF₁ − PF₂| = ' + f3(df) + '    2a = ' + f3(two) + '    P is ' + loc;
+      $('eq').textContent = '\\(PF_1 = ' + f3(d1) + '\\quad PF_2 = ' + f3(d2) + '\\quad |PF_1 - PF_2| = ' + f3(df) + '\\quad 2a = ' + f3(two) + '\\)  P is ' + loc;
     }
     $('aOut').textContent = f2(g.a); $('eOut').textContent = f2(g.e);
-    $('info').textContent = 'a = ' + f2(g.a) + ',  c = ' + f2(g.c) + ',  b = ' + f2(g.b) + ',  ' + (st.mode === 'ellipse' ? 'b² = a² − c²' : 'b² = c² − a²') + ',  e = ' + f2(g.e) + '.';
+    $('info').textContent = '\\(a = ' + f2(g.a) + ',\\ c = ' + f2(g.c) + ',\\ b = ' + f2(g.b) + ',\\ ' + (st.mode === 'ellipse' ? 'b^2 = a^2 - c^2' : 'b^2 = c^2 - a^2') + ',\\ e = ' + f2(g.e) + '\\).';
     $('note').textContent = st.mode === 'ellipse'
-      ? 'The string picture: put two pins at the foci, loop a string of length 2a + 2c around them, and keep it taut with a pencil. The pencil draws the ellipse because the length PF₁ + PF₂ cannot change.'
-      : 'On the right branch P is closer to F₂, and on the left branch P is closer to F₁. The difference between the two distances stays equal to 2a all along each branch.';
+      ? 'The string picture: put two pins at the foci, loop a string of length \\(2a + 2c\\) around them, and keep it taut with a pencil. The pencil draws the ellipse because the length \\(PF_1 + PF_2\\) cannot change.'
+      : 'On the right branch \\(P\\) is closer to \\(F_2\\), and on the left branch \\(P\\) is closer to \\(F_1\\). The difference between the two distances stays equal to \\(2a\\) all along each branch.';
     $('e').value = e();
   }
   function setMode(m) {

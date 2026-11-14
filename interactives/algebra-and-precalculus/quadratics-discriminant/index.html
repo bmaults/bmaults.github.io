@@ -25,24 +25,45 @@
   table.t th, table.t td { border: 1px solid #d1d5db; padding: 4px 12px; text-align: center; }
   input[type=text] { font: inherit; padding: 5px 8px; border: 2px solid #9ca3af; border-radius: 6px; width: 15em; max-width: 100%; }
 </style>
+<style>
+  .playbtn { font: inherit; font-weight: 600; padding: 8px 18px; border: 2px solid #166534; background: #15803d; color: #fff; border-radius: 6px; cursor: pointer; }
+  .playbtn[aria-pressed="true"] { background: #fff; color: #15803d; }
+  #eq { min-height: 2.6em; overflow-x: auto; overflow-y: hidden; line-height: 1.9; }
+  mjx-container { max-width: 100%; }
+</style>
+<script>window.MathJax = { tex: { inlineMath: [['\\(', '\\)']] }, svg: { fontCache: 'global' }, startup: { typeset: false, ready: function () { MathJax.startup.defaultReady(); MathJax.startup.promise = MathJax.startup.promise.then(function () { return MathJax.typesetPromise(); }).catch(function () {}); } } };</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var proto = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML'), tc = Object.getOwnPropertyDescriptor(Node.prototype, 'textContent');
+  function ts(el) { if (window.MathJax && MathJax.startup && MathJax.typesetPromise) { MathJax.startup.promise = MathJax.startup.promise.then(function () { MathJax.startup.document.clear(); return MathJax.typesetPromise([el]); }).catch(function () {}); } }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  document.querySelectorAll('main [id], main .readout, main .box').forEach(function (el) {
+    if (!/^(DIV|P|SPAN|TD)$/.test(el.tagName)) return;
+    var cur = null;
+    Object.defineProperty(el, 'innerHTML', { configurable: true, get: function () { return proto.get.call(el); }, set: function (h) { if (h === cur) return; cur = h; proto.set.call(el, h); ts(el); } });
+    Object.defineProperty(el, 'textContent', { configurable: true, get: function () { return tc.get.call(el); }, set: function (t) { el.innerHTML = esc(t); } });
+  });
+});
+</script>
 </head>
 <body>
 <main>
   <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../">&larr; All algebra and precalculus demonstrations</a></nav>
   <h1>Quadratics and the Discriminant: Roots, Vertex, and Vieta's Formulas</h1>
-  <p>Change a, b, and c and watch the parabola, its roots, its vertex, and the discriminant move together.</p>
+  <p>Change \(a\), \(b\), and \(c\) and watch the parabola \(y = ax^2 + bx + c\), its roots, its vertex, and the discriminant move together. The roots are \(\displaystyle x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}\).</p>
+  <div class="readout" id="eq" style="font-size:1.1rem"></div>
   <canvas id="cv" width="800" height="520" role="img" aria-label="Graph of a quadratic function with its roots, vertex, and axis of symmetry marked. The roots are shown on the x-axis when they are real."></canvas>
   <div class="controls">
-    <label>a <input type="range" id="a" min="-3" max="3" step="0.1" value="1"></label>
-    <label>b <input type="range" id="b" min="-8" max="8" step="0.1" value="-2"></label>
-    <label>c <input type="range" id="c" min="-8" max="8" step="0.1" value="-3"></label>
+    <label>\(a\) <input type="range" id="a" min="-3" max="3" step="0.1" value="1"></label>
+    <label>\(b\) <input type="range" id="b" min="-8" max="8" step="0.1" value="-2"></label>
+    <label>\(c\) <input type="range" id="c" min="-8" max="8" step="0.1" value="-3"></label>
   </div>
   <div class="readout" id="note" aria-live="polite"></div>
-  <div class="readout" id="eq" style="font-size:1.1rem"></div>
   <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
   <ol style="padding-left:1.4em">
-    <li style="margin-bottom:0.6em">Keeping a and b fixed, how does c change the number of real roots?</li>
-    <li style="margin-bottom:0.6em">What stays the same about the roots when you change only b? What is the sum always equal to?</li>
+    <li style="margin-bottom:0.6em">Keeping \(a\) and \(b\) fixed, how does \(c\) change the number of real roots?</li>
+    <li style="margin-bottom:0.6em">What stays the same about the roots when you change only \(b\)? What is the sum always equal to?</li>
   </ol>
 </main>
 <script>
@@ -73,7 +94,9 @@
   function onTick(fn) { animating.push(fn); }
   function tick(ts) { var dt = ts - last; last = ts; animating.forEach(function (f) { f(dt); }); requestAnimationFrame(tick); }
   requestAnimationFrame(tick);
-  function sp(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+  function sp(t, c) { var g = sp.g || (sp.g = document.createElement('canvas').getContext('2d')); g.fillStyle = c; var h = g.fillStyle.replace('#', ''); return '\\textcolor[RGB]{' + parseInt(h.substr(0, 2), 16) + ',' + parseInt(h.substr(2, 2), 16) + ',' + parseInt(h.substr(4, 2), 16) + '}{' + t + '}'; }
+  function hs(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+  function halo(txt, x, y, size, col, al) { ctx.font = 'bold ' + (size || 16) + 'px system-ui, sans-serif'; ctx.textAlign = al || 'center'; ctx.textBaseline = 'middle'; ctx.lineWidth = 4; ctx.strokeStyle = '#fff'; ctx.lineJoin = 'round'; ctx.strokeText(txt, x, y); ctx.fillStyle = col || '#111'; ctx.fillText(txt, x, y); }
 
   var BLU = '#1f3a8a', RED = '#b91c1c', GRN = '#15803d', ORG = '#c2410c', INK = '#1f2937';
   var FN = {
@@ -145,13 +168,13 @@
     clipTo(v, function () { line(v.X(xv), v.py, v.X(xv), v.py + v.ph, '#94a3b8', 1.5, [6, 5]); });
     var note, r1, r2;
     if (D >= 0) { r1 = (-b - Math.sqrt(D)) / (2 * a); r2 = (-b + Math.sqrt(D)) / (2 * a); dot(v.X(r1), v.Y(0), 7, GRN); dot(v.X(r2), v.Y(0), 7, GRN);
-      note = D < 0.005 ? 'The discriminant is zero: the parabola just touches the x-axis at one double root, which is also the vertex.' : 'The discriminant is positive: two real roots, placed symmetrically around the axis of symmetry.'; }
-    else { note = 'The discriminant is negative: the parabola misses the x-axis, so the roots are a complex conjugate pair.'; }
+      note = D < 0.005 ? 'The discriminant is zero: the parabola just touches the \\(x\\)-axis at one double root, which is also the vertex.' : 'The discriminant is positive: two real roots, placed symmetrically around the axis of symmetry.'; }
+    else { note = 'The discriminant is negative: the parabola misses the \\(x\\)-axis, so the roots are a complex conjugate pair.'; }
     if (yv > -8.5 && yv < 8.5) dot(v.X(xv), v.Y(yv), 7, ORG);
     T('vertex', v.X(xv) + 34, v.Y(yv) + (a > 0 ? 22 : -14), 14, ORG); dot(v.X(0), v.Y(c), 5, INK); T('y-intercept c', v.X(0) + 62, v.Y(c) - 12, 13, INK);
-    var sum = -b / a, prod = c / a, roots = D >= 0 ? f2(r1) + ' and ' + f2(r2) : f2(xv) + ' ± ' + f2(Math.sqrt(-D) / (2 * Math.abs(a))) + 'i';
-    $('note').textContent = note;
-    $('eq').innerHTML = sp('Δ = b² − 4ac', ORG) + ' = ' + f2(D) + ' &nbsp;&nbsp; roots: ' + roots + '<br>' + sp('sum of roots = −b/a', GRN) + ' = ' + f2(sum) + ' &nbsp;&nbsp; ' + sp('product = c/a', GRN) + ' = ' + f2(prod);
+    var sum = -b / a, prod = c / a, roots = D >= 0 ? f2(r1) + ' \\text{ and } ' + f2(r2) : f2(xv) + ' \\pm ' + f2(Math.sqrt(-D) / (2 * Math.abs(a))) + 'i';
+    $('note').innerHTML = note;
+    $('eq').innerHTML = '\\(' + sp('\\Delta = b^2 - 4ac', ORG) + ' = ' + f2(D) + '\\) &nbsp;&nbsp; roots: \\(' + roots + '\\)<br>\\(' + sp('\\text{sum of roots} = -\\tfrac{b}{a}', GRN) + ' = ' + f2(sum) + '\\) &nbsp;&nbsp; \\(' + sp('\\text{product} = \\tfrac{c}{a}', GRN) + ' = ' + f2(prod) + '\\)';
   }
   ['a', 'b', 'c'].forEach(function (id) { $(id).oninput = function () { q[id] = parseFloat(this.value); draw(); }; });
   draw();

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Mean Value Theorem for Integrals: The Average Value of a Function</title>
-<meta name="description" content="An interactive picture of the mean value theorem for integrals. Move a horizontal line until the area above it equals the area below it to find the average value of a function.">
+<meta name="description" content="An interactive picture of the mean value theorem for integrals. Move a horizontal line until the area above it equals the area below it, and see the rectangle with the same area as the region under the curve.">
 <style>
   body { font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; color: #1a1a1a; margin: 0; background: #fff; line-height: 1.45; }
   main { max-width: 860px; margin: 0 auto; padding: 12px 14px 24px; }
@@ -25,25 +25,47 @@
   table.t th, table.t td { border: 1px solid #d1d5db; padding: 4px 12px; text-align: center; }
   input[type=text] { font: inherit; padding: 5px 8px; border: 2px solid #9ca3af; border-radius: 6px; width: 15em; max-width: 100%; }
 </style>
+<style>
+  .playbtn { font: inherit; font-weight: 600; padding: 8px 18px; border: 2px solid #166534; background: #15803d; color: #fff; border-radius: 6px; cursor: pointer; }
+  .playbtn[aria-pressed="true"] { background: #fff; color: #15803d; }
+  #eq { min-height: 2.6em; overflow-x: auto; overflow-y: hidden; line-height: 1.9; }
+  mjx-container { max-width: 100%; }
+</style>
+<script>window.MathJax = { tex: { inlineMath: [['\\(', '\\)']] }, svg: { fontCache: 'global' }, startup: { typeset: false, ready: function () { MathJax.startup.defaultReady(); MathJax.startup.promise = MathJax.startup.promise.then(function () { return MathJax.typesetPromise(); }).catch(function () {}); } } };</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var proto = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML'), tc = Object.getOwnPropertyDescriptor(Node.prototype, 'textContent');
+  function ts(el) { if (window.MathJax && MathJax.startup && MathJax.typesetPromise) { MathJax.startup.promise = MathJax.startup.promise.then(function () { MathJax.startup.document.clear(); return MathJax.typesetPromise([el]); }).catch(function () {}); } }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  document.querySelectorAll('main [id], main .readout, main .box').forEach(function (el) {
+    if (!/^(DIV|P|SPAN|TD)$/.test(el.tagName)) return;
+    var cur = null;
+    Object.defineProperty(el, 'innerHTML', { configurable: true, get: function () { return proto.get.call(el); }, set: function (h) { if (h === cur) return; cur = h; proto.set.call(el, h); ts(el); } });
+    Object.defineProperty(el, 'textContent', { configurable: true, get: function () { return tc.get.call(el); }, set: function (t) { el.innerHTML = esc(t); } });
+  });
+});
+</script>
 </head>
 <body>
 <main>
   <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../">&larr; All integral calculus demonstrations</a></nav>
   <h1>The Mean Value Theorem for Integrals: The Average Value of a Function</h1>
   <p>The area under a curve can be turned into a rectangle with the same area. The height of that rectangle is the average value of the function.</p>
-  <div class="tabs" role="group" aria-label="Choose a function"><button type="button" id="t-rise" aria-pressed="true">Rising curve</button><button type="button" id="t-hump" aria-pressed="false">Hump</button><button type="button" id="t-wave" aria-pressed="false">Wave</button></div>
-  <canvas id="cv" width="800" height="520" role="img" aria-label="A curve with a horizontal line. The region between the curve and the line is blue where the curve is above the line and orange where it is below. Two bars compare the blue area with the orange area."></canvas>
+  <div class="readout" id="eq" style="font-size:1.05rem"><b>Mean Value Theorem for Integrals.</b> If \(f\) is continuous on \([a, b]\), then there is a number \(c\) in \([a, b]\) with \[\int_a^b f(x)\,dx = f(c)\,(b - a).\] The left side is the area under the curve. The right side is the area of a rectangle with width \(b - a\) and height \(f(c)\).</div>
+  <div class="tabs" role="group" aria-label="Choose a function"><button type="button" id="t-rise" aria-pressed="true">Rising curve</button><button type="button" id="t-hump" aria-pressed="false">Hump</button><button type="button" id="t-wave" aria-pressed="false">Wave</button><button type="button" id="t-wiggly" aria-pressed="false">Wiggly curve</button></div>
+  <canvas id="cv" width="800" height="520" role="img" aria-label="A curve with a horizontal line. A green dashed rectangle with the width of the interval and the height of the line is drawn under the line. The region between the curve and the line is blue where the curve is above the line and orange where it is below. Two bars compare the blue area with the orange area."></canvas>
   <div class="controls">
     <label>Height of the line <input type="range" id="h" min="0" max="1000" step="1" value="150"></label>
-    <label>Left end a <input type="range" id="a" min="0" max="1000" step="1" value="80"></label>
-    <label>Right end b <input type="range" id="b" min="0" max="1000" step="1" value="920"></label>
+    <label>Left end \(a\) <input type="range" id="a" min="0" max="1000" step="1" value="80"></label>
+    <label>Right end \(b\) <input type="range" id="b" min="0" max="1000" step="1" value="920"></label>
     <label><input type="checkbox" id="show"> Show the balancing height</label>
   </div>
   <div class="readout" id="note" aria-live="polite"></div>
   <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
   <ol style="padding-left:1.4em">
-    <li style="margin-bottom:0.6em">Is there always a point c where the function equals its average value? What would go wrong if the function jumped?</li>
-    <li style="margin-bottom:0.6em">What happens to the balancing height if you move the right end b?</li>
+    <li style="margin-bottom:0.6em">Is there always a point \(c\) where the function equals its average value? What would go wrong if the function jumped?</li>
+    <li style="margin-bottom:0.6em">What happens to the balancing height if you move the right end \(b\)?</li>
   </ol>
 </main>
 <script>
@@ -74,7 +96,9 @@
   function onTick(fn) { animating.push(fn); }
   function tick(ts) { var dt = ts - last; last = ts; animating.forEach(function (f) { f(dt); }); requestAnimationFrame(tick); }
   requestAnimationFrame(tick);
-  function sp(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+  function sp(t, c) { var g = sp.g || (sp.g = document.createElement('canvas').getContext('2d')); g.fillStyle = c; var h = g.fillStyle.replace('#', ''); return '\\textcolor[RGB]{' + parseInt(h.substr(0, 2), 16) + ',' + parseInt(h.substr(2, 2), 16) + ',' + parseInt(h.substr(4, 2), 16) + '}{' + t + '}'; }
+  function hs(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+  function halo(txt, x, y, size, col, al) { ctx.font = 'bold ' + (size || 16) + 'px system-ui, sans-serif'; ctx.textAlign = al || 'center'; ctx.textBaseline = 'middle'; ctx.lineWidth = 4; ctx.strokeStyle = '#fff'; ctx.lineJoin = 'round'; ctx.strokeText(txt, x, y); ctx.fillStyle = col || '#111'; ctx.fillText(txt, x, y); }
 
   var BLU = '#1f3a8a', RED = '#b91c1c', GRN = '#15803d', ORG = '#c2410c', INK = '#1f2937';
   var FN = {
@@ -121,8 +145,20 @@
   var FP = {
     rise: { f: function (x) { return 0.12 * x * x + 0.5; }, F: function (x) { return 0.04 * x * x * x + 0.5 * x; }, x0: 0, x1: 5, y0: 0, y1: 4 },
     hump: { f: function (x) { return -0.5 * (x - 2) * (x - 2) + 2.3; }, F: function (x) { return -Math.pow(x - 2, 3) / 6 + 2.3 * x; }, x0: 0, x1: 4, y0: 0, y1: 3 },
-    wave: { f: function (x) { return 1 + 0.8 * Math.sin(x); }, F: function (x) { return x - 0.8 * Math.cos(x); }, x0: 0, x1: 7, y0: 0, y1: 2.2 }
+    wave: { f: function (x) { return 1 + 0.8 * Math.sin(x); }, F: function (x) { return x - 0.8 * Math.cos(x); }, x0: 0, x1: 7, y0: 0, y1: 2.2 },
+    wiggly: { f: function (x) { return 1.6 + Math.sin(x) + 0.4 * Math.cos(2.5 * x); }, F: function (x) { return 1.6 * x - Math.cos(x) + 0.16 * Math.sin(2.5 * x); }, x0: 0, x1: 7, y0: 0, y1: 3.2 },
+    steps: { f: function (x) { return x < 1.5 ? 1 : x < 3 ? 2.5 : x < 4.5 ? 1.5 : 3; },
+      F: function (x) { var c = [0, 1.5, 3, 4.5, 6], h = [1, 2.5, 1.5, 3], s = 0, i; for (i = 0; i < 4; i++) s += h[i] * Math.max(0, Math.min(x, c[i + 1]) - c[i]); return s; }, x0: 0, x1: 6, y0: 0, y1: 3.4, jumps: [1.5, 3, 4.5] },
+    saw: { f: function (x) { return 0.4 + 1.2 * (x - 2 * Math.floor(x / 2)); },
+      F: function (x) { var k = Math.floor(x / 2), r = x - 2 * k; return 3.2 * k + 0.4 * r + 0.6 * r * r; }, x0: 0, x1: 6, y0: 0, y1: 3, jumps: [2, 4] },
+    mixed: { f: function (x) { return x < 2 ? 0.5 + 0.8 * x : x < 4 ? 3.2 - 0.6 * (x - 3) * (x - 3) : 1.2; },
+      F: function (x) { if (x < 2) return 0.5 * x + 0.4 * x * x; if (x < 4) return 2.6 + 3.2 * (x - 2) - 0.2 * (Math.pow(x - 3, 3) + 1); return 8.6 + 1.2 * (x - 4); }, x0: 0, x1: 5, y0: 0, y1: 3.6, jumps: [2, 4] }
   };
+  function ijCurve(v, F, col, w) {
+    var js = F.jumps || [], pts = [F.x0].concat(js, [F.x1]), i;
+    for (i = 0; i < pts.length - 1; i++) v.curve(F.f, col, w, pts[i] + (i ? 1e-6 : 0), pts[i + 1] - (i < pts.length - 2 ? 1e-6 : 0));
+    js.forEach(function (j) { ctx.beginPath(); ctx.arc(v.X(j), v.Y(F.f(j - 1e-6)), 5, 0, 7); ctx.fillStyle = '#fff'; ctx.fill(); ctx.strokeStyle = col; ctx.lineWidth = 2.5; ctx.stroke(); dot(v.X(j), v.Y(F.f(j)), 5, col); });
+  }
   var FS = {
     swave: { f: function (x) { return 1.5 * Math.sin(x); }, F: function (x) { return -1.5 * Math.cos(x); }, x0: 0, x1: 6.8, y0: -2.2, y1: 2.2 },
     cubic: { f: function (x) { return (x * x * x - 4 * x) / 4; }, F: function (x) { return x * x * x * x / 16 - x * x / 2; }, x0: -3, x1: 3, y0: -4, y1: 4 },
@@ -146,17 +182,28 @@
   }
 
   var st = { fn: 'rise', h: 0.15, a: 0.08, b: 0.92 };
+  function arrows(x1, y1, x2, y2, col) {
+    line(x1, y1, x2, y2, col, 2.5); var an = Math.atan2(y2 - y1, x2 - x1), k;
+    [[x2, y2, an], [x1, y1, an + Math.PI]].forEach(function (e) { line(e[0], e[1], e[0] - 10 * Math.cos(e[2] - 0.45), e[1] - 10 * Math.sin(e[2] - 0.45), col, 2.5); line(e[0], e[1], e[0] - 10 * Math.cos(e[2] + 0.45), e[1] - 10 * Math.sin(e[2] + 0.45), col, 2.5); });
+  }
   function draw() {
     clear();
     var F = FP[st.fn], v = new View(40, 20, 720, 370, F.x0, F.x1, F.y0, F.y1), sp0 = F.x1 - F.x0;
     var a = F.x0 + sp0 * Math.min(st.a, st.b - 0.1), b = F.x0 + sp0 * Math.max(st.b, st.a + 0.1), L = F.y0 + (F.y1 - F.y0) * st.h;
-    var avg = integ(F.f, a, b) / (b - a), up = integ(function (x) { return Math.max(F.f(x) - L, 0); }, a, b), dn = integ(function (x) { return Math.max(L - F.f(x), 0); }, a, b);
+    var avg = (F.F(b) - F.F(a)) / (b - a), up = integ(function (x) { return Math.max(F.f(x) - L, 0); }, a, b), dn = integ(function (x) { return Math.max(L - F.f(x), 0); }, a, b);
     var bal = Math.abs(up - dn) < 0.03 * (up + dn + 1e-9) + 0.01 * (b - a), X = v.X, Y = v.Y;
     v.axes();
-    v.on(); fillArea(v, F.f, a, b, 'rgba(31,58,138,0.30)', 'rgba(194,65,12,0.30)', L); v.off();
+    v.on(); ctx.fillStyle = 'rgba(21,128,61,0.10)'; ctx.fillRect(X(a), Y(L), X(b) - X(a), Y(0) - Y(L)); fillArea(v, F.f, a, b, 'rgba(31,58,138,0.30)', 'rgba(194,65,12,0.30)', L);
+    ctx.save(); ctx.setLineDash([9, 6]); ctx.strokeStyle = GRN; ctx.lineWidth = 3; ctx.strokeRect(X(a), Y(L), X(b) - X(a), Y(0) - Y(L)); ctx.restore(); v.off();
     v.curve(F.f, INK, 3.5);
     line(X(a), v.py, X(a), v.py + v.ph, '#cbd5e1', 1.5, [5, 5]); line(X(b), v.py, X(b), v.py + v.ph, '#cbd5e1', 1.5, [5, 5]);
     v.on(); line(X(a), Y(L), X(b), Y(L), bal ? GRN : INK, 4); v.off();
+    var rh = Y(0) - Y(L), hname = bal ? 'f(c)' : 'height';
+    if (rh > 46) {
+      arrows(X(a) + 16, Y(0) - 3, X(a) + 16, Y(L) + 3, GRN); halo(hname, X(a) + 24, Y(L) + rh * 0.25, 15, GRN, 'left');
+      arrows(X(a) + 4, Y(0) - 20, X(b) - 4, Y(0) - 20, GRN); halo('b − a', (X(a) + X(b)) / 2, Y(0) - 34, 15, GRN);
+      halo(bal ? 'rectangle area = f(c) · (b − a)' : 'rectangle area = height · (b − a)', (X(a) + X(b)) / 2, Y(L) + rh * 0.5, 16, GRN);
+    }
     if ($('show').checked || bal) {
       line(X(a), Y(avg), X(b), Y(avg), GRN, 2.5, [8, 6]);
       var i, n = 600, cs = [];
@@ -167,9 +214,9 @@
     var sc = 560 / Math.max(up + dn, 1e-6, 0.4 * (b - a) * (F.y1 - F.y0)), by = 428;
     T('Area above the line', 40, by - 6, 14, BLU, 'left'); ctx.fillStyle = BLU; ctx.fillRect(250, by - 16, up * sc, 20);
     T('Area below the line', 40, by + 28, 14, ORG, 'left'); ctx.fillStyle = ORG; ctx.fillRect(250, by + 18, dn * sc, 20);
-    $('note').innerHTML = bal ? sp('Balanced.', GRN) + ' The area above the line exactly fills the area below it, so this rectangle has the same area as the region under the curve. The curve reaches this height at c.' : 'Move the line until the blue area and the orange area are equal. Check your answer with the checkbox.';
+    $('note').innerHTML = bal ? hs('Balanced.', GRN) + ' The area above the line exactly fills the area below it, so the green rectangle has the same area as the region under the curve. The curve reaches this height at \\(c\\).' : 'Move the line until the blue area and the orange area are equal. Then the green rectangle and the region under the curve have the same area. Check your answer with the checkbox.';
   }
-  tabsFor(['rise', 'hump', 'wave'], function (n) { st.fn = n; draw(); });
+  tabsFor(['rise', 'hump', 'wave', 'wiggly'], function (n) { st.fn = n; draw(); });
   ['h', 'a', 'b'].forEach(function (id) { $(id).oninput = function () { st[id] = parseFloat(this.value) / 1000; draw(); }; });
   $('show').onchange = draw; draw();
 

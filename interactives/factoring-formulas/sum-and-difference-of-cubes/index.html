@@ -25,12 +25,34 @@
   table.t th, table.t td { border: 1px solid #d1d5db; padding: 4px 12px; text-align: center; }
   input[type=text] { font: inherit; padding: 5px 8px; border: 2px solid #9ca3af; border-radius: 6px; width: 15em; max-width: 100%; }
 </style>
+<style>
+  .playbtn { font: inherit; font-weight: 600; padding: 8px 18px; border: 2px solid #166534; background: #15803d; color: #fff; border-radius: 6px; cursor: pointer; }
+  .playbtn[aria-pressed="true"] { background: #fff; color: #15803d; }
+  #eq { min-height: 2.6em; overflow-x: auto; overflow-y: hidden; line-height: 1.9; }
+  mjx-container { max-width: 100%; }
+</style>
+<script>window.MathJax = { tex: { inlineMath: [['\\(', '\\)']] }, svg: { fontCache: 'global' }, startup: { typeset: false, ready: function () { MathJax.startup.defaultReady(); MathJax.startup.promise = MathJax.startup.promise.then(function () { return MathJax.typesetPromise(); }).catch(function () {}); } } };</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var proto = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML'), tc = Object.getOwnPropertyDescriptor(Node.prototype, 'textContent');
+  function ts(el) { if (window.MathJax && MathJax.startup && MathJax.typesetPromise) { MathJax.startup.promise = MathJax.startup.promise.then(function () { MathJax.startup.document.clear(); return MathJax.typesetPromise([el]); }).catch(function () {}); } }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  document.querySelectorAll('main [id], main .readout, main .box').forEach(function (el) {
+    if (!/^(DIV|P|SPAN|TD)$/.test(el.tagName)) return;
+    var cur = null;
+    Object.defineProperty(el, 'innerHTML', { configurable: true, get: function () { return proto.get.call(el); }, set: function (h) { if (h === cur) return; cur = h; proto.set.call(el, h); ts(el); } });
+    Object.defineProperty(el, 'textContent', { configurable: true, get: function () { return tc.get.call(el); }, set: function (t) { el.innerHTML = esc(t); } });
+  });
+});
+</script>
 </head>
 <body>
 <main>
   <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../">&larr; All factoring formula demonstrations</a></nav>
   <h1>Factoring Sums and Differences of Cubes with SOAP</h1>
-  <p>Factoring a sum or difference of cubes is about volume. Switch between the two cases, and use the slider to take the pieces apart or put them together. The signs in the factors follow the rule <b style="color:#0f766e">S</b>ame, <b style="color:#b91c1c">O</b>pposite, <b style="color:#1f3a8a">A</b>lways <b style="color:#1f3a8a">P</b>ositive (SOAP).</p>
+  <p>Factoring a sum or difference of cubes is about volume. Switch between the two cases, and use the slider to take the pieces apart or put them together. The signs in the factors follow the rule <b style="color:#0f766e">S</b>ame, <b style="color:#b91c1c">O</b>pposite, <b style="color:#1f3a8a">A</b>lways <b style="color:#1f3a8a">P</b>ositive (SOAP). The picture shows \(a^3 \pm b^3 = (a \pm b)(a^2 \mp ab + b^2)\).</p>
+  <div class="readout" id="eq" style="font-size:1.15rem"></div>
   <div class="tabs" role="group" aria-label="Difference or sum of cubes">
     <button type="button" id="t-dif" aria-pressed="true">Difference of cubes</button>
     <button type="button" id="t-sum" aria-pressed="false">Sum of cubes</button>
@@ -39,16 +61,15 @@
   <div class="controls">
     <label id="eWrap">Pull the pieces apart <input type="range" id="e" min="0" max="1000" step="1" value="0"></label>
     <label id="sWrap">Cut and stack <input type="range" id="step" min="0" max="1000" step="1" value="0"></label>
-    <label id="aWrap"><input type="checkbox" id="anim"> Play the animation</label>
+    <div id="aWrap"><button type="button" class="playbtn" id="anim" aria-pressed="false">&#9654; Play the animation</button><script>(function(){var b=document.getElementById("anim"),on=false;function paint(){b.setAttribute("aria-pressed",on);b.textContent=(on?"\u23F8 Pause the animation":"\u25B6 Play the animation");}Object.defineProperty(b,"checked",{get:function(){return on;},set:function(v){on=!!v;paint();}});b.addEventListener("click",function(){on=!on;paint();b.dispatchEvent(new Event("change"));});paint();})();</script></div>
     <label>Size of the small cube <input type="range" id="b" min="1" max="5" step="0.25" value="2.5"></label>
   </div>
   <div class="readout" id="stage" aria-live="polite"></div>
-  <div class="readout" id="eq" style="font-size:1.15rem"></div>
   <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
   <ol style="padding-left:1.4em">
-    <li style="margin-bottom:0.6em">In the difference of cubes picture, how thick is each of the three pieces? Where do the three base areas show up in (a − b)(a² + ab + b²)?</li>
-    <li style="margin-bottom:0.6em">In the sum of cubes picture, the base of the prism is a rectangle with a square attached. Why does that make the middle term of a² − ab + b² negative?</li>
-    <li style="margin-bottom:0.6em">What happens to the three pieces in the first picture as the small cube gets close to the size of the big cube? What does that say about a³ − b³?</li>
+    <li style="margin-bottom:0.6em">In the difference of cubes picture, how thick is each of the three pieces? Where do the three base areas show up in \((a - b)(a^2 + ab + b^2)\)?</li>
+    <li style="margin-bottom:0.6em">In the sum of cubes picture, the base of the prism is a rectangle with a square attached. Why does that make the middle term of \(a^2 - ab + b^2\) negative?</li>
+    <li style="margin-bottom:0.6em">What happens to the three pieces in the first picture as the small cube gets close to the size of the big cube? What does that say about \(a^3 - b^3\)?</li>
   </ol>
 </main>
 <script>
@@ -79,7 +100,9 @@
   function onTick(fn) { animating.push(fn); }
   function tick(ts) { var dt = ts - last; last = ts; animating.forEach(function (f) { f(dt); }); requestAnimationFrame(tick); }
   requestAnimationFrame(tick);
-  function sp(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+  function sp(t, c) { var g = sp.g || (sp.g = document.createElement('canvas').getContext('2d')); g.fillStyle = c; var h = g.fillStyle.replace('#', ''); return '\\textcolor[RGB]{' + parseInt(h.substr(0, 2), 16) + ',' + parseInt(h.substr(2, 2), 16) + ',' + parseInt(h.substr(4, 2), 16) + '}{' + t + '}'; }
+  function hs(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+  function halo(txt, x, y, size, col, al) { ctx.font = 'bold ' + (size || 16) + 'px system-ui, sans-serif'; ctx.textAlign = al || 'center'; ctx.textBaseline = 'middle'; ctx.lineWidth = 4; ctx.strokeStyle = '#fff'; ctx.lineJoin = 'round'; ctx.strokeText(txt, x, y); ctx.fillStyle = col || '#111'; ctx.fillText(txt, x, y); }
 
   var st = { sum: false, e: 0, step: 0, b: 2.5 }, A = 6, GR = '#0f766e', RD = '#b91c1c', BL = '#1f3a8a', K = '#111';
   var COL = { blue: [147, 197, 253], orange: [253, 186, 116], green: [134, 239, 172], purple: [196, 181, 253] };
@@ -150,7 +173,7 @@
       if (p.face === 'top') c = pp((p.x0 + p.x1) / 2, (p.y0 + p.y1) / 2, p.z1); else if (p.face === 'x1') c = pp(p.x1, (p.y0 + p.y1) / 2, (p.z0 + p.z1) / 2); else c = pp((p.x0 + p.x1) / 2, p.y1, (p.z0 + p.z1) / 2);
       T(p.lab, c[0], c[1], 24, '#111');
     });
-    var sg = st.sum ? '+' : '−', mg = st.sum ? '−' : '+';
+    var sg = st.sum ? '+' : '-', mg = st.sum ? '-' : '+';
     if (!st.sum && st.e < 0.2) {
       var gb = a - b;
       [[[gb, gb, a], [a, gb, a], [a, a, a], [gb, a, a]], [[a, gb, gb], [a, a, gb], [a, a, a], [a, gb, a]], [[gb, a, gb], [a, a, gb], [a, a, a], [gb, a, a]]].forEach(function (f) {
@@ -163,29 +186,29 @@
       var f1 = pp(gb / 2, a, a), f2 = pp(a, gb / 2, a), f3 = pp(a, a, gb / 2);
       TL('a − b', f1[0] - 22, f1[1] - 10, BL); TL('a − b', f2[0] + 22, f2[1] - 10, BL); TL('a − b', f3[0] + 30, f3[1], BL);
       T('Start with a³ − b³', W / 2, 36, 22, K);
-      $('stage').textContent = 'A cube of side a with a cube of side b (dashed) removed from one corner. Pull the pieces apart to see how the leftover is cut.';
+      $('stage').textContent = 'A cube of side \\(a\\) with a cube of side \\(b\\) (dashed) removed from one corner. Pull the pieces apart to see how the leftover is cut.';
     } else if (!st.sum) {
       T('Each piece is a − b thick', W / 2, 36, 22, K);
       var gg = st.e * 4, h1 = pp(a, a, (a - b) / 2 - gg), h2 = pp((a - b - 2 * gg) / 2, a, a), h3 = pp(a + gg, (a - b) / 2, a);
       TL('a − b', h1[0] + 30, h1[1], BL); TL('a − b', h2[0] - 22, h2[1] - 10, BL); TL('a − b', h3[0] + 22, h3[1] - 10, BL);
-      $('stage').textContent = 'A cube with a smaller cube removed from one corner. The leftover shell is cut into three pieces of the same thickness, with bases a², ab, and b².';
+      $('stage').textContent = 'A cube with a smaller cube removed from one corner. The leftover shell is cut into three pieces of the same thickness, with bases \\(a^2\\), \\(ab\\), and \\(b^2\\).';
     } else {
       var tt = st.step;
       if (tt < 0.02) {
         T('Start with a³ + b³', W / 2, 36, 22, K);
         cubeLabels(0, 0, 0, a, 'a'); cubeLabels(a + 3.5, 0, 0, b, 'b');
-        $('stage').textContent = 'A cube of side a and a cube of side b. Slide the pieces into place to see the factors.';
+        $('stage').textContent = 'A cube of side \\(a\\) and a cube of side \\(b\\). Slide the pieces into place to see the factors.';
       } else if (tt > 0.98) {
         var lx = pp(0, a, 0), ly = pp(0, a, a + b);
         ctx.strokeStyle = K; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(lx[0] - 40, lx[1]); ctx.lineTo(ly[0] - 40, ly[1]); ctx.stroke(); T('a + b', lx[0] - 74, (lx[1] + ly[1]) / 2, 20, K);
         T('Base area: a² − ab + b²', W / 2, 36, 22, K);
-        $('stage').textContent = 'A prism of height a + b. Its base is a rectangle (a by a − b) with a b by b square attached, so its base area is a² − ab + b².';
+        $('stage').textContent = 'A prism of height \\(a + b\\). Its base is a rectangle (\\(a\\) by \\(a - b\\)) with a \\(b\\) by \\(b\\) square attached, so its base area is \\(a^2 - ab + b^2\\).';
       } else {
         T('Turn and move the boxes to stack them into a prism', W / 2, 36, 22, K);
-        $('stage').textContent = 'The orange box is turned and moved without changing its size, so the total volume stays a³ + b³.';
+        $('stage').textContent = 'The orange box is turned and moved without changing its size, so the total volume stays \\(a^3 + b^3\\).';
       }
     }
-    $('eq').innerHTML = (st.sum ? 'A³ + B³' : 'A³ − B³').replace(/A/g, 'a').replace(/B/g, 'b') + ' = (a ' + sp(sg, GR) + ' b)(a² ' + sp(mg, RD) + ' ab ' + sp('+', BL) + ' b²)';
+    $('eq').innerHTML = '\\(' + (st.sum ? 'a^3 + b^3' : 'a^3 - b^3') + ' = (a ' + sp(sg, GR) + ' b)(a^2 ' + sp(mg, RD) + ' ab ' + sp('+', BL) + ' b^2)\\)';
     $('eWrap').style.display = st.sum ? 'none' : ''; $('sWrap').style.display = st.sum ? '' : 'none'; $('aWrap').style.display = st.sum ? '' : 'none';
   }
   function mode(sum) { st.sum = sum; setTabs(['t-dif', 't-sum'], sum ? 't-sum' : 't-dif'); draw(); }

@@ -25,24 +25,45 @@
   table.t th, table.t td { border: 1px solid #d1d5db; padding: 4px 12px; text-align: center; }
   input[type=text] { font: inherit; padding: 5px 8px; border: 2px solid #9ca3af; border-radius: 6px; width: 15em; max-width: 100%; }
 </style>
+<style>
+  .playbtn { font: inherit; font-weight: 600; padding: 8px 18px; border: 2px solid #166534; background: #15803d; color: #fff; border-radius: 6px; cursor: pointer; }
+  .playbtn[aria-pressed="true"] { background: #fff; color: #15803d; }
+  #eq { min-height: 2.6em; overflow-x: auto; overflow-y: hidden; line-height: 1.9; }
+  mjx-container { max-width: 100%; }
+</style>
+<script>window.MathJax = { tex: { inlineMath: [['\\(', '\\)']] }, svg: { fontCache: 'global' }, startup: { typeset: false, ready: function () { MathJax.startup.defaultReady(); MathJax.startup.promise = MathJax.startup.promise.then(function () { return MathJax.typesetPromise(); }).catch(function () {}); } } };</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var proto = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML'), tc = Object.getOwnPropertyDescriptor(Node.prototype, 'textContent');
+  function ts(el) { if (window.MathJax && MathJax.startup && MathJax.typesetPromise) { MathJax.startup.promise = MathJax.startup.promise.then(function () { MathJax.startup.document.clear(); return MathJax.typesetPromise([el]); }).catch(function () {}); } }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  document.querySelectorAll('main [id], main .readout, main .box').forEach(function (el) {
+    if (!/^(DIV|P|SPAN|TD)$/.test(el.tagName)) return;
+    var cur = null;
+    Object.defineProperty(el, 'innerHTML', { configurable: true, get: function () { return proto.get.call(el); }, set: function (h) { if (h === cur) return; cur = h; proto.set.call(el, h); ts(el); } });
+    Object.defineProperty(el, 'textContent', { configurable: true, get: function () { return tc.get.call(el); }, set: function (t) { el.innerHTML = esc(t); } });
+  });
+});
+</script>
 </head>
 <body>
 <main>
   <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../">&larr; All sums and patterns demonstrations</a></nav>
-  <h1>The Sum of the First n Odd Numbers: 1 + 3 + 5 + ... + (2n − 1) = n²</h1>
-  <p>A square can be built from L-shaped layers. Add layers with the first slider, then straighten the L-shapes with the second to see how many squares each layer has.</p>
+  <h1>The Sum of the First \(n\) Odd Numbers: \(1 + 3 + 5 + \cdots + (2n - 1) = n^2\)</h1>
+  <p>A square can be built from L-shaped layers. Add layers with the first slider, then straighten the L-shapes with the second to see how many squares each layer has. The picture shows why \(1 + 3 + 5 + \cdots + (2n - 1) = n^2\).</p>
+  <div class="readout" id="eq" style="font-size:1.15rem"></div>
   <canvas id="cv" width="800" height="520" role="img" aria-label="A square built from L-shaped layers, each of which can be straightened into a bar one square wide. The bars have 1, 3, 5, and so on squares."></canvas>
   <div class="controls">
-    <label>Number of L-shaped layers, n <input type="range" id="n" min="1" max="10" step="1" value="4"></label>
+    <label>Number of L-shaped layers, \(n\) <input type="range" id="n" min="1" max="10" step="1" value="4"></label>
     <label>Straighten the L-shapes <input type="range" id="u" min="0" max="1000" step="1" value="0"></label>
-    <label><input type="checkbox" id="anim"> Play the animation</label>
+    <div><button type="button" class="playbtn" id="anim" aria-pressed="false">&#9654; Play the animation</button><script>(function(){var b=document.getElementById("anim"),on=false;function paint(){b.setAttribute("aria-pressed",on);b.textContent=(on?"\u23F8 Pause the animation":"\u25B6 Play the animation");}Object.defineProperty(b,"checked",{get:function(){return on;},set:function(v){on=!!v;paint();}});b.addEventListener("click",function(){on=!on;paint();b.dispatchEvent(new Event("change"));});paint();})();</script></div>
   </div>
   <div class="readout" id="note" aria-live="polite"></div>
-  <div class="readout" id="eq" style="font-size:1.15rem"></div>
   <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
   <ol style="padding-left:1.4em">
     <li style="margin-bottom:0.6em">Can you prove this formula with induction?</li>
-    <li style="margin-bottom:0.6em">The bars have 1, 3, 5, … squares. What is the length of the next bar, and why?</li>
+    <li style="margin-bottom:0.6em">The bars have \(1, 3, 5, \ldots\) squares. What is the length of the next bar, and why?</li>
   </ol>
 </main>
 <script>
@@ -73,9 +94,12 @@
   function onTick(fn) { animating.push(fn); }
   function tick(ts) { var dt = ts - last; last = ts; animating.forEach(function (f) { f(dt); }); requestAnimationFrame(tick); }
   requestAnimationFrame(tick);
-  function sp(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+  function sp(t, c) { var g = sp.g || (sp.g = document.createElement('canvas').getContext('2d')); g.fillStyle = c; var h = g.fillStyle.replace('#', ''); return '\\textcolor[RGB]{' + parseInt(h.substr(0, 2), 16) + ',' + parseInt(h.substr(2, 2), 16) + ',' + parseInt(h.substr(4, 2), 16) + '}{' + t + '}'; }
+  function hs(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+  function halo(txt, x, y, size, col, al) { ctx.font = 'bold ' + (size || 16) + 'px system-ui, sans-serif'; ctx.textAlign = al || 'center'; ctx.textBaseline = 'middle'; ctx.lineWidth = 4; ctx.strokeStyle = '#fff'; ctx.lineJoin = 'round'; ctx.strokeText(txt, x, y); ctx.fillStyle = col || '#111'; ctx.fillText(txt, x, y); }
 
   function halo(txt, x, y, size, col) { ctx.font = 'bold ' + size + 'px system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineWidth = 5; ctx.strokeStyle = '#fff'; ctx.strokeText(txt, x, y); ctx.fillStyle = col; ctx.fillText(txt, x, y); }
+  function haloV(txt, x, y, size, col) { ctx.save(); ctx.translate(x, y); ctx.rotate(-Math.PI / 2); halo(txt, 0, 0, size, col); ctx.restore(); }
   function hue(k) { return (k * 47 + 200) % 360; }
   function layer(w, a, e, k, p, X, Y, u) {
     var b = a + w, off = (1 - ease(p)) * 40, s, fill = 'hsl(' + hue(k) + ',70%,82%)', stroke = 'hsl(' + hue(k) + ',55%,32%)';
@@ -114,9 +138,9 @@
       if (e < 0.03) { halo('n', X(0) - 20, Y(n / 2), 18, '#111'); halo('n', X(n / 2), Y(0) + 22, 18, '#111'); }
       if (e > 0.97) for (k = 1; k <= n; k++) halo(String(2 * k - 1), X(k - 0.5), Y(2 * k - 1) - 14, 14, '#111');
     }
-    $('note').textContent = e < 0.03 ? 'The square has n rows and n columns of small squares. Each L-shaped layer is one color.' : e > 0.97 ? 'Each L straightens into a bar one square wide. The bars are 1, 3, 5, … squares long, and together they use exactly the same squares as the n by n square.' : 'Each L-shaped layer is turned and slid up into a straight bar. Nothing is added or removed.';
+    $('note').textContent = e < 0.03 ? 'The square has \\(n\\) rows and \\(n\\) columns of small squares. Each L-shaped layer is one color.' : e > 0.97 ? 'Each L straightens into a bar one square wide. The bars are \\(1, 3, 5, \\ldots\\) squares long, and together they use exactly the same squares as the \\(n\\) by \\(n\\) square.' : 'Each L-shaped layer is turned and slid up into a straight bar. Nothing is added or removed.';
     var t = []; for (k = 1; k <= n; k++) t.push(sp(String(2 * k - 1), 'hsl(' + hue(k) + ',60%,32%)'));
-    $('eq').innerHTML = t.join(' + ') + ' = ' + sp(n + '²', OR) + '&nbsp;&nbsp;&nbsp;(in general: ' + sp('1 + 3 + 5 + ⋯ + (2n − 1)', BL) + ' = ' + sp('n²', OR) + ')';
+    $('eq').innerHTML = '\\(' + sp('1 + 3 + 5 + \\cdots + (2n - 1)', BL) + ' = ' + sp('n^2', OR) + '\\)<br>\\(' + t.join(' + ') + ' = ' + sp(n + '^2', OR) + '\\)';
   }
   wire(); draw();
 

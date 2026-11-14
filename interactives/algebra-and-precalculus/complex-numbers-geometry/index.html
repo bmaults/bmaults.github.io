@@ -25,21 +25,41 @@
   table.t th, table.t td { border: 1px solid #d1d5db; padding: 4px 12px; text-align: center; }
   input[type=text] { font: inherit; padding: 5px 8px; border: 2px solid #9ca3af; border-radius: 6px; width: 15em; max-width: 100%; }
 </style>
+<style>
+  .playbtn { font: inherit; font-weight: 600; padding: 8px 18px; border: 2px solid #166534; background: #15803d; color: #fff; border-radius: 6px; cursor: pointer; }
+  .playbtn[aria-pressed="true"] { background: #fff; color: #15803d; }
+  #eq { min-height: 2.6em; overflow-x: auto; overflow-y: hidden; line-height: 1.9; }
+  mjx-container { max-width: 100%; }
+</style>
+<script>window.MathJax = { tex: { inlineMath: [['\\(', '\\)']] }, svg: { fontCache: 'global' }, startup: { typeset: false, ready: function () { MathJax.startup.defaultReady(); MathJax.startup.promise = MathJax.startup.promise.then(function () { return MathJax.typesetPromise(); }).catch(function () {}); } } };</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var proto = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML'), tc = Object.getOwnPropertyDescriptor(Node.prototype, 'textContent');
+  function ts(el) { if (window.MathJax && MathJax.startup && MathJax.typesetPromise) { MathJax.startup.promise = MathJax.startup.promise.then(function () { MathJax.startup.document.clear(); return MathJax.typesetPromise([el]); }).catch(function () {}); } }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  document.querySelectorAll('main [id], main .readout, main .box').forEach(function (el) {
+    if (!/^(DIV|P|SPAN|TD)$/.test(el.tagName)) return;
+    var cur = null;
+    Object.defineProperty(el, 'innerHTML', { configurable: true, get: function () { return proto.get.call(el); }, set: function (h) { if (h === cur) return; cur = h; proto.set.call(el, h); ts(el); } });
+    Object.defineProperty(el, 'textContent', { configurable: true, get: function () { return tc.get.call(el); }, set: function (t) { el.innerHTML = esc(t); } });
+  });
+});
+</script>
 </head>
 <body>
 <main>
   <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../">&larr; All algebra and precalculus demonstrations</a></nav>
   <h1>Complex Numbers as Geometry: Sums, Products, Powers, and Roots of Unity</h1>
-  <p>Drag the points <b style="color:#1e3a8a">z</b> and <b style="color:#c2410c">w</b> around the plane. Each tab shows what an operation does geometrically.</p>
-  <div class="tabs"><button type="button" class="act" id="m_add" aria-pressed="false">Add</button><button type="button" class="act" id="m_mul" aria-pressed="false">Multiply</button><button type="button" class="act" id="m_div" aria-pressed="false">Divide</button><button type="button" class="act" id="m_pow" aria-pressed="false">Powers</button><button type="button" class="act" id="m_root" aria-pressed="false">Roots</button></div>
+  <p>Drag the points \(\textcolor[RGB]{30,58,138}{z}\) and \(\textcolor[RGB]{194,65,12}{w}\) around the plane. Each tab shows what an operation does geometrically.</p>
+  <div class="readout" id="eq" style="font-size:1.1rem"></div>\n  <div class="tabs"><button type="button" class="act" id="m_add" aria-pressed="false">Add</button><button type="button" class="act" id="m_mul" aria-pressed="false">Multiply</button><button type="button" class="act" id="m_div" aria-pressed="false">Divide</button><button type="button" class="act" id="m_pow" aria-pressed="false">Powers</button><button type="button" class="act" id="m_root" aria-pressed="false">Roots</button></div>
   <canvas id="cv" width="800" height="520" role="img" aria-label="The complex plane with draggable points z and w. Depending on the tab, the picture shows their sum as a parallelogram, their product and quotient with angle arcs, the powers of z along a spiral, or the nth roots of w as the vertices of a regular polygon."></canvas>
-  <div class="controls"><label id="nl">Exponent or number of roots n <input type="range" id="n" min="2" max="12" step="1" value="5"></label></div>
+  <div class="controls"><label id="nl">Exponent or number of roots \(n\) <input type="range" id="n" min="2" max="12" step="1" value="5"></label></div>
   <div class="readout" id="note" aria-live="polite"></div>
-  <div class="readout" id="eq" style="font-size:1.1rem"></div>
   <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
   <ol style="padding-left:1.4em">
-    <li style="margin-bottom:0.6em">Where must w be so that multiplying by w rotates z by 90° and leaves its length alone?</li>
-    <li style="margin-bottom:0.6em">For what z do the powers of z stay on a circle? What do they do when |z| is larger or smaller than 1?</li>
+    <li style="margin-bottom:0.6em">Where must \(w\) be so that multiplying by \(w\) rotates \(z\) by \(90^{\circ}\) and leaves its length alone?</li>
+    <li style="margin-bottom:0.6em">For what \(z\) do the powers of \(z\) stay on a circle? What do they do when \(|z|\) is larger or smaller than 1?</li>
   </ol>
 </main>
 <script>
@@ -70,7 +90,9 @@
   function onTick(fn) { animating.push(fn); }
   function tick(ts) { var dt = ts - last; last = ts; animating.forEach(function (f) { f(dt); }); requestAnimationFrame(tick); }
   requestAnimationFrame(tick);
-  function sp(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+  function sp(t, c) { var g = sp.g || (sp.g = document.createElement('canvas').getContext('2d')); g.fillStyle = c; var h = g.fillStyle.replace('#', ''); return '\\textcolor[RGB]{' + parseInt(h.substr(0, 2), 16) + ',' + parseInt(h.substr(2, 2), 16) + ',' + parseInt(h.substr(4, 2), 16) + '}{' + t + '}'; }
+  function hs(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+  function halo(txt, x, y, size, col, al) { ctx.font = 'bold ' + (size || 16) + 'px system-ui, sans-serif'; ctx.textAlign = al || 'center'; ctx.textBaseline = 'middle'; ctx.lineWidth = 4; ctx.strokeStyle = '#fff'; ctx.lineJoin = 'round'; ctx.strokeText(txt, x, y); ctx.fillStyle = col || '#111'; ctx.fillText(txt, x, y); }
 
   var BLU = '#1f3a8a', RED = '#b91c1c', GRN = '#15803d', ORG = '#c2410c', INK = '#1f2937';
   var FN = {
@@ -140,7 +162,7 @@
   function arg(a) { return Math.atan2(a[1], a[0]); }
   function mod(a) { return Math.hypot(a[0], a[1]); }
   function f2(x) { return x.toFixed(2); }
-  function dg(a) { return (a * 180 / Math.PI).toFixed(0) + '°'; }
+  function dg(a) { return (a * 180 / Math.PI).toFixed(0) + '^{\\circ}'; }
   function arrow(c, col, wd) {
     var p = P(c), a = Math.atan2(p[1] - oy, p[0] - ox); line(ox, oy, p[0], p[1], col, wd);
     line(p[0], p[1], p[0] - 12 * Math.cos(a - 0.4), p[1] - 12 * Math.sin(a - 0.4), col, wd); line(p[0], p[1], p[0] - 12 * Math.cos(a + 0.4), p[1] - 12 * Math.sin(a + 0.4), col, wd);
@@ -160,35 +182,35 @@
       line(a[0], a[1], c[0], c[1], '#c2410c', 2, [6, 5]); line(b[0], b[1], c[0], c[1], '#1e3a8a', 2, [6, 5]);
       arrow(z, BLU, 3); arrow(w, ORG, 3); arrow(s, GRN, 4); pt(s, GRN, 'z + w', false);
       note = 'Adding complex numbers is vector addition. The three points and the origin form a parallelogram.';
-      eq = sp('z', BLU) + ' + ' + sp('w', ORG) + ' = ' + f2(s[0]) + (s[1] < 0 ? ' − ' : ' + ') + f2(Math.abs(s[1])) + 'i';
+      eq = '\\(' + sp('z', BLU) + ' + ' + sp('w', ORG) + ' = ' + f2(s[0]) + (s[1] < 0 ? ' - ' : ' + ') + f2(Math.abs(s[1])) + 'i\\)';
     } else if (mode === 'm_mul' || mode === 'm_div') {
       var m = mode === 'm_mul', r;
       if (m) r = mul(z, w); else { var d = w[0] * w[0] + w[1] * w[1]; r = [(z[0] * w[0] + z[1] * w[1]) / d, (z[1] * w[0] - z[0] * w[1]) / d]; }
       arc(arg(z), 34, BLU); arc(arg(w), 46, ORG); arc(arg(r), 58, GRN);
       arrow(z, BLU, 3); arrow(w, ORG, 3); arrow(r, GRN, 4); pt(r, GRN, m ? 'z·w' : 'z/w', false);
-      note = m ? 'The product has length |z||w|, and its angle is the sum of the two angles. Multiplying by w rotates by arg w and scales by |w|.' : 'The quotient has length |z|/|w|, and its angle is the difference of the two angles. Dividing by w undoes a rotation and a scaling.';
-      eq = m ? '|z||w| = ' + f2(mod(z)) + ' · ' + f2(mod(w)) + ' = ' + f2(mod(r)) + ' &nbsp; and &nbsp; arg z + arg w = ' + dg(arg(z)) + ' + ' + dg(arg(w)) + ' ≡ ' + dg(arg(r)) + ' (mod 360°)'
-        : '|z|/|w| = ' + f2(mod(z)) + ' / ' + f2(mod(w)) + ' = ' + f2(mod(r)) + ' &nbsp; and &nbsp; arg z − arg w = ' + dg(arg(z)) + ' − ' + dg(arg(w)) + ' ≡ ' + dg(arg(r)) + ' (mod 360°)';
+      note = m ? 'The product has length \\(|z||w|\\), and its angle is the sum of the two angles. Multiplying by \\(w\\) rotates by \\(\\arg w\\) and scales by \\(|w|\\).' : 'The quotient has length \\(|z|/|w|\\), and its angle is the difference of the two angles. Dividing by \\(w\\) undoes a rotation and a scaling.';
+      eq = m ? '\\(|z||w| = ' + f2(mod(z)) + ' \\cdot ' + f2(mod(w)) + ' = ' + f2(mod(r)) + '\\) &nbsp; and &nbsp; \\(\\arg z + \\arg w = ' + dg(arg(z)) + ' + ' + dg(arg(w)) + ' \\equiv ' + dg(arg(r)) + ' \\pmod{360^{\\circ}}\\)'
+        : '\\(|z|/|w| = ' + f2(mod(z)) + ' / ' + f2(mod(w)) + ' = ' + f2(mod(r)) + '\\) &nbsp; and &nbsp; \\(\\arg z - \\arg w = ' + dg(arg(z)) + ' - ' + dg(arg(w)) + ' \\equiv ' + dg(arg(r)) + ' \\pmod{360^{\\circ}}\\)';
     } else if (mode === 'm_pow') {
       var cur = [1, 0], prev = P(cur), k;
       for (k = 1; k <= n; k++) { cur = mul(cur, z); q = P(cur); line(prev[0], prev[1], q[0], q[1], '#94a3b8', 2, [5, 4]); prev = q; }
       cur = [1, 0];
       for (k = 1; k <= n; k++) { cur = mul(cur, z); q = P(cur); if (k > 1) { dot(q[0], q[1], 5, k === n ? GRN : '#64748b'); T('z' + (k === n ? '^' + n : k === 2 ? '²' : k === 3 ? '³' : '^' + k), q[0] + 14, q[1] - 12, 14, k === n ? GRN : '#64748b'); } }
       arrow(z, BLU, 3);
-      note = 'Each power rotates by the angle of z and scales by the length of z, so the powers spiral. If |z| = 1, they stay on the unit circle.';
-      eq = 'De Moivre: &nbsp; |z<sup>' + n + '</sup>| = ' + f2(Math.pow(mod(z), n)) + ' = |z|<sup>' + n + '</sup>, &nbsp; arg z<sup>' + n + '</sup> ≡ ' + n + ' · ' + dg(arg(z)) + ' (mod 360°)';
+      note = 'Each power rotates by the angle of \\(z\\) and scales by the length of \\(z\\), so the powers spiral. If \\(|z| = 1\\), they stay on the unit circle.';
+      eq = 'De Moivre: &nbsp; \\(|z^{' + n + '}| = ' + f2(Math.pow(mod(z), n)) + ' = |z|^{' + n + '},\\) &nbsp; \\(\\arg z^{' + n + '} \\equiv ' + n + ' \\cdot ' + dg(arg(z)) + ' \\pmod{360^{\\circ}}\\)';
     } else {
       var rr = Math.pow(mod(w), 1 / n), th = arg(w) / n, pts = [], k2;
       for (k2 = 0; k2 < n; k2++) pts.push(P([rr * Math.cos(th + 2 * Math.PI * k2 / n), rr * Math.sin(th + 2 * Math.PI * k2 / n)]));
       ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(ox, oy, S * rr, 0, 7); ctx.stroke();
       ctx.fillStyle = 'rgba(21,128,61,0.08)'; ctx.strokeStyle = GRN; ctx.lineWidth = 2.5; ctx.beginPath(); pts.forEach(function (a, k) { if (k) ctx.lineTo(a[0], a[1]); else ctx.moveTo(a[0], a[1]); }); ctx.closePath(); ctx.fill(); ctx.stroke();
       pts.forEach(function (a) { line(ox, oy, a[0], a[1], '#cbd5e1', 1.2); dot(a[0], a[1], 6, GRN); });
-      note = 'The n roots of w are the vertices of a regular n-gon centered at the origin. Drag w to rotate and resize the polygon. Put w at 1 to see the roots of unity.';
-      eq = 'n = ' + n + ': &nbsp; each root has length |w|<sup>1/n</sup> = ' + f2(rr) + ', &nbsp; and neighboring roots are ' + (360 / n).toFixed(1) + '° apart';
+      note = 'The \\(n\\) roots of \\(w\\) are the vertices of a regular \\(n\\)-gon centered at the origin. Drag \\(w\\) to rotate and resize the polygon. Put \\(w\\) at 1 to see the roots of unity.';
+      eq = '\\(n = ' + n + '\\): &nbsp; each root has length \\(|w|^{1/n} = ' + f2(rr) + '\\), &nbsp; and neighboring roots are \\(' + (360 / n).toFixed(1) + '^{\\circ}\\) apart';
     }
     ctx.restore();
     if (mode === 'm_pow') pt(z, BLU, 'z', drag === 0); else if (mode === 'm_root') pt(w, ORG, 'w', drag === 0); else { pt(z, BLU, 'z', drag === 0); pt(w, ORG, 'w', drag === 1); }
-    $('note').textContent = note; $('eq').innerHTML = eq;
+    $('note').innerHTML = note; $('eq').innerHTML = eq;
   }
   function pos(e) { var r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * cv.width / r.width, (e.clientY - r.top) * cv.height / r.height]; }
   cv.style.touchAction = 'none';
