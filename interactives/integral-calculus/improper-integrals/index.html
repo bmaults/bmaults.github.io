@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Improper Integrals: When an Infinite Area Is Finite</title>
+<meta name="description" content="An interactive picture of improper integrals of 1 over x to the power p. See when the area under the curve levels off and when it grows without bound.">
+<style>
+  body { font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; color: #1a1a1a; margin: 0; background: #fff; line-height: 1.45; }
+  main { max-width: 860px; margin: 0 auto; padding: 12px 14px 24px; }
+  h1 { font-size: 1.5rem; margin: 0.2em 0 0.4em; }
+  p { margin: 0.4em 0 0.8em; }
+  a { color: #1f3a8a; }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+  .tabs button, button.act { font: inherit; padding: 7px 14px; border: 2px solid #1f3a8a; background: #fff; color: #1f3a8a; border-radius: 6px; cursor: pointer; }
+  .tabs button[aria-pressed="true"] { background: #1f3a8a; color: #fff; }
+  button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+  canvas { width: 100%; height: auto; display: block; border: 1px solid #9ca3af; border-radius: 6px; background: #fff; }
+  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px 22px; margin: 12px 0; }
+  .controls label { display: block; font-size: 0.95rem; }
+  .controls input[type=range] { width: 100%; }
+  .readout { background: #f3f4f6; border-radius: 6px; padding: 8px 12px; margin: 8px 0; font-size: 1rem; }
+  .box { border: 1px solid #d1d5db; border-radius: 8px; padding: 10px 14px; margin: 12px 0; background: #f8fafc; }
+  table.t { border-collapse: collapse; margin: 6px 0; }
+  table.t th, table.t td { border: 1px solid #d1d5db; padding: 4px 12px; text-align: center; }
+  input[type=text] { font: inherit; padding: 5px 8px; border: 2px solid #9ca3af; border-radius: 6px; width: 15em; max-width: 100%; }
+</style>
+</head>
+<body>
+<main>
+  <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../">&larr; All integral calculus demonstrations</a></nav>
+  <h1>Improper Integrals: When an Infinite Area Is Finite</h1>
+  <p>Can an area that goes on forever, or up to a point where the function blows up, still be finite? It depends on how fast the curve shrinks.</p>
+  <div class="tabs" role="group" aria-label="Type of improper integral">
+    <button type="button" id="k-inf" aria-pressed="true">Out to infinity</button>
+    <button type="button" id="k-unb" aria-pressed="false">Up to a point where f blows up</button>
+  </div>
+  <canvas id="cv" width="800" height="520" role="img" aria-label="Top: the graph of one over x to the power p with area shaded. Bottom: how that area grows as the shaded region extends toward infinity or toward the point where the function blows up. The area either levels off or grows without bound."></canvas>
+  <div class="controls">
+    <label>Power p <input type="range" id="p" min="20" max="300" step="5" value="200"></label>
+    <label id="uLab">Extend the region <input type="range" id="u" min="0" max="1000" step="1" value="500"></label>
+    <label><input type="checkbox" id="anim"> Play the animation</label>
+  </div>
+  <div class="readout" id="note" aria-live="polite"></div>
+  <div class="readout" id="eq" style="font-size:1.1rem"></div>
+  <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
+  <ol style="padding-left:1.4em">
+    <li style="margin-bottom:0.6em">What happens right at p = 1? Does the area level off?</li>
+    <li style="margin-bottom:0.6em">Why does a larger p make the curve shrink faster, and why does that matter for the area?</li>
+  </ol>
+</main>
+<script>
+(function () {
+  var cv = document.getElementById('cv'), ctx = cv ? cv.getContext('2d') : null, W = 800, H = 520;
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  if (cv) { cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+  function $(id) { return document.getElementById(id); }
+  function fmt(n) { return String(+n.toFixed(2)).replace('-', '\u2212'); }
+  function sgn(n) { return (n < 0 ? ' − ' : ' + ') + fmt(Math.abs(n)); }
+  function ease(u) { u = Math.max(0, Math.min(1, u)); return u * u * (3 - 2 * u); }
+  function R(x, y, w, h, fill, stroke, lw) {
+    ctx.fillStyle = fill; ctx.fillRect(x, y, w, h);
+    if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw || 2; ctx.strokeRect(x, y, w, h); }
+  }
+  function T(txt, x, y, size, col, align) {
+    ctx.font = 'bold ' + (size || 16) + 'px system-ui, sans-serif'; ctx.fillStyle = col || '#111';
+    ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle'; ctx.fillText(txt, x, y);
+  }
+  function lbl(t, x, y, w, h, col) { if (w > 38 && h > 24) T(t, x + w / 2, y + h / 2, Math.min(24, Math.max(12, Math.min(w, h) / 3)), col); }
+  function clear() { ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H); }
+  function dashRect(x, y, w, h, col, fill) {
+    if (fill) { ctx.fillStyle = fill; ctx.fillRect(x, y, w, h); }
+    ctx.save(); ctx.setLineDash([6, 5]); ctx.strokeStyle = col; ctx.lineWidth = 2.5; ctx.strokeRect(x, y, w, h); ctx.restore();
+  }
+  function setTabs(ids, on) { ids.forEach(function (id) { $(id).setAttribute('aria-pressed', id === on ? 'true' : 'false'); }); }
+  var animating = [], last = 0;
+  function onTick(fn) { animating.push(fn); }
+  function tick(ts) { var dt = ts - last; last = ts; animating.forEach(function (f) { f(dt); }); requestAnimationFrame(tick); }
+  requestAnimationFrame(tick);
+  function sp(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+
+  var BLU = '#1f3a8a', RED = '#b91c1c', GRN = '#15803d', ORG = '#c2410c', INK = '#1f2937';
+  var FN = {
+    parabola: { f: function (x) { return 0.25 * x * x - 1; }, d: function (x) { return 0.5 * x; }, x0: -4, x1: 4, y0: -1.6, y1: 3.4 },
+    cubic: { f: function (x) { return (x * x * x - 4 * x) / 4; }, d: function (x) { return (3 * x * x - 4) / 4; }, x0: -3, x1: 3, y0: -4, y1: 4 },
+    wave: { f: function (x) { return 1.5 * Math.sin(x); }, d: function (x) { return 1.5 * Math.cos(x); }, x0: -4.5, x1: 4.5, y0: -2.4, y1: 2.4 },
+    corner: { f: function (x) { return 0.6 * Math.abs(x) - 1; }, d: function (x) { return x > 0 ? 0.6 : -0.6; }, x0: -4, x1: 4, y0: -1.6, y1: 3 }
+  };
+  function line(ax, ay, bx, by, col, w, dash) { ctx.save(); ctx.strokeStyle = col; ctx.lineWidth = w || 2; if (dash) ctx.setLineDash(dash); ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke(); ctx.restore(); }
+  function dot(x, y, r, col) { ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fillStyle = col; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke(); }
+  function View(px, py, pw, ph, x0, x1, y0, y1) {
+    var me = this; this.px = px; this.py = py; this.pw = pw; this.ph = ph; this.x0 = x0; this.x1 = x1; this.y0 = y0; this.y1 = y1;
+    this.X = function (x) { return px + (x - x0) / (x1 - x0) * pw; };
+    this.Y = function (y) { return py + ph - (y - y0) / (y1 - y0) * ph; };
+    this.invX = function (sx) { return x0 + (sx - px) / pw * (x1 - x0); };
+    this.on = function () { ctx.save(); ctx.beginPath(); ctx.rect(px, py, pw, ph); ctx.clip(); };
+    this.off = function () { ctx.restore(); };
+    this.axes = function () {
+      ctx.save(); ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1.5; ctx.strokeRect(px, py, pw, ph);
+      if (y0 < 0 && y1 > 0) line(px, me.Y(0), px + pw, me.Y(0), '#94a3b8', 1.5);
+      if (x0 < 0 && x1 > 0) line(me.X(0), py, me.X(0), py + ph, '#94a3b8', 1.5);
+      ctx.restore();
+    };
+    this.curve = function (fn, col, w, a, b) {
+      var i, n = 500, lo = a === undefined ? x0 : a, hi = b === undefined ? x1 : b;
+      me.on(); ctx.strokeStyle = col; ctx.lineWidth = w || 3; ctx.lineJoin = 'round'; ctx.beginPath();
+      for (i = 0; i <= n; i++) { var x = lo + (hi - lo) * i / n, y = fn(x); if (i) ctx.lineTo(me.X(x), me.Y(y)); else ctx.moveTo(me.X(x), me.Y(y)); }
+      ctx.stroke(); me.off();
+    };
+    this.slope = function (x, y, m, col, w, dash, half) {
+      var lo = half === undefined ? x0 : x - half, hi = half === undefined ? x1 : x + half;
+      me.on(); line(me.X(lo), me.Y(y + m * (lo - x)), me.X(hi), me.Y(y + m * (hi - x)), col, w, dash); me.off();
+    };
+  }
+  function tabsFor(names, onPick) {
+    var ids = names.map(function (n) { return 't-' + n; });
+    names.forEach(function (n) { $('t-' + n).onclick = function () { setTabs(ids, 't-' + n); onPick(n); }; });
+  }
+  function fnTabs(list) {
+    var labels = { parabola: 'Parabola', cubic: 'Cubic', wave: 'Sine wave', corner: 'Corner (absolute value)' };
+    return '<div class="tabs" role="group" aria-label="Choose a function">' + list.map(function (n, i) { return '<button type="button" id="t-' + n + '" aria-pressed="' + (i === 0 ? 'true' : 'false') + '">' + labels[n] + '</button>'; }).join('') + '</div>';
+  }
+
+  var FP = {
+    rise: { f: function (x) { return 0.12 * x * x + 0.5; }, F: function (x) { return 0.04 * x * x * x + 0.5 * x; }, x0: 0, x1: 5, y0: 0, y1: 4 },
+    hump: { f: function (x) { return -0.5 * (x - 2) * (x - 2) + 2.3; }, F: function (x) { return -Math.pow(x - 2, 3) / 6 + 2.3 * x; }, x0: 0, x1: 4, y0: 0, y1: 3 },
+    wave: { f: function (x) { return 1 + 0.8 * Math.sin(x); }, F: function (x) { return x - 0.8 * Math.cos(x); }, x0: 0, x1: 7, y0: 0, y1: 2.2 }
+  };
+  var FS = {
+    swave: { f: function (x) { return 1.5 * Math.sin(x); }, F: function (x) { return -1.5 * Math.cos(x); }, x0: 0, x1: 6.8, y0: -2.2, y1: 2.2 },
+    cubic: { f: function (x) { return (x * x * x - 4 * x) / 4; }, F: function (x) { return x * x * x * x / 16 - x * x / 2; }, x0: -3, x1: 3, y0: -4, y1: 4 },
+    parabola: { f: function (x) { return 0.25 * x * x - 1; }, F: function (x) { return x * x * x / 12 - x; }, x0: -4, x1: 4, y0: -1.6, y1: 3.4 }
+  };
+  function integ(f, a, b) { var n = 600, h = (b - a) / n, s = f(a) + f(b), i; for (i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2); return s * h / 3; }
+  function range(fn, a, b) { var lo = 1e9, hi = -1e9, i; for (i = 0; i <= 300; i++) { var y = fn(a + (b - a) * i / 300); lo = Math.min(lo, y); hi = Math.max(hi, y); } var p = (hi - lo) * 0.12; return [lo - p, hi + p]; }
+  function fillArea(v, f, a, b, pos, neg, base) {
+    var n = 240, i, bs = base === undefined ? 0 : base;
+    for (i = 0; i < n; i++) {
+      var xa = a + (b - a) * i / n, xb = a + (b - a) * (i + 1) / n, ym = f((xa + xb) / 2);
+      ctx.fillStyle = ym >= bs ? pos : neg; ctx.beginPath();
+      ctx.moveTo(v.X(xa), v.Y(bs)); ctx.lineTo(v.X(xa), v.Y(f(xa))); ctx.lineTo(v.X(xb), v.Y(f(xb))); ctx.lineTo(v.X(xb), v.Y(bs)); ctx.closePath(); ctx.fill();
+    }
+  }
+  function ptr(down, set) {
+    var on = false;
+    function go(e) { var r = cv.getBoundingClientRect(); set((e.clientX - r.left) * W / r.width); }
+    cv.addEventListener('pointerdown', function (e) { on = true; cv.setPointerCapture(e.pointerId); go(e); });
+    cv.addEventListener('pointermove', function (e) { if (on) go(e); }); cv.addEventListener('pointerup', function () { on = false; });
+  }
+
+  var st = { k: 'inf', p: 2, u: 0.5, dir: 1 };
+  function A(p, from, to) { return Math.abs(p - 1) < 1e-9 ? Math.log(to / from) : (Math.pow(to, 1 - p) - Math.pow(from, 1 - p)) / (1 - p); }
+  function draw() {
+    clear();
+    var p = st.p, inf = st.k === 'inf', f = function (x) { return Math.pow(x, -p); }, v1, v2, Af, lim, x, conv = inf ? p > 1 : p < 1;
+    if (inf) {
+      var T0 = 16; v1 = new View(40, 16, 720, 220, 1, T0, 0, 1.05);
+      x = 1 + (T0 - 1) * st.u; Af = function (t) { return A(p, 1, t); };
+      var top = Af(T0), lm = p > 1 ? 1 / (p - 1) : Infinity, ymax = Math.max(top * 1.15, p > 1 ? Math.min(lm, top * 3) : 0) * 1.05;
+      v2 = new View(40, 282, 720, 220, 1, T0, 0, ymax); lim = (p > 1 && lm <= ymax) ? lm : null;
+      v1.axes(); v2.axes();
+      v1.on(); fillArea(v1, f, 1, x, 'rgba(31,58,138,0.30)', 'rgba(31,58,138,0.30)'); v1.off(); v1.curve(f, INK, 3.5);
+      v2.curve(Af, '#cbd5e1', 3); v2.curve(Af, BLU, 4, 1, x);
+      if (lim !== null) { v2.on(); line(v2.X(1), v2.Y(lim), v2.X(T0), v2.Y(lim), GRN, 2.5, [8, 6]); v2.off(); }
+      dot(v2.X(x), v2.Y(Af(x)), 7, BLU); line(v1.X(x), v1.py, v1.X(x), v2.py + v2.ph, '#94a3b8', 1.5, [5, 5]);
+      T('The graph goes on to the right', v1.px + 700, v1.py + 18, 13, '#475569', 'right');
+    } else {
+      v1 = new View(40, 16, 720, 220, 0, 1, 0, 10);
+      var s = Math.pow(10, -3 * st.u); x = s; Af = function (uu) { return A(p, Math.pow(10, -3 * uu), 1); };
+      var top2 = Af(1), lm2 = p < 1 ? 1 / (1 - p) : Infinity, ymax2 = Math.max(top2 * 1.15, p < 1 ? Math.min(lm2, top2 * 3) : 0) * 1.05;
+      v2 = new View(40, 282, 720, 220, 0, 1, 0, ymax2); lim = (p < 1 && lm2 <= ymax2) ? lm2 : null;
+      v1.axes(); v2.axes();
+      v1.on(); fillArea(v1, f, s, 1, 'rgba(31,58,138,0.30)', 'rgba(31,58,138,0.30)'); v1.off(); v1.curve(f, INK, 3.5, 0.0004, 1);
+      v2.curve(Af, '#cbd5e1', 3); v2.curve(Af, BLU, 4, 0, st.u);
+      if (lim !== null) { v2.on(); line(v2.X(0), v2.Y(lim), v2.X(1), v2.Y(lim), GRN, 2.5, [8, 6]); v2.off(); }
+      dot(v2.X(st.u), v2.Y(Af(st.u)), 7, BLU); line(v1.X(s), v1.py, v1.X(s), v1.py + v1.ph, '#94a3b8', 1.5, [5, 5]);
+      T('The shaded region starts closer and closer to 0', v1.px + 700, v1.py + 18, 13, '#475569', 'right');
+      T('left edge of the shaded region moves toward 0 →', v2.px + 700, v2.py + v2.ph - 12, 13, '#475569', 'right');
+    }
+    T('f', v1.px + 14, v1.py + 16, 18, INK); T('area so far', v2.px + 56, v2.py + 16, 15, BLU);
+    var ptxt = p.toFixed(2);
+    $('note').innerHTML = conv ? sp('Converges.', GRN) + ' The area levels off at a finite value (the green dashed line).' : sp('Diverges.', RED) + ' The area keeps growing and never levels off.';
+    $('eq').innerHTML = (inf ? '∫ from 1 to ∞ of 1/x<sup>p</sup> dx' : '∫ from 0 to 1 of 1/x<sup>p</sup> dx') + ' &nbsp; with ' + sp('p = ' + ptxt, BLU) + ' &nbsp;' + (conv ? sp('converges', GRN) : sp('diverges', RED));
+  }
+  function setKind(k) { st.k = k; setTabs(['k-inf', 'k-unb'], 'k-' + k); st.p = k === 'inf' ? 2 : 0.5; $('p').value = Math.round(st.p * 100); draw(); }
+  $('k-inf').onclick = function () { setKind('inf'); }; $('k-unb').onclick = function () { setKind('unb'); };
+  $('p').oninput = function () { st.p = parseFloat(this.value) / 100; draw(); };
+  $('u').oninput = function () { st.u = parseFloat(this.value) / 1000; draw(); };
+  onTick(function (dt) { if ($('anim').checked) { st.u += st.dir * dt / 5000; if (st.u >= 1.2) st.dir = -1; if (st.u <= -0.2) st.dir = 1; st.u = Math.max(0, Math.min(1, st.u)); $('u').value = Math.round(st.u * 1000); draw(); } });
+  draw();
+
+})();
+</script>
+</body>
+</html>
