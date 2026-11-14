@@ -21,12 +21,34 @@
   .legend span { display: inline-block; margin-right: 14px; }
   .sw { display: inline-block; width: 22px; height: 0; border-top: 4px solid; vertical-align: middle; margin-right: 5px; }
 </style>
+<style>
+  .playbtn { font: inherit; font-weight: 600; padding: 8px 18px; border: 2px solid #166534; background: #15803d; color: #fff; border-radius: 6px; cursor: pointer; }
+  .playbtn[aria-pressed="true"] { background: #fff; color: #15803d; }
+  #eq { min-height: 2.6em; overflow-x: auto; overflow-y: hidden; line-height: 1.9; }
+  mjx-container { max-width: 100%; }
+</style>
+<script>window.MathJax = { tex: { inlineMath: [['\\(', '\\)']] }, svg: { fontCache: 'global' }, startup: { typeset: false, ready: function () { MathJax.startup.defaultReady(); MathJax.startup.promise = MathJax.startup.promise.then(function () { return MathJax.typesetPromise(); }).catch(function () {}); } } };</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var proto = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML'), tc = Object.getOwnPropertyDescriptor(Node.prototype, 'textContent');
+  function ts(el) { if (window.MathJax && MathJax.startup && MathJax.typesetPromise) { MathJax.startup.promise = MathJax.startup.promise.then(function () { MathJax.startup.document.clear(); return MathJax.typesetPromise([el]); }).catch(function () {}); } }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  document.querySelectorAll('main [id], main .readout, main .box').forEach(function (el) {
+    if (!/^(DIV|P|SPAN|TD)$/.test(el.tagName)) return;
+    var cur = null;
+    Object.defineProperty(el, 'innerHTML', { configurable: true, get: function () { return proto.get.call(el); }, set: function (h) { if (h === cur) return; cur = h; proto.set.call(el, h); ts(el); } });
+    Object.defineProperty(el, 'textContent', { configurable: true, get: function () { return tc.get.call(el); }, set: function (t) { el.innerHTML = esc(t); } });
+  });
+});
+</script>
 </head>
 <body>
 <main>
   <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../" style="color:#1f3a8a">&larr; All conic section demonstrations</a></nav>
   <h1>Reflection Property of the Conics</h1>
   <p>Each curve is a cross-section of a mirror. Light obeys the law of reflection: the angle of incidence equals the angle of reflection, measured from the normal line to the curve. Choose a conic and watch where the reflected light goes.</p>
+  <div class="readout" id="eq"></div>
 
   <div class="tabs" role="group" aria-label="Choose a conic section">
     <button type="button" id="b-parabola" aria-pressed="true">Parabola</button>
@@ -37,13 +59,13 @@
   <canvas id="cv" width="800" height="560" role="img" aria-label="Parallel light rays reflect off a parabolic mirror and pass through its focus."></canvas>
 
   <div class="controls">
-    <label><span id="shapeLbl">Focal length p</span>: <output id="shapeOut"></output>
+    <label><span id="shapeLbl">Focal length \(p\)</span>: <output id="shapeOut"></output>
       <input type="range" id="shape"></label>
     <label>Number of rays: <output id="nOut"></output>
       <input type="range" id="nrays" min="1" max="41" step="1" value="15"></label>
     <label>Trace one ray (red): <output id="hlOut"></output>
       <input type="range" id="hl" min="0" max="1000" step="1" value="700"></label>
-    <label><input type="checkbox" id="anim" checked> Animate light pulses</label>
+    <div><button type="button" class="playbtn" id="anim" aria-pressed="false">&#9654; Animate light pulses</button><script>(function(){var b=document.getElementById("anim"),on=true;function paint(){b.setAttribute("aria-pressed",on);b.textContent=(on?"\u23F8 Animate light pulses":"\u25B6 Animate light pulses");}Object.defineProperty(b,"checked",{get:function(){return on;},set:function(v){on=!!v;paint();}});b.addEventListener("click",function(){on=!on;paint();b.dispatchEvent(new Event("change"));});paint();})();</script></div>
   </div>
 
   <p class="legend" aria-hidden="true">
@@ -53,15 +75,14 @@
     <span><i class="sw" style="border-color:#6b7280;border-top-style:dashed"></i>normal line</span>
   </p>
 
-  <div class="readout" id="eq"></div>
   <div class="readout" id="info" aria-live="polite"></div>
   <p id="note"></p>
   <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
   <ol style="padding-left:1.4em">
     <li style="margin-bottom:0.6em">Watch the parabola with the light pulses on. Why do all the pulses reach the focus at the same moment, even though the rays that hit the mirror far from the axis travel a different distance after reflecting than the ones near the axis? (Hint: compare the distance from a point on the parabola to the focus with its distance to the directrix.)</li>
-    <li style="margin-bottom:0.6em">Set the ellipse to e = 0, so it is a circle. Why do all the pulses return to the center at the same moment? Now set e = 0.6. The rays that go left and the rays that go right have very different path lengths between the two ends. Why do the pulses still arrive at F₂ together?</li>
-    <li style="margin-bottom:0.6em">In the parabola, make the focal length p smaller. What happens to the shape of the mirror, and what happens to how far the light travels before it reaches the focus?</li>
-    <li style="margin-bottom:0.6em">In the hyperbola the pulses never gather at a point. What shape do the reflected pulses form as they spread out, and why? (Hint: use PF₁ − PF₂ = 2a.)</li>
+    <li style="margin-bottom:0.6em">Set the ellipse to \(e = 0\), so it is a circle. Why do all the pulses return to the center at the same moment? Now set \(e = 0.6\). The rays that go left and the rays that go right have very different path lengths between the two ends. Why do the pulses still arrive at \(F_2\) together?</li>
+    <li style="margin-bottom:0.6em">In the parabola, make the focal length \(p\) smaller. What happens to the shape of the mirror, and what happens to how far the light travels before it reaches the focus?</li>
+    <li style="margin-bottom:0.6em">In the hyperbola the pulses never gather at a point. What shape do the reflected pulses form as they spread out, and why? (Hint: use \(PF_1 - PF_2 = 2a\).)</li>
     <li style="margin-bottom:0.6em">A flashlight reflector is shaped like a parabola (a paraboloid in three dimensions), not like a circle (a sphere). Use what you see here to explain why.</li>
     <li style="margin-bottom:0.6em">Trace one ray and look at the angle readout. Explain why the angle of incidence equals the angle of reflection at every point of every mirror here, and why the dashed normal line is the right line to measure from.</li>
   </ol>
@@ -225,22 +246,22 @@
     var eq, info, note;
     if (st.mode === 'parabola') {
       var dF = hyp(P[0] - g.F[0], P[1] - g.F[1]), dD = P[0] + g.p;
-      eq = 'y² = 4px with p = ' + f2(g.p) + '. Focus (' + f2(g.p) + ', 0). Directrix x = -' + f2(g.p) + '.';
-      info = 'Traced ray hits the mirror at (' + f2(P[0]) + ', ' + f2(P[1]) + '). Distance to the focus: ' + f2(dF) +
+      eq = '\\(y^2 = 4px\\) with \\(p = ' + f2(g.p) + '\\). Focus \\((' + f2(g.p) + ', 0)\\). Directrix \\(x = -' + f2(g.p) + '\\).';
+      info = 'Traced ray hits the mirror at \\((' + f2(P[0]) + ', ' + f2(P[1]) + ')\\). Distance to the focus: ' + f2(dF) +
              '. Distance to the directrix: ' + f2(dD) + '. Angle of incidence = angle of reflection = ' + ang.toFixed(1) + '°.';
       note = 'Light traveling parallel to the axis reflects through the focus. Every point of the parabola is as far from the focus as it is from the directrix, so (distance from the starting line to the mirror) + (distance from the mirror to the focus) is the same for every ray. That is why all the light pulses reach the focus at the same moment. Run the light the other way and a source at the focus produces a parallel beam, which is how a flashlight reflector or a headlight works.';
     } else if (st.mode === 'ellipse') {
       var d1 = hyp(P[0] - g.F1[0], P[1] - g.F1[1]), d2 = hyp(P[0] - g.F2[0], P[1] - g.F2[1]);
-      eq = 'x²/' + f2(g.a * g.a) + ' + y²/' + f2(g.b * g.b) + ' = 1. Foci (±' + f2(g.c) + ', 0). Eccentricity e = ' + f2(g.e) + '.';
-      info = 'Traced ray: F₁ to mirror = ' + f2(d1) + ', mirror to F₂ = ' + f2(d2) + ', total = ' + f2(d1 + d2) +
-             ' (the major axis length 2a = ' + f2(2 * g.a) + '). Angle of incidence = angle of reflection = ' + ang.toFixed(1) + '°.';
-      note = 'Every ray leaving one focus reflects through the other focus. Every path has length PF₁ + PF₂ = 2a, so the light pulses arrive at F₂ at the same moment.' + (g.e < 0.005 ? ' With e = 0 the two foci sit together at the center and the ellipse is a circle: every ray from the center reflects straight back to the center.' : '');
+      eq = '\\(\\dfrac{x^2}{' + f2(g.a * g.a) + '} + \\dfrac{y^2}{' + f2(g.b * g.b) + '} = 1\\). Foci \\((\\pm' + f2(g.c) + ', 0)\\). Eccentricity \\(e = ' + f2(g.e) + '\\).';
+      info = 'Traced ray: \\(F_1\\) to mirror = ' + f2(d1) + ', mirror to \\(F_2\\) = ' + f2(d2) + ', total = ' + f2(d1 + d2) +
+             ' (the major axis length \\(2a = ' + f2(2 * g.a) + '\\)). Angle of incidence = angle of reflection = ' + ang.toFixed(1) + '°.';
+      note = 'Every ray leaving one focus reflects through the other focus. Every path has length \\(PF_1 + PF_2 = 2a\\), so the light pulses arrive at \\(F_2\\) at the same moment.' + (g.e < 0.005 ? ' With \\(e = 0\\) the two foci sit together at the center and the ellipse is a circle: every ray from the center reflects straight back to the center.' : '');
     } else {
       var e1 = hyp(P[0] - g.F1[0], P[1] - g.F1[1]), e2 = hyp(P[0] - g.F2[0], P[1] - g.F2[1]);
-      eq = 'x²/' + f2(g.a * g.a) + ' - y²/' + f2(g.b * g.b) + ' = 1. Foci (±' + f2(g.c) + ', 0). Eccentricity e = ' + f2(g.e) + '.';
-      info = 'Traced ray: distance to F₁ = ' + f2(e1) + ', distance to F₂ = ' + f2(e2) + ', difference = ' + f2(e1 - e2) +
-             ' (2a = ' + f2(2 * g.a) + '). Angle of incidence = angle of reflection = ' + ang.toFixed(1) + '°.';
-      note = 'Light from F₂ reflects off the right branch and spreads out as if it came from F₁. The dashed teal lines extend each reflected ray backward to F₁. Because PF₁ - PF₂ = 2a for every point on the branch, the pulses after reflection lie on a circle centered at F₁.';
+      eq = '\\(\\dfrac{x^2}{' + f2(g.a * g.a) + '} - \\dfrac{y^2}{' + f2(g.b * g.b) + '} = 1\\). Foci \\((\\pm' + f2(g.c) + ', 0)\\). Eccentricity \\(e = ' + f2(g.e) + '\\).';
+      info = 'Traced ray: distance to \\(F_1\\) = ' + f2(e1) + ', distance to \\(F_2\\) = ' + f2(e2) + ', difference = ' + f2(e1 - e2) +
+             ' (\\(2a = ' + f2(2 * g.a) + '\\)). Angle of incidence = angle of reflection = ' + ang.toFixed(1) + '°.';
+      note = 'Light from \\(F_2\\) reflects off the right branch and spreads out as if it came from \\(F_1\\). The dashed teal lines extend each reflected ray backward to \\(F_1\\). Because \\(PF_1 - PF_2 = 2a\\) for every point on the branch, the pulses after reflection lie on a circle centered at \\(F_1\\).';
     }
     el('eq').textContent = eq; el('info').textContent = info; el('note').textContent = note;
     el('nOut').textContent = st.n;
@@ -250,9 +271,9 @@
   /* ---------- controls ---------- */
   var shape = el('shape');
   function configShape() {
-    if (st.mode === 'parabola') { el('shapeLbl').textContent = 'Focal length p'; shape.min = 0.5; shape.max = 3; shape.step = 0.05; shape.value = st.p; }
-    else if (st.mode === 'ellipse') { el('shapeLbl').textContent = 'Eccentricity e'; shape.min = 0; shape.max = 0.95; shape.step = 0.01; shape.value = st.eE; }
-    else { el('shapeLbl').textContent = 'Eccentricity e'; shape.min = 1.15; shape.max = 3; shape.step = 0.05; shape.value = st.eH; }
+    if (st.mode === 'parabola') { el('shapeLbl').textContent = 'Focal length \\(p\\)'; shape.min = 0.5; shape.max = 3; shape.step = 0.05; shape.value = st.p; }
+    else if (st.mode === 'ellipse') { el('shapeLbl').textContent = 'Eccentricity \\(e\\)'; shape.min = 0; shape.max = 0.95; shape.step = 0.01; shape.value = st.eE; }
+    else { el('shapeLbl').textContent = 'Eccentricity \\(e\\)'; shape.min = 1.15; shape.max = 3; shape.step = 0.05; shape.value = st.eH; }
     el('shapeOut').textContent = Number(shape.value).toFixed(2);
   }
   var labels = {

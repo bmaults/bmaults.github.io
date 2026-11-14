@@ -25,20 +25,41 @@
   table.t th, table.t td { border: 1px solid #d1d5db; padding: 4px 12px; text-align: center; }
   input[type=text] { font: inherit; padding: 5px 8px; border: 2px solid #9ca3af; border-radius: 6px; width: 15em; max-width: 100%; }
 </style>
+<style>
+  .playbtn { font: inherit; font-weight: 600; padding: 8px 18px; border: 2px solid #166534; background: #15803d; color: #fff; border-radius: 6px; cursor: pointer; }
+  .playbtn[aria-pressed="true"] { background: #fff; color: #15803d; }
+  #eq { min-height: 2.6em; overflow-x: auto; overflow-y: hidden; line-height: 1.9; }
+  mjx-container { max-width: 100%; }
+</style>
+<script>window.MathJax = { tex: { inlineMath: [['\\(', '\\)']] }, svg: { fontCache: 'global' }, startup: { typeset: false, ready: function () { MathJax.startup.defaultReady(); MathJax.startup.promise = MathJax.startup.promise.then(function () { return MathJax.typesetPromise(); }).catch(function () {}); } } };</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var proto = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML'), tc = Object.getOwnPropertyDescriptor(Node.prototype, 'textContent');
+  function ts(el) { if (window.MathJax && MathJax.startup && MathJax.typesetPromise) { MathJax.startup.promise = MathJax.startup.promise.then(function () { MathJax.startup.document.clear(); return MathJax.typesetPromise([el]); }).catch(function () {}); } }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  document.querySelectorAll('main [id], main .readout, main .box').forEach(function (el) {
+    if (!/^(DIV|P|SPAN|TD)$/.test(el.tagName)) return;
+    var cur = null;
+    Object.defineProperty(el, 'innerHTML', { configurable: true, get: function () { return proto.get.call(el); }, set: function (h) { if (h === cur) return; cur = h; proto.set.call(el, h); ts(el); } });
+    Object.defineProperty(el, 'textContent', { configurable: true, get: function () { return tc.get.call(el); }, set: function (t) { el.innerHTML = esc(t); } });
+  });
+});
+</script>
 </head>
 <body>
 <main>
   <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../">&larr; All integral calculus demonstrations</a></nav>
   <h1>The Fundamental Theorem of Calculus, Part 1: The Slope of an Area Function</h1>
   <p>The lower graph records the area under the upper graph, measured from the left edge to a moving point. Watch how its slope depends on the height of the upper graph.</p>
+  <div class="readout" id="eq" style="font-size:1.05rem"><b>Fundamental Theorem of Calculus, Part 1.</b> If \(f\) is continuous on \([a, b]\) and \[A(x) = \int_a^x f(t)\,dt,\] then \(A\) is differentiable and \(A'(x) = f(x)\) for every \(x\) in \((a, b)\).</div>
   <div class="tabs" role="group" aria-label="Choose a function"><button type="button" id="t-swave" aria-pressed="true">Sine wave</button><button type="button" id="t-cubic" aria-pressed="false">Cubic</button><button type="button" id="t-parabola" aria-pressed="false">Parabola</button></div>
   <canvas id="cv" width="800" height="520" role="img" aria-label="Two graphs. The top graph shows a function with the area from the left edge to a moving point shaded. The bottom graph shows how that area changes. The slope of the bottom graph at the moving point equals the height of the top graph."></canvas>
   <div class="controls">
     <label>Move the point <input type="range" id="x" min="0" max="1000" step="1" value="300"></label>
-    <label><input type="checkbox" id="anim"> Play the animation</label>
+    <div><button type="button" class="playbtn" id="anim" aria-pressed="false">&#9654; Play the animation</button><script>(function(){var b=document.getElementById("anim"),on=false;function paint(){b.setAttribute("aria-pressed",on);b.textContent=(on?"\u23F8 Pause the animation":"\u25B6 Play the animation");}Object.defineProperty(b,"checked",{get:function(){return on;},set:function(v){on=!!v;paint();}});b.addEventListener("click",function(){on=!on;paint();b.dispatchEvent(new Event("change"));});paint();})();</script></div>
   </div>
   <div class="readout" id="note" aria-live="polite"></div>
-  <div class="readout" id="eq" style="font-size:1.1rem"></div>
   <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
   <ol style="padding-left:1.4em">
     <li style="margin-bottom:0.6em">Where is the lower graph at its highest or lowest point? What is happening to the upper graph there?</li>
@@ -73,7 +94,9 @@
   function onTick(fn) { animating.push(fn); }
   function tick(ts) { var dt = ts - last; last = ts; animating.forEach(function (f) { f(dt); }); requestAnimationFrame(tick); }
   requestAnimationFrame(tick);
-  function sp(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+  function sp(t, c) { var g = sp.g || (sp.g = document.createElement('canvas').getContext('2d')); g.fillStyle = c; var h = g.fillStyle.replace('#', ''); return '\\textcolor[RGB]{' + parseInt(h.substr(0, 2), 16) + ',' + parseInt(h.substr(2, 2), 16) + ',' + parseInt(h.substr(4, 2), 16) + '}{' + t + '}'; }
+  function hs(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+  function halo(txt, x, y, size, col, al) { ctx.font = 'bold ' + (size || 16) + 'px system-ui, sans-serif'; ctx.textAlign = al || 'center'; ctx.textBaseline = 'middle'; ctx.lineWidth = 4; ctx.strokeStyle = '#fff'; ctx.lineJoin = 'round'; ctx.strokeText(txt, x, y); ctx.fillStyle = col || '#111'; ctx.fillText(txt, x, y); }
 
   var BLU = '#1f3a8a', RED = '#b91c1c', GRN = '#15803d', ORG = '#c2410c', INK = '#1f2937';
   var FN = {
@@ -120,8 +143,20 @@
   var FP = {
     rise: { f: function (x) { return 0.12 * x * x + 0.5; }, F: function (x) { return 0.04 * x * x * x + 0.5 * x; }, x0: 0, x1: 5, y0: 0, y1: 4 },
     hump: { f: function (x) { return -0.5 * (x - 2) * (x - 2) + 2.3; }, F: function (x) { return -Math.pow(x - 2, 3) / 6 + 2.3 * x; }, x0: 0, x1: 4, y0: 0, y1: 3 },
-    wave: { f: function (x) { return 1 + 0.8 * Math.sin(x); }, F: function (x) { return x - 0.8 * Math.cos(x); }, x0: 0, x1: 7, y0: 0, y1: 2.2 }
+    wave: { f: function (x) { return 1 + 0.8 * Math.sin(x); }, F: function (x) { return x - 0.8 * Math.cos(x); }, x0: 0, x1: 7, y0: 0, y1: 2.2 },
+    wiggly: { f: function (x) { return 1.6 + Math.sin(x) + 0.4 * Math.cos(2.5 * x); }, F: function (x) { return 1.6 * x - Math.cos(x) + 0.16 * Math.sin(2.5 * x); }, x0: 0, x1: 7, y0: 0, y1: 3.2 },
+    steps: { f: function (x) { return x < 1.5 ? 1 : x < 3 ? 2.5 : x < 4.5 ? 1.5 : 3; },
+      F: function (x) { var c = [0, 1.5, 3, 4.5, 6], h = [1, 2.5, 1.5, 3], s = 0, i; for (i = 0; i < 4; i++) s += h[i] * Math.max(0, Math.min(x, c[i + 1]) - c[i]); return s; }, x0: 0, x1: 6, y0: 0, y1: 3.4, jumps: [1.5, 3, 4.5] },
+    saw: { f: function (x) { return 0.4 + 1.2 * (x - 2 * Math.floor(x / 2)); },
+      F: function (x) { var k = Math.floor(x / 2), r = x - 2 * k; return 3.2 * k + 0.4 * r + 0.6 * r * r; }, x0: 0, x1: 6, y0: 0, y1: 3, jumps: [2, 4] },
+    mixed: { f: function (x) { return x < 2 ? 0.5 + 0.8 * x : x < 4 ? 3.2 - 0.6 * (x - 3) * (x - 3) : 1.2; },
+      F: function (x) { if (x < 2) return 0.5 * x + 0.4 * x * x; if (x < 4) return 2.6 + 3.2 * (x - 2) - 0.2 * (Math.pow(x - 3, 3) + 1); return 8.6 + 1.2 * (x - 4); }, x0: 0, x1: 5, y0: 0, y1: 3.6, jumps: [2, 4] }
   };
+  function ijCurve(v, F, col, w) {
+    var js = F.jumps || [], pts = [F.x0].concat(js, [F.x1]), i;
+    for (i = 0; i < pts.length - 1; i++) v.curve(F.f, col, w, pts[i] + (i ? 1e-6 : 0), pts[i + 1] - (i < pts.length - 2 ? 1e-6 : 0));
+    js.forEach(function (j) { ctx.beginPath(); ctx.arc(v.X(j), v.Y(F.f(j - 1e-6)), 5, 0, 7); ctx.fillStyle = '#fff'; ctx.fill(); ctx.strokeStyle = col; ctx.lineWidth = 2.5; ctx.stroke(); dot(v.X(j), v.Y(F.f(j)), 5, col); });
+  }
   var FS = {
     swave: { f: function (x) { return 1.5 * Math.sin(x); }, F: function (x) { return -1.5 * Math.cos(x); }, x0: 0, x1: 6.8, y0: -2.2, y1: 2.2 },
     cubic: { f: function (x) { return (x * x * x - 4 * x) / 4; }, F: function (x) { return x * x * x * x / 16 - x * x / 2; }, x0: -3, x1: 3, y0: -4, y1: 4 },
@@ -159,8 +194,8 @@
     var m = fx; v2.slope(x, A(x), m, col, 4, null, 1.1);
     dot(v1.X(x), v1.Y(fx), 7, col); dot(v2.X(x), v2.Y(A(x)), 7, BLU);
     T('f', v1.px + 14, v1.py + 16, 18, INK); T('A', v2.px + 14, v2.py + 16, 18, BLU);
+    T('slope of A = height of f', v2.X(x) + (st.s > 0.6 ? -110 : 110), v2.Y(A(x)) + (m > 0 ? 40 : -40), 13, col);
     $('note').textContent = fx > 0.04 ? 'The upper graph is above its axis, so area is being added and the lower graph rises.' : fx < -0.04 ? 'The upper graph is below its axis, so area is being subtracted and the lower graph falls.' : 'The upper graph is at zero, so no area is being added or subtracted and the lower graph is flat.';
-    $('eq').innerHTML = sp('A(x)', BLU) + ' = the area under f from the left edge to x, and ' + sp('A′(x) = f(x)', GRN);
   }
   tabsFor(['swave', 'cubic', 'parabola'], function (n) { st.fn = n; draw(); });
   $('x').oninput = function () { st.s = parseFloat(this.value) / 1000; draw(); };

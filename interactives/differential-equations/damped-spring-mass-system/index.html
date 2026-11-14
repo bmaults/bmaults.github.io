@@ -25,22 +25,43 @@
   table.t th, table.t td { border: 1px solid #d1d5db; padding: 4px 12px; text-align: center; }
   input[type=text] { font: inherit; padding: 5px 8px; border: 2px solid #9ca3af; border-radius: 6px; width: 15em; max-width: 100%; }
 </style>
+<style>
+  .playbtn { font: inherit; font-weight: 600; padding: 8px 18px; border: 2px solid #166534; background: #15803d; color: #fff; border-radius: 6px; cursor: pointer; }
+  .playbtn[aria-pressed="true"] { background: #fff; color: #15803d; }
+  #eq { min-height: 2.6em; overflow-x: auto; overflow-y: hidden; line-height: 1.9; }
+  mjx-container { max-width: 100%; }
+</style>
+<script>window.MathJax = { tex: { inlineMath: [['\\(', '\\)']] }, svg: { fontCache: 'global' }, startup: { typeset: false, ready: function () { MathJax.startup.defaultReady(); MathJax.startup.promise = MathJax.startup.promise.then(function () { return MathJax.typesetPromise(); }).catch(function () {}); } } };</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var proto = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML'), tc = Object.getOwnPropertyDescriptor(Node.prototype, 'textContent');
+  function ts(el) { if (window.MathJax && MathJax.startup && MathJax.typesetPromise) { MathJax.startup.promise = MathJax.startup.promise.then(function () { MathJax.startup.document.clear(); return MathJax.typesetPromise([el]); }).catch(function () {}); } }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  document.querySelectorAll('main [id], main .readout, main .box').forEach(function (el) {
+    if (!/^(DIV|P|SPAN|TD)$/.test(el.tagName)) return;
+    var cur = null;
+    Object.defineProperty(el, 'innerHTML', { configurable: true, get: function () { return proto.get.call(el); }, set: function (h) { if (h === cur) return; cur = h; proto.set.call(el, h); ts(el); } });
+    Object.defineProperty(el, 'textContent', { configurable: true, get: function () { return tc.get.call(el); }, set: function (t) { el.innerHTML = esc(t); } });
+  });
+});
+</script>
 </head>
 <body>
 <main>
   <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../">&larr; All differential equations demonstrations</a></nav>
   <h1>Spring-Mass System with Damping: Underdamped, Critically Damped, and Overdamped</h1>
   <p>A mass on a spring with a damper. Change the stiffness, the damping, and the mass, and watch how the motion and its phase portrait change.</p>
+  <div class="readout" id="eq" style="font-size:1.1rem"></div>
   <div class="tabs"><button type="button" class="act" id="rel">Release again</button><button type="button" class="act" id="pause" aria-pressed="false">Pause</button></div>
   <canvas id="cv" width="800" height="520" role="img" aria-label="A mass attached to a wall by a spring and a damper. Below it, a graph of the position of the mass over time and a phase portrait of position against velocity."></canvas>
   <div class="controls">
-    <label>Spring stiffness <input type="range" id="k" min="2" max="30" step="0.5" value="8"></label>
-    <label>Damping <input type="range" id="c" min="0" max="14" step="0.1" value="0.8"></label>
-    <label>Mass <input type="range" id="m" min="0.5" max="3" step="0.1" value="1"></label>
-    <label>Starting displacement <input type="range" id="x0" min="0.2" max="1" step="0.05" value="1"></label>
+    <label>Spring stiffness \(k\) <input type="range" id="k" min="2" max="30" step="0.5" value="8"></label>
+    <label>Damping \(c\) <input type="range" id="c" min="0" max="14" step="0.1" value="0.8"></label>
+    <label>Mass \(m\) <input type="range" id="m" min="0.5" max="3" step="0.1" value="1"></label>
+    <label>Starting displacement \(x_0\) <input type="range" id="x0" min="0.2" max="1" step="0.05" value="1"></label>
   </div>
   <div class="readout" id="note" aria-live="polite"></div>
-  <div class="readout" id="eq" style="font-size:1.1rem"></div>
   <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
   <ol style="padding-left:1.4em">
     <li style="margin-bottom:0.6em">What happens to the motion as you increase the damping from zero? Find the damping where it just stops oscillating.</li>
@@ -75,7 +96,9 @@
   function onTick(fn) { animating.push(fn); }
   function tick(ts) { var dt = ts - last; last = ts; animating.forEach(function (f) { f(dt); }); requestAnimationFrame(tick); }
   requestAnimationFrame(tick);
-  function sp(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+  function sp(t, c) { var g = sp.g || (sp.g = document.createElement('canvas').getContext('2d')); g.fillStyle = c; var h = g.fillStyle.replace('#', ''); return '\\textcolor[RGB]{' + parseInt(h.substr(0, 2), 16) + ',' + parseInt(h.substr(2, 2), 16) + ',' + parseInt(h.substr(4, 2), 16) + '}{' + t + '}'; }
+  function hs(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+  function halo(txt, x, y, size, col, al) { ctx.font = 'bold ' + (size || 16) + 'px system-ui, sans-serif'; ctx.textAlign = al || 'center'; ctx.textBaseline = 'middle'; ctx.lineWidth = 4; ctx.strokeStyle = '#fff'; ctx.lineJoin = 'round'; ctx.strokeText(txt, x, y); ctx.fillStyle = col || '#111'; ctx.fillText(txt, x, y); }
 
   var BLU = '#1f3a8a', RED = '#b91c1c', GRN = '#15803d', ORG = '#c2410c', INK = '#1f2937';
   var FN = {
@@ -152,7 +175,7 @@
     T('position x', v1.px + 50, v1.py + 14, 14, BLU); T('time →', v1.px + v1.pw - 34, v1.py + v1.ph - 12, 13, '#64748b');
     T('phase portrait', v2.px + 60, v2.py + 14, 14, ORG); T('x', v2.px + v2.pw - 10, v2.Y(0) - 12, 13, '#64748b'); T('velocity', v2.X(0) + 34, v2.py + 30, 13, '#64748b');
     $('note').textContent = st.c < 0.05 ? 'No damping: the mass oscillates forever, and the phase portrait is a closed loop.' : zeta < 0.97 ? 'Underdamped: the mass oscillates while the amplitude shrinks. The phase portrait spirals in to the center.' : zeta < 1.03 ? 'Critically damped: the mass returns to rest as fast as possible without oscillating.' : 'Overdamped: the mass creeps back to rest without ever crossing the equilibrium.';
-    $('eq').innerHTML = sp('m', ORG) + ' x″ + ' + sp('c', BLU) + ' x′ + ' + sp('k', INK) + ' x = 0';
+    $('eq').innerHTML = '\\(' + sp('m', ORG) + 'x\'\' + ' + sp('c', BLU) + 'x\' + ' + sp('k', INK) + 'x = 0\\)' + ' &nbsp;&nbsp; with \\(\\zeta = \\dfrac{c}{2\\sqrt{km}} = ' + zeta.toFixed(2) + '\\)';
   }
   ['k', 'c', 'm', 'x0'].forEach(function (id) { $(id).oninput = function () { st[id] = parseFloat(this.value); reset(); }; });
   $('rel').onclick = reset; wirePause(st);

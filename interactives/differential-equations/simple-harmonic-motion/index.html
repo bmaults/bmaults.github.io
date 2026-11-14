@@ -25,20 +25,41 @@
   table.t th, table.t td { border: 1px solid #d1d5db; padding: 4px 12px; text-align: center; }
   input[type=text] { font: inherit; padding: 5px 8px; border: 2px solid #9ca3af; border-radius: 6px; width: 15em; max-width: 100%; }
 </style>
+<style>
+  .playbtn { font: inherit; font-weight: 600; padding: 8px 18px; border: 2px solid #166534; background: #15803d; color: #fff; border-radius: 6px; cursor: pointer; }
+  .playbtn[aria-pressed="true"] { background: #fff; color: #15803d; }
+  #eq { min-height: 2.6em; overflow-x: auto; overflow-y: hidden; line-height: 1.9; }
+  mjx-container { max-width: 100%; }
+</style>
+<script>window.MathJax = { tex: { inlineMath: [['\\(', '\\)']] }, svg: { fontCache: 'global' }, startup: { typeset: false, ready: function () { MathJax.startup.defaultReady(); MathJax.startup.promise = MathJax.startup.promise.then(function () { return MathJax.typesetPromise(); }).catch(function () {}); } } };</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var proto = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML'), tc = Object.getOwnPropertyDescriptor(Node.prototype, 'textContent');
+  function ts(el) { if (window.MathJax && MathJax.startup && MathJax.typesetPromise) { MathJax.startup.promise = MathJax.startup.promise.then(function () { MathJax.startup.document.clear(); return MathJax.typesetPromise([el]); }).catch(function () {}); } }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  document.querySelectorAll('main [id], main .readout, main .box').forEach(function (el) {
+    if (!/^(DIV|P|SPAN|TD)$/.test(el.tagName)) return;
+    var cur = null;
+    Object.defineProperty(el, 'innerHTML', { configurable: true, get: function () { return proto.get.call(el); }, set: function (h) { if (h === cur) return; cur = h; proto.set.call(el, h); ts(el); } });
+    Object.defineProperty(el, 'textContent', { configurable: true, get: function () { return tc.get.call(el); }, set: function (t) { el.innerHTML = esc(t); } });
+  });
+});
+</script>
 </head>
 <body>
 <main>
   <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../">&larr; All differential equations demonstrations</a></nav>
   <h1>Simple Harmonic Motion: A Spring Is the Shadow of a Circle</h1>
   <p>The up-and-down motion of a mass on a spring is the shadow of a point moving around a circle at constant speed.</p>
+  <div class="readout" id="eq" style="font-size:1.1rem"></div>
   <canvas id="cv" width="800" height="520" role="img" aria-label="A mass hanging on a spring on the left, a circle with a point moving around it in the middle, and a sine wave graph on the right. A horizontal line connects the mass, the point on the circle, and the head of the graph, showing they all have the same height."></canvas>
   <div class="controls">
-    <label>Amplitude <input type="range" id="A" min="0.3" max="1" step="0.05" value="0.7"></label>
-    <label>Frequency <input type="range" id="w" min="0.5" max="4" step="0.1" value="2"></label>
+    <label>Amplitude \(A\) <input type="range" id="A" min="0.3" max="1" step="0.05" value="0.7"></label>
+    <label>Frequency \(\omega\) <input type="range" id="w" min="0.5" max="4" step="0.1" value="2"></label>
   </div>
   <div class="tabs"><button type="button" class="act" id="rel">Restart</button><button type="button" class="act" id="pause" aria-pressed="false">Pause</button></div>
   <div class="readout" id="note" aria-live="polite"></div>
-  <div class="readout" id="eq" style="font-size:1.1rem"></div>
   <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
   <ol style="padding-left:1.4em">
     <li style="margin-bottom:0.6em">What happens to the period when you double the frequency?</li>
@@ -73,7 +94,9 @@
   function onTick(fn) { animating.push(fn); }
   function tick(ts) { var dt = ts - last; last = ts; animating.forEach(function (f) { f(dt); }); requestAnimationFrame(tick); }
   requestAnimationFrame(tick);
-  function sp(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+  function sp(t, c) { var g = sp.g || (sp.g = document.createElement('canvas').getContext('2d')); g.fillStyle = c; var h = g.fillStyle.replace('#', ''); return '\\textcolor[RGB]{' + parseInt(h.substr(0, 2), 16) + ',' + parseInt(h.substr(2, 2), 16) + ',' + parseInt(h.substr(4, 2), 16) + '}{' + t + '}'; }
+  function hs(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+  function halo(txt, x, y, size, col, al) { ctx.font = 'bold ' + (size || 16) + 'px system-ui, sans-serif'; ctx.textAlign = al || 'center'; ctx.textBaseline = 'middle'; ctx.lineWidth = 4; ctx.strokeStyle = '#fff'; ctx.lineJoin = 'round'; ctx.strokeText(txt, x, y); ctx.fillStyle = col || '#111'; ctx.fillText(txt, x, y); }
 
   var BLU = '#1f3a8a', RED = '#b91c1c', GRN = '#15803d', ORG = '#c2410c', INK = '#1f2937';
   var FN = {
@@ -146,7 +169,7 @@
     T('Potential energy', 40, 462, 14, ORG, 'left'); ctx.fillStyle = ORG; ctx.fillRect(200, 452, pe * 320, 18);
     T('Kinetic energy', 40, 490, 14, BLU, 'left'); ctx.fillStyle = BLU; ctx.fillRect(200, 480, ke * 320, 18);
     $('note').textContent = 'The mass, the point on the circle, and the head of the graph always have the same height. A faster circle gives a shorter period, and a bigger circle gives a bigger amplitude. Potential and kinetic energy trade off, and their total stays the same.';
-    $('eq').innerHTML = sp('x(t)', BLU) + ' = A sin(ω t) &nbsp;&nbsp; and &nbsp;&nbsp; ' + sp('x″ = −ω² x', ORG);
+    $('eq').innerHTML = '\\(' + sp('x(t) = A\\sin(\\omega t)', BLU) + '\\) &nbsp;&nbsp; and &nbsp;&nbsp; \\(' + sp('x\'\' = -\\omega^{2} x', ORG) + '\\)';
   }
   ['A', 'w'].forEach(function (id) { $(id).oninput = function () { st[id] = parseFloat(this.value); }; });
   $('rel').onclick = function () { st.t = 0; }; wirePause(st);

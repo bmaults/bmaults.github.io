@@ -25,19 +25,40 @@
   table.t th, table.t td { border: 1px solid #d1d5db; padding: 4px 12px; text-align: center; }
   input[type=text] { font: inherit; padding: 5px 8px; border: 2px solid #9ca3af; border-radius: 6px; width: 15em; max-width: 100%; }
 </style>
+<style>
+  .playbtn { font: inherit; font-weight: 600; padding: 8px 18px; border: 2px solid #166534; background: #15803d; color: #fff; border-radius: 6px; cursor: pointer; }
+  .playbtn[aria-pressed="true"] { background: #fff; color: #15803d; }
+  #eq { min-height: 2.6em; overflow-x: auto; overflow-y: hidden; line-height: 1.9; }
+  mjx-container { max-width: 100%; }
+</style>
+<script>window.MathJax = { tex: { inlineMath: [['\\(', '\\)']] }, svg: { fontCache: 'global' }, startup: { typeset: false, ready: function () { MathJax.startup.defaultReady(); MathJax.startup.promise = MathJax.startup.promise.then(function () { return MathJax.typesetPromise(); }).catch(function () {}); } } };</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var proto = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML'), tc = Object.getOwnPropertyDescriptor(Node.prototype, 'textContent');
+  function ts(el) { if (window.MathJax && MathJax.startup && MathJax.typesetPromise) { MathJax.startup.promise = MathJax.startup.promise.then(function () { MathJax.startup.document.clear(); return MathJax.typesetPromise([el]); }).catch(function () {}); } }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  document.querySelectorAll('main [id], main .readout, main .box').forEach(function (el) {
+    if (!/^(DIV|P|SPAN|TD)$/.test(el.tagName)) return;
+    var cur = null;
+    Object.defineProperty(el, 'innerHTML', { configurable: true, get: function () { return proto.get.call(el); }, set: function (h) { if (h === cur) return; cur = h; proto.set.call(el, h); ts(el); } });
+    Object.defineProperty(el, 'textContent', { configurable: true, get: function () { return tc.get.call(el); }, set: function (t) { el.innerHTML = esc(t); } });
+  });
+});
+</script>
 </head>
 <body>
 <main>
   <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../">&larr; All sums and patterns demonstrations</a></nav>
-  <h1>The Sum of the First n Integers: Why 1 + 2 + ... + n = n(n + 1)/2</h1>
-  <p>Stack rows of 1, 2, 3, and so on up to n squares to make a staircase. Make a second copy, turn it around, and fit it against the first.</p>
+  <h1>The Sum of the First \(n\) Integers: Why \(1 + 2 + \cdots + n = \dfrac{n(n + 1)}{2}\)</h1>
+  <p>Stack rows of \(1, 2, 3\), and so on up to \(n\) squares to make a staircase. Make a second copy, turn it around, and fit it against the first. The picture shows why \(1 + 2 + \cdots + n = \dfrac{n(n + 1)}{2}\).</p>
+  <div class="readout" id="eq" style="font-size:1.15rem"></div>
   <canvas id="cv" width="800" height="520" role="img" aria-label="A staircase of squares with rows of 1 up to n. A second staircase is turned around and joined to it, forming a rectangle n squares tall and n plus 1 squares wide."></canvas>
   <div class="controls">
     <label>Turn and join the copy <input type="range" id="t" min="0" max="1000" step="1" value="0"></label>
-    <label>n <input type="range" id="n" min="2" max="12" step="1" value="6"></label>
-    <label><input type="checkbox" id="anim"> Play the animation</label>
+    <label>\(n\) <input type="range" id="n" min="2" max="12" step="1" value="6"></label>
+    <div><button type="button" class="playbtn" id="anim" aria-pressed="false">&#9654; Play the animation</button><script>(function(){var b=document.getElementById("anim"),on=false;function paint(){b.setAttribute("aria-pressed",on);b.textContent=(on?"\u23F8 Pause the animation":"\u25B6 Play the animation");}Object.defineProperty(b,"checked",{get:function(){return on;},set:function(v){on=!!v;paint();}});b.addEventListener("click",function(){on=!on;paint();b.dispatchEvent(new Event("change"));});paint();})();</script></div>
   </div>
-  <div class="readout" id="eq" style="font-size:1.15rem"></div>
   <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
   <ol style="padding-left:1.4em">
     <li style="margin-bottom:0.6em">Can you prove this formula with induction?</li>
@@ -71,7 +92,9 @@
   function onTick(fn) { animating.push(fn); }
   function tick(ts) { var dt = ts - last; last = ts; animating.forEach(function (f) { f(dt); }); requestAnimationFrame(tick); }
   requestAnimationFrame(tick);
-  function sp(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+  function sp(t, c) { var g = sp.g || (sp.g = document.createElement('canvas').getContext('2d')); g.fillStyle = c; var h = g.fillStyle.replace('#', ''); return '\\textcolor[RGB]{' + parseInt(h.substr(0, 2), 16) + ',' + parseInt(h.substr(2, 2), 16) + ',' + parseInt(h.substr(4, 2), 16) + '}{' + t + '}'; }
+  function hs(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+  function halo(txt, x, y, size, col, al) { ctx.font = 'bold ' + (size || 16) + 'px system-ui, sans-serif'; ctx.textAlign = al || 'center'; ctx.textBaseline = 'middle'; ctx.lineWidth = 4; ctx.strokeStyle = '#fff'; ctx.lineJoin = 'round'; ctx.strokeText(txt, x, y); ctx.fillStyle = col || '#111'; ctx.fillText(txt, x, y); }
 
   var st = { n: 6, t: 0 }, BL = '#1f3a8a', OR = '#c2410c';
   function stairs(n, u, fill, stroke) { for (var i = 1; i <= n; i++) for (var j = 0; j < i; j++) R(j * u, (i - 1) * u, u, u, fill, stroke, 1.5); }
@@ -83,7 +106,7 @@
     ctx.save(); ctx.translate(ox + cx, oy + cy); ctx.rotate(e * Math.PI); ctx.translate(-n * u / 2, -n * u / 2); stairs(n, u, '#fed7aa', OR); ctx.restore();
     if (t < 0.05) { T('1 + 2 + ⋯ + n', ox + n * u / 2, oy - 22, 20, BL); T('n', ox - 18, oy + n * u / 2, 18); }
     else if (t > 0.95) { T('n + 1', ox + (n + 1) * u / 2, oy - 18, 20); T('n', ox - 18, oy + n * u / 2, 18); }
-    $('eq').innerHTML = sp('1 + 2 + ⋯ + n', BL) + ' = ' + sp('½', OR) + ' · n(n + 1) = n(n + 1)/2';
+    $('eq').innerHTML = '\\(' + sp('1 + 2 + \\cdots + n', BL) + ' = ' + sp('\\tfrac{1}{2}', OR) + ' \\cdot n(n + 1) = \\dfrac{n(n + 1)}{2}\\)';
     $('t').value = Math.round(t * 1000);
   }
   $('t').oninput = function () { st.t = parseFloat(this.value) / 1000; draw(); };

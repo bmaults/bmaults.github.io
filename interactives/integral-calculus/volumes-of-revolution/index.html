@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Volumes of Revolution: Slicing a Solid into Disks and Washers</title>
-<meta name="description" content="An interactive picture of volumes of revolution. A region spun around the axis is cut into thin disks or washers whose volumes add up to the volume of the solid.">
+<meta name="description" content="An interactive three-dimensional picture of volumes of revolution. Watch a region turn around the axis to make a solid, then cut it into thin disks or washers whose volumes add up to the volume of the solid.">
 <style>
   body { font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; color: #1a1a1a; margin: 0; background: #fff; line-height: 1.45; }
   main { max-width: 860px; margin: 0 auto; padding: 12px 14px 24px; }
@@ -25,28 +25,52 @@
   table.t th, table.t td { border: 1px solid #d1d5db; padding: 4px 12px; text-align: center; }
   input[type=text] { font: inherit; padding: 5px 8px; border: 2px solid #9ca3af; border-radius: 6px; width: 15em; max-width: 100%; }
 </style>
+<style>
+  .playbtn { font: inherit; font-weight: 600; padding: 8px 18px; border: 2px solid #166534; background: #15803d; color: #fff; border-radius: 6px; cursor: pointer; }
+  .playbtn[aria-pressed="true"] { background: #fff; color: #15803d; }
+  #eq { min-height: 2.6em; overflow-x: auto; overflow-y: hidden; line-height: 1.9; }
+  mjx-container { max-width: 100%; }
+</style>
+<script>window.MathJax = { tex: { inlineMath: [['\\(', '\\)']] }, svg: { fontCache: 'global' }, startup: { typeset: false, ready: function () { MathJax.startup.defaultReady(); MathJax.startup.promise = MathJax.startup.promise.then(function () { return MathJax.typesetPromise(); }).catch(function () {}); } } };</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var proto = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML'), tc = Object.getOwnPropertyDescriptor(Node.prototype, 'textContent');
+  function ts(el) { if (window.MathJax && MathJax.startup && MathJax.typesetPromise) { MathJax.startup.promise = MathJax.startup.promise.then(function () { MathJax.startup.document.clear(); return MathJax.typesetPromise([el]); }).catch(function () {}); } }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  document.querySelectorAll('main [id], main .readout, main .box').forEach(function (el) {
+    if (!/^(DIV|P|SPAN|TD)$/.test(el.tagName)) return;
+    var cur = null;
+    Object.defineProperty(el, 'innerHTML', { configurable: true, get: function () { return proto.get.call(el); }, set: function (h) { if (h === cur) return; cur = h; proto.set.call(el, h); ts(el); } });
+    Object.defineProperty(el, 'textContent', { configurable: true, get: function () { return tc.get.call(el); }, set: function (t) { el.innerHTML = esc(t); } });
+  });
+});
+</script>
 </head>
 <body>
 <main>
   <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../">&larr; All integral calculus demonstrations</a></nav>
   <h1>Volumes of Revolution: Slicing a Solid into Disks and Washers</h1>
-  <p>Spin a region around the horizontal axis to make a solid. Slice the solid into thin disks (or washers) and add up their volumes.</p>
+  <p>Spin a region around the horizontal axis to make a solid. Use the first slider to watch the region turn, and the number of slices to see how the solid is built from thin disks (or washers). The dashed gray line is the axis of revolution.</p>
+  <div class="readout" id="eq" style="font-size:1.1rem"></div>
   <div class="tabs" role="group" aria-label="Disks or washers">
     <button type="button" id="m-disk" aria-pressed="true">Disks</button>
     <button type="button" id="m-wash" aria-pressed="false">Washers</button>
   </div>
   <div class="tabs" role="group" aria-label="Choose a function"><button type="button" id="t-rise" aria-pressed="true">Rising curve</button><button type="button" id="t-hump" aria-pressed="false">Hump</button><button type="button" id="t-wave" aria-pressed="false">Wave</button></div>
-  <canvas id="cv" width="800" height="520" role="img" aria-label="A solid of revolution built from stacked disks or washers. A small inset shows the face of the highlighted slice."></canvas>
+  <canvas id="cv" width="800" height="520" role="img" aria-label="A three-dimensional solid of revolution made by spinning a region around the horizontal axis, cut into thin disks or washers. One slice is highlighted, and a small inset shows its circular or ring-shaped face."></canvas>
   <div class="controls">
+    <label>Turn the region (degrees) <input type="range" id="th" min="0" max="360" step="1" value="240"></label>
     <label>Number of slices <input type="range" id="n" min="1" max="40" step="1" value="8"></label>
     <label>Choose a slice <input type="range" id="s" min="0" max="1000" step="1" value="500"></label>
+    <div><button type="button" class="playbtn" id="anim" aria-pressed="false">&#9654; Play the animation</button><script>(function(){var b=document.getElementById("anim"),on=false;function paint(){b.setAttribute("aria-pressed",on);b.textContent=(on?"\u23F8 Pause the animation":"\u25B6 Play the animation");}Object.defineProperty(b,"checked",{get:function(){return on;},set:function(v){on=!!v;paint();}});b.addEventListener("click",function(){on=!on;paint();b.dispatchEvent(new Event("change"));});paint();})();</script></div>
   </div>
   <div class="readout" id="note" aria-live="polite"></div>
-  <div class="readout" id="eq" style="font-size:1.1rem"></div>
   <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
   <ol style="padding-left:1.4em">
     <li style="margin-bottom:0.6em">As the number of slices grows, what happens to the stack of disks?</li>
     <li style="margin-bottom:0.6em">Why is the face of a washer a ring instead of a full circle?</li>
+    <li style="margin-bottom:0.6em">Which slice has the largest face? Which has the smallest?</li>
   </ol>
 </main>
 <script>
@@ -77,7 +101,9 @@
   function onTick(fn) { animating.push(fn); }
   function tick(ts) { var dt = ts - last; last = ts; animating.forEach(function (f) { f(dt); }); requestAnimationFrame(tick); }
   requestAnimationFrame(tick);
-  function sp(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+  function sp(t, c) { var g = sp.g || (sp.g = document.createElement('canvas').getContext('2d')); g.fillStyle = c; var h = g.fillStyle.replace('#', ''); return '\\textcolor[RGB]{' + parseInt(h.substr(0, 2), 16) + ',' + parseInt(h.substr(2, 2), 16) + ',' + parseInt(h.substr(4, 2), 16) + '}{' + t + '}'; }
+  function hs(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+  function halo(txt, x, y, size, col, al) { ctx.font = 'bold ' + (size || 16) + 'px system-ui, sans-serif'; ctx.textAlign = al || 'center'; ctx.textBaseline = 'middle'; ctx.lineWidth = 4; ctx.strokeStyle = '#fff'; ctx.lineJoin = 'round'; ctx.strokeText(txt, x, y); ctx.fillStyle = col || '#111'; ctx.fillText(txt, x, y); }
 
   var BLU = '#1f3a8a', RED = '#b91c1c', GRN = '#15803d', ORG = '#c2410c', INK = '#1f2937';
   var FN = {
@@ -124,8 +150,20 @@
   var FP = {
     rise: { f: function (x) { return 0.12 * x * x + 0.5; }, F: function (x) { return 0.04 * x * x * x + 0.5 * x; }, x0: 0, x1: 5, y0: 0, y1: 4 },
     hump: { f: function (x) { return -0.5 * (x - 2) * (x - 2) + 2.3; }, F: function (x) { return -Math.pow(x - 2, 3) / 6 + 2.3 * x; }, x0: 0, x1: 4, y0: 0, y1: 3 },
-    wave: { f: function (x) { return 1 + 0.8 * Math.sin(x); }, F: function (x) { return x - 0.8 * Math.cos(x); }, x0: 0, x1: 7, y0: 0, y1: 2.2 }
+    wave: { f: function (x) { return 1 + 0.8 * Math.sin(x); }, F: function (x) { return x - 0.8 * Math.cos(x); }, x0: 0, x1: 7, y0: 0, y1: 2.2 },
+    wiggly: { f: function (x) { return 1.6 + Math.sin(x) + 0.4 * Math.cos(2.5 * x); }, F: function (x) { return 1.6 * x - Math.cos(x) + 0.16 * Math.sin(2.5 * x); }, x0: 0, x1: 7, y0: 0, y1: 3.2 },
+    steps: { f: function (x) { return x < 1.5 ? 1 : x < 3 ? 2.5 : x < 4.5 ? 1.5 : 3; },
+      F: function (x) { var c = [0, 1.5, 3, 4.5, 6], h = [1, 2.5, 1.5, 3], s = 0, i; for (i = 0; i < 4; i++) s += h[i] * Math.max(0, Math.min(x, c[i + 1]) - c[i]); return s; }, x0: 0, x1: 6, y0: 0, y1: 3.4, jumps: [1.5, 3, 4.5] },
+    saw: { f: function (x) { return 0.4 + 1.2 * (x - 2 * Math.floor(x / 2)); },
+      F: function (x) { var k = Math.floor(x / 2), r = x - 2 * k; return 3.2 * k + 0.4 * r + 0.6 * r * r; }, x0: 0, x1: 6, y0: 0, y1: 3, jumps: [2, 4] },
+    mixed: { f: function (x) { return x < 2 ? 0.5 + 0.8 * x : x < 4 ? 3.2 - 0.6 * (x - 3) * (x - 3) : 1.2; },
+      F: function (x) { if (x < 2) return 0.5 * x + 0.4 * x * x; if (x < 4) return 2.6 + 3.2 * (x - 2) - 0.2 * (Math.pow(x - 3, 3) + 1); return 8.6 + 1.2 * (x - 4); }, x0: 0, x1: 5, y0: 0, y1: 3.6, jumps: [2, 4] }
   };
+  function ijCurve(v, F, col, w) {
+    var js = F.jumps || [], pts = [F.x0].concat(js, [F.x1]), i;
+    for (i = 0; i < pts.length - 1; i++) v.curve(F.f, col, w, pts[i] + (i ? 1e-6 : 0), pts[i + 1] - (i < pts.length - 2 ? 1e-6 : 0));
+    js.forEach(function (j) { ctx.beginPath(); ctx.arc(v.X(j), v.Y(F.f(j - 1e-6)), 5, 0, 7); ctx.fillStyle = '#fff'; ctx.fill(); ctx.strokeStyle = col; ctx.lineWidth = 2.5; ctx.stroke(); dot(v.X(j), v.Y(F.f(j)), 5, col); });
+  }
   var FS = {
     swave: { f: function (x) { return 1.5 * Math.sin(x); }, F: function (x) { return -1.5 * Math.cos(x); }, x0: 0, x1: 6.8, y0: -2.2, y1: 2.2 },
     cubic: { f: function (x) { return (x * x * x - 4 * x) / 4; }, F: function (x) { return x * x * x * x / 16 - x * x / 2; }, x0: -3, x1: 3, y0: -4, y1: 4 },
@@ -148,36 +186,49 @@
     cv.addEventListener('pointermove', function (e) { if (on) go(e); }); cv.addEventListener('pointerup', function () { on = false; });
   }
 
-  var st = { fn: 'hump', m: 'disk', n: 8, s: 0.5 };
+  var st = { fn: 'hump', m: 'disk', n: 8, s: 0.5, th: 240, dir: 1, hold: 0 }, PSI = -0.62, CHI = 0.42, DEG = Math.PI / 180, LT = [0.35, 0.55, 0.76];
+  function rot(x, y, z) { var c = Math.cos(PSI), s = Math.sin(PSI), x1 = x * c + z * s, z1 = -x * s + z * c, ch = Math.cos(CHI), sh = Math.sin(CHI); return [x1, y * ch - z1 * sh, y * sh + z1 * ch]; }
   function draw() {
     clear();
-    var F = FP[st.fn], YM = F.y1, v = new View(40, 20, 720, 480, F.x0, F.x1, -YM * 1.6, YM * 1.6), n = st.n, dx = (F.x1 - F.x0) / n, i, wash = st.m === 'wash', X = v.X, Y = v.Y;
-    var hi = Math.min(n - 1, Math.floor(st.s * n * 0.9999));
-    function inner(x) { return 0.55 * F.f(x); }
-    v.axes(); line(X(F.x0), Y(0), X(F.x1), Y(0), '#94a3b8', 1.5, [6, 5]);
+    var F = FP[st.fn], n = st.n, wash = st.m === 'wash', dx = (F.x1 - F.x0) / n, th = st.th * DEG, hi = Math.min(n - 1, Math.floor(st.s * n * 0.9999)), i, k;
+    var mnx = 1e9, mxx = -1e9, mny = 1e9, mxy = -1e9;
+    [F.x0 - 0.3, F.x1 + 0.5].forEach(function (x) { for (k = 0; k < 12; k++) { var p = rot(x, F.y1 * Math.cos(k * Math.PI / 6), F.y1 * Math.sin(k * Math.PI / 6)); mnx = Math.min(mnx, p[0]); mxx = Math.max(mxx, p[0]); mny = Math.min(mny, p[1]); mxy = Math.max(mxy, p[1]); } });
+    var S = Math.min(640 / (mxx - mnx), 420 / (mxy - mny)), ox = 365 - S * (mnx + mxx) / 2, oy = 285 + S * (mny + mxy) / 2;
+    function P(x, y, z) { var p = rot(x, y, z); return [ox + S * p[0], oy - S * p[1]]; }
+    function poly(pts, fill, stroke, lw) { ctx.beginPath(); pts.forEach(function (p, j) { if (j) ctx.lineTo(p[0], p[1]); else ctx.moveTo(p[0], p[1]); }); ctx.closePath(); if (fill) { ctx.fillStyle = fill; ctx.fill(); } if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw || 1; ctx.stroke(); } }
+    var a0 = P(F.x0 - 0.3, 0, 0), a1 = P(F.x1 + 0.5, 0, 0);
+    line(a0[0], a0[1], a1[0], a1[1], '#94a3b8', 2, [7, 5]);
     for (i = 0; i < n; i++) {
-      var xa = F.x0 + i * dx, xb = xa + dx, xm = xa + dx / 2, R = F.f(xm), ry = Math.abs(Y(0) - Y(R)), rx = Math.max(2.5, ry * 0.2), fill = i === hi ? '#fdba74' : '#bfdbfe', stroke = i === hi ? ORG : BLU;
-      ctx.fillStyle = fill; ctx.strokeStyle = stroke; ctx.lineWidth = n > 25 ? 0.8 : 1.5;
-      ctx.beginPath(); ctx.rect(X(xa), Y(R), X(xb) - X(xa), 2 * ry); ctx.fill(); ctx.stroke();
-      ctx.beginPath(); ctx.ellipse(X(xb), Y(0), rx, ry, 0, 0, 7); ctx.fill(); ctx.stroke();
-      if (wash) { var r = Math.abs(Y(0) - Y(inner(xm))); ctx.fillStyle = '#eef2f7'; ctx.beginPath(); ctx.ellipse(X(xb), Y(0), rx * 0.55, r, 0, 0, 7); ctx.fill(); ctx.stroke(); }
+      var xa = F.x0 + i * dx, xb = xa + dx, xm = xa + dx / 2, R = F.f(xm), r = wash ? 0.55 * F.f(xm) : 0, hl = i === hi, hue = hl ? 24 : 221, M = Math.max(1, Math.ceil(th / (14 * DEG))), j;
+      function colr(l) { return 'hsl(' + hue + ',' + (hl ? 88 : 72) + '%,' + l + '%)'; }
+      function ring(x, rad, a) { return P(x, rad * Math.cos(a), rad * Math.sin(a)); }
+      if (th < 2 * Math.PI - 1e-3) [0, th].forEach(function (a, q) { poly([ring(xa, r, a), ring(xb, r, a), ring(xb, R, a), ring(xa, R, a)], colr(q ? 86 : 78), colr(38), 1); });
+      if (wash) for (j = 0; j < M; j++) { var b0 = th * j / M, b1 = th * (j + 1) / M, bm = (b0 + b1) / 2, nr = rot(0, Math.cos(bm), Math.sin(bm)); if (nr[2] < 0) poly([ring(xa, r, b0), ring(xb, r, b0), ring(xb, r, b1), ring(xa, r, b1)], colr(40 + 16 * (-nr[2])), colr(40), 0.8); }
+      for (j = 0; j < M; j++) {
+        var c0 = th * j / M, c1 = th * (j + 1) / M, cm = (c0 + c1) / 2, nn = rot(0, Math.cos(cm), Math.sin(cm));
+        if (nn[2] > 0) { var l = 50 + 30 * Math.max(0, nn[0] * LT[0] + nn[1] * LT[1] + nn[2] * LT[2]); poly([ring(xa, R, c0), ring(xb, R, c0), ring(xb, R, c1), ring(xa, R, c1)], colr(l), colr(l - 4), 0.8); }
+      }
+      var fp = []; if (!wash) fp.push(P(xb, 0, 0)); for (j = 0; j <= M; j++) fp.push(ring(xb, R, th * j / M)); if (wash) for (j = M; j >= 0; j--) fp.push(ring(xb, r, th * j / M));
+      poly(fp, colr(84), colr(34), 1.2);
     }
-    v.curve(F.f, INK, 3); v.curve(function (x) { return -F.f(x); }, INK, 3);
-    if (wash) { v.curve(inner, INK, 2); v.curve(function (x) { return -inner(x); }, INK, 2); }
-    var xm2 = F.x0 + (hi + 0.5) * dx, R2 = F.f(xm2), cx = 712, cy = 62, sc = 44 / YM;
-    ctx.fillStyle = '#fff'; ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 1.5; ctx.fillRect(cx - 56, cy - 52, 112, 118); ctx.strokeRect(cx - 56, cy - 52, 112, 118);
+    function curveAt(a, col, w) { ctx.beginPath(); for (i = 0; i <= 90; i++) { var x = F.x0 + (F.x1 - F.x0) * i / 90, p = P(x, F.f(x) * Math.cos(a), F.f(x) * Math.sin(a)); if (i) ctx.lineTo(p[0], p[1]); else ctx.moveTo(p[0], p[1]); } ctx.strokeStyle = col; ctx.lineWidth = w; ctx.stroke(); }
+    curveAt(0, INK, 3); if (th > 0.02 && th < 2 * Math.PI - 0.02) { ctx.save(); ctx.setLineDash([7, 5]); curveAt(th, ORG, 3); ctx.restore(); }
+    var a2 = P(F.x1, 0, 0); line(a2[0], a2[1], a1[0], a1[1], '#64748b', 2.5);
+    var xm2 = F.x0 + (hi + 0.5) * dx, R2 = F.f(xm2), cx = 722, cy = 70, sc = 44 / F.y1;
+    ctx.fillStyle = '#fff'; ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 1.5; ctx.fillRect(cx - 62, cy - 54, 124, 124); ctx.strokeRect(cx - 62, cy - 54, 124, 124);
     ctx.beginPath(); ctx.arc(cx, cy, R2 * sc, 0, 7); ctx.fillStyle = '#fdba74'; ctx.fill(); ctx.strokeStyle = ORG; ctx.lineWidth = 2; ctx.stroke();
-    if (wash) { ctx.beginPath(); ctx.arc(cx, cy, inner(xm2) * sc, 0, 7); ctx.fillStyle = '#fff'; ctx.fill(); ctx.stroke(); }
-    T('face of the', cx, cy + 50, 12, '#475569'); T('orange slice', cx, cy + 62, 12, '#475569');
-    $('note').textContent = wash ? 'Each washer is a disk with a hole. Its face is a ring, and its volume is the area of the ring times the thickness.' : 'Each disk is a very short cylinder. Its volume is the area of its circular face times its thickness. More slices fit the solid more closely.';
-    $('eq').innerHTML = sp('Volume', BLU) + ' = ' + (wash ? '∫ π (R(x)² − r(x)²) dx' : '∫ π f(x)² dx') + ' &nbsp;(the sum of face area × thickness)';
+    if (wash) { ctx.beginPath(); ctx.arc(cx, cy, 0.55 * R2 * sc, 0, 7); ctx.fillStyle = '#fff'; ctx.fill(); ctx.stroke(); }
+    T('face of the', cx, cy + 52, 12, '#475569'); T('orange slice', cx, cy + 64, 12, '#475569');
+    $('note').textContent = th < 2 * Math.PI - 1e-3 ? 'The region under the curve (flat, at the start) turns around the axis, and the orange curve shows where its edge has moved. Each slice is cut into a thin disk' + (wash ? ' with a hole, which is a washer.' : '.') : (wash ? 'Each washer is a disk with a hole, so its face is a ring. Its volume is the area of the ring times the thickness.' : 'Each disk is a very short cylinder. Its volume is the area of its circular face times its thickness. More slices fit the solid more closely.');
+    $('eq').innerHTML = wash ? '\\(V = \\displaystyle\\int_a^b \\pi\\left([R(x)]^2 - [r(x)]^2\\right)dx\\) &nbsp; (the sum of ring area \\(\\times\\) thickness)' : '\\(V = \\displaystyle\\int_a^b \\pi\\,[f(x)]^2\\,dx\\) &nbsp; (the sum of face area \\(\\times\\) thickness)';
   }
   tabsFor(['rise', 'hump', 'wave'], function (n) { st.fn = n; draw(); });
   $('m-disk').onclick = function () { st.m = 'disk'; setTabs(['m-disk', 'm-wash'], 'm-disk'); draw(); };
   $('m-wash').onclick = function () { st.m = 'wash'; setTabs(['m-disk', 'm-wash'], 'm-wash'); draw(); };
   $('n').oninput = function () { st.n = parseInt(this.value, 10); draw(); };
   $('s').oninput = function () { st.s = parseFloat(this.value) / 1000; draw(); };
-  ptr(0, function (sx) { st.s = Math.max(0, Math.min(1, (sx - 40) / 720)); $('s').value = Math.round(st.s * 1000); draw(); });
+  $('th').oninput = function () { st.th = parseFloat(this.value); draw(); };
+  onTick(function (dt) { if ($('anim').checked) { if (st.th >= 360) { st.hold += dt; if (st.hold > 1200) { st.th = 0; st.hold = 0; } } else st.th = Math.min(360, st.th + dt * 0.07); $('th').value = Math.round(st.th); draw(); } });
   draw();
 
 })();

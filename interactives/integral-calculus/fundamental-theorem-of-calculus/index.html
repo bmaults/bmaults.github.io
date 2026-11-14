@@ -25,24 +25,45 @@
   table.t th, table.t td { border: 1px solid #d1d5db; padding: 4px 12px; text-align: center; }
   input[type=text] { font: inherit; padding: 5px 8px; border: 2px solid #9ca3af; border-radius: 6px; width: 15em; max-width: 100%; }
 </style>
+<style>
+  .playbtn { font: inherit; font-weight: 600; padding: 8px 18px; border: 2px solid #166534; background: #15803d; color: #fff; border-radius: 6px; cursor: pointer; }
+  .playbtn[aria-pressed="true"] { background: #fff; color: #15803d; }
+  #eq { min-height: 2.6em; overflow-x: auto; overflow-y: hidden; line-height: 1.9; }
+  mjx-container { max-width: 100%; }
+</style>
+<script>window.MathJax = { tex: { inlineMath: [['\\(', '\\)']] }, svg: { fontCache: 'global' }, startup: { typeset: false, ready: function () { MathJax.startup.defaultReady(); MathJax.startup.promise = MathJax.startup.promise.then(function () { return MathJax.typesetPromise(); }).catch(function () {}); } } };</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var proto = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML'), tc = Object.getOwnPropertyDescriptor(Node.prototype, 'textContent');
+  function ts(el) { if (window.MathJax && MathJax.startup && MathJax.typesetPromise) { MathJax.startup.promise = MathJax.startup.promise.then(function () { MathJax.startup.document.clear(); return MathJax.typesetPromise([el]); }).catch(function () {}); } }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  document.querySelectorAll('main [id], main .readout, main .box').forEach(function (el) {
+    if (!/^(DIV|P|SPAN|TD)$/.test(el.tagName)) return;
+    var cur = null;
+    Object.defineProperty(el, 'innerHTML', { configurable: true, get: function () { return proto.get.call(el); }, set: function (h) { if (h === cur) return; cur = h; proto.set.call(el, h); ts(el); } });
+    Object.defineProperty(el, 'textContent', { configurable: true, get: function () { return tc.get.call(el); }, set: function (t) { el.innerHTML = esc(t); } });
+  });
+});
+</script>
 </head>
 <body>
 <main>
   <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../">&larr; All integral calculus demonstrations</a></nav>
   <h1>The Fundamental Theorem of Calculus, Part 2: Area Equals the Rise of an Antiderivative</h1>
-  <p>The area under f between a and b equals how much an antiderivative F rises from a to b. Move the ends and compare the two.</p>
+  <p>The area under \(f\) between \(a\) and \(b\) equals how much an antiderivative \(F\) rises from \(a\) to \(b\). Move the ends and compare the shaded area on top with the rise on the bottom.</p>
+  <div class="readout" id="eq" style="font-size:1.05rem"><b>Fundamental Theorem of Calculus, Part 2.</b> If \(f\) is continuous on \([a, b]\) and \(F\) is any antiderivative of \(f\) (that is, \(F' = f\)), then \[\int_a^b f(x)\,dx = F(b) - F(a).\]</div>
   <div class="tabs" role="group" aria-label="Choose a function"><button type="button" id="t-swave" aria-pressed="true">Sine wave</button><button type="button" id="t-cubic" aria-pressed="false">Cubic</button><button type="button" id="t-parabola" aria-pressed="false">Parabola</button></div>
-  <canvas id="cv" width="800" height="520" role="img" aria-label="Two graphs. The top graph shows a function with the area between a and b shaded. The bottom graph shows an antiderivative with its rise from a to b marked. Two bars on the right show that the area and the rise are equal."></canvas>
+  <canvas id="cv" width="800" height="520" role="img" aria-label="Two graphs. The top graph shows a function with the area between a and b shaded. The bottom graph shows an antiderivative. Dashed horizontal lines at the heights F of a and F of b, and an arrow between them on the right, show the rise of F, which equals the shaded area."></canvas>
   <div class="controls">
-    <label>Left end a <input type="range" id="a" min="0" max="1000" step="1" value="150"></label>
-    <label>Right end b <input type="range" id="b" min="0" max="1000" step="1" value="700"></label>
+    <label>Left end \(a\) <input type="range" id="a" min="0" max="1000" step="1" value="150"></label>
+    <label>Right end \(b\) <input type="range" id="b" min="0" max="1000" step="1" value="700"></label>
   </div>
   <div class="readout" id="note" aria-live="polite"></div>
-  <div class="readout" id="eq" style="font-size:1.1rem"></div>
   <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
   <ol style="padding-left:1.4em">
-    <li style="margin-bottom:0.6em">Choose a and b so the area is negative. What does F do between a and b?</li>
-    <li style="margin-bottom:0.6em">If you add a constant to F, which parts of the picture change and which do not?</li>
+    <li style="margin-bottom:0.6em">Choose \(a\) and \(b\) so the area is negative. What does \(F\) do between \(a\) and \(b\)?</li>
+    <li style="margin-bottom:0.6em">If you add a constant to \(F\), which parts of the picture change and which do not?</li>
   </ol>
 </main>
 <script>
@@ -73,7 +94,9 @@
   function onTick(fn) { animating.push(fn); }
   function tick(ts) { var dt = ts - last; last = ts; animating.forEach(function (f) { f(dt); }); requestAnimationFrame(tick); }
   requestAnimationFrame(tick);
-  function sp(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+  function sp(t, c) { var g = sp.g || (sp.g = document.createElement('canvas').getContext('2d')); g.fillStyle = c; var h = g.fillStyle.replace('#', ''); return '\\textcolor[RGB]{' + parseInt(h.substr(0, 2), 16) + ',' + parseInt(h.substr(2, 2), 16) + ',' + parseInt(h.substr(4, 2), 16) + '}{' + t + '}'; }
+  function hs(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+  function halo(txt, x, y, size, col, al) { ctx.font = 'bold ' + (size || 16) + 'px system-ui, sans-serif'; ctx.textAlign = al || 'center'; ctx.textBaseline = 'middle'; ctx.lineWidth = 4; ctx.strokeStyle = '#fff'; ctx.lineJoin = 'round'; ctx.strokeText(txt, x, y); ctx.fillStyle = col || '#111'; ctx.fillText(txt, x, y); }
 
   var BLU = '#1f3a8a', RED = '#b91c1c', GRN = '#15803d', ORG = '#c2410c', INK = '#1f2937';
   var FN = {
@@ -120,8 +143,20 @@
   var FP = {
     rise: { f: function (x) { return 0.12 * x * x + 0.5; }, F: function (x) { return 0.04 * x * x * x + 0.5 * x; }, x0: 0, x1: 5, y0: 0, y1: 4 },
     hump: { f: function (x) { return -0.5 * (x - 2) * (x - 2) + 2.3; }, F: function (x) { return -Math.pow(x - 2, 3) / 6 + 2.3 * x; }, x0: 0, x1: 4, y0: 0, y1: 3 },
-    wave: { f: function (x) { return 1 + 0.8 * Math.sin(x); }, F: function (x) { return x - 0.8 * Math.cos(x); }, x0: 0, x1: 7, y0: 0, y1: 2.2 }
+    wave: { f: function (x) { return 1 + 0.8 * Math.sin(x); }, F: function (x) { return x - 0.8 * Math.cos(x); }, x0: 0, x1: 7, y0: 0, y1: 2.2 },
+    wiggly: { f: function (x) { return 1.6 + Math.sin(x) + 0.4 * Math.cos(2.5 * x); }, F: function (x) { return 1.6 * x - Math.cos(x) + 0.16 * Math.sin(2.5 * x); }, x0: 0, x1: 7, y0: 0, y1: 3.2 },
+    steps: { f: function (x) { return x < 1.5 ? 1 : x < 3 ? 2.5 : x < 4.5 ? 1.5 : 3; },
+      F: function (x) { var c = [0, 1.5, 3, 4.5, 6], h = [1, 2.5, 1.5, 3], s = 0, i; for (i = 0; i < 4; i++) s += h[i] * Math.max(0, Math.min(x, c[i + 1]) - c[i]); return s; }, x0: 0, x1: 6, y0: 0, y1: 3.4, jumps: [1.5, 3, 4.5] },
+    saw: { f: function (x) { return 0.4 + 1.2 * (x - 2 * Math.floor(x / 2)); },
+      F: function (x) { var k = Math.floor(x / 2), r = x - 2 * k; return 3.2 * k + 0.4 * r + 0.6 * r * r; }, x0: 0, x1: 6, y0: 0, y1: 3, jumps: [2, 4] },
+    mixed: { f: function (x) { return x < 2 ? 0.5 + 0.8 * x : x < 4 ? 3.2 - 0.6 * (x - 3) * (x - 3) : 1.2; },
+      F: function (x) { if (x < 2) return 0.5 * x + 0.4 * x * x; if (x < 4) return 2.6 + 3.2 * (x - 2) - 0.2 * (Math.pow(x - 3, 3) + 1); return 8.6 + 1.2 * (x - 4); }, x0: 0, x1: 5, y0: 0, y1: 3.6, jumps: [2, 4] }
   };
+  function ijCurve(v, F, col, w) {
+    var js = F.jumps || [], pts = [F.x0].concat(js, [F.x1]), i;
+    for (i = 0; i < pts.length - 1; i++) v.curve(F.f, col, w, pts[i] + (i ? 1e-6 : 0), pts[i + 1] - (i < pts.length - 2 ? 1e-6 : 0));
+    js.forEach(function (j) { ctx.beginPath(); ctx.arc(v.X(j), v.Y(F.f(j - 1e-6)), 5, 0, 7); ctx.fillStyle = '#fff'; ctx.fill(); ctx.strokeStyle = col; ctx.lineWidth = 2.5; ctx.stroke(); dot(v.X(j), v.Y(F.f(j)), 5, col); });
+  }
   var FS = {
     swave: { f: function (x) { return 1.5 * Math.sin(x); }, F: function (x) { return -1.5 * Math.cos(x); }, x0: 0, x1: 6.8, y0: -2.2, y1: 2.2 },
     cubic: { f: function (x) { return (x * x * x - 4 * x) / 4; }, F: function (x) { return x * x * x * x / 16 - x * x / 2; }, x0: -3, x1: 3, y0: -4, y1: 4 },
@@ -145,29 +180,29 @@
   }
 
   var st = { fn: 'swave', a: 0.15, b: 0.7 };
+  function head(x, y, up, col) { var d = up ? 1 : -1; ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - 9, y + 16 * d); ctx.lineTo(x + 9, y + 16 * d); ctx.closePath(); ctx.fill(); }
   function draw() {
     clear();
-    var F = FS[st.fn], R2 = range(F.F, F.x0, F.x1), PW = 560, span = F.x1 - F.x0;
-    var v1 = new View(40, 16, PW, 236, F.x0, F.x1, F.y0, F.y1), v2 = new View(40, 286, PW, 216, F.x0, F.x1, R2[0], R2[1]);
+    var F = FS[st.fn], R2 = range(F.F, F.x0, F.x1), span = F.x1 - F.x0;
+    var v1 = new View(60, 26, 560, 214, F.x0, F.x1, F.y0, F.y1), v2 = new View(60, 292, 560, 214, F.x0, F.x1, R2[0], R2[1]);
     var a = F.x0 + span * Math.min(st.a, st.b - 0.05), b = F.x0 + span * Math.max(st.b, st.a + 0.05), Fa = F.F(a), Fb = F.F(b), area = Fb - Fa;
+    var col = area >= 0 ? BLU : ORG;
     v1.axes(); v2.axes();
     v1.on(); fillArea(v1, F.f, a, b, 'rgba(31,58,138,0.30)', 'rgba(194,65,12,0.30)'); v1.off();
     v1.curve(F.f, INK, 3.5); v2.curve(F.F, INK, 3.5);
-    var pos = area >= 0, col = pos ? BLU : ORG;
     line(v1.X(a), v1.py, v1.X(a), v2.py + v2.ph, '#cbd5e1', 1.5, [5, 5]); line(v1.X(b), v1.py, v1.X(b), v2.py + v2.ph, '#cbd5e1', 1.5, [5, 5]);
-    v2.on(); line(v2.X(a), v2.Y(Fa), v2.X(b), v2.Y(Fa), '#94a3b8', 2, [6, 5]); v2.off();
-    line(v2.X(b), v2.Y(Fa), v2.X(b), v2.Y(Fb), GRN, 6);
-    dot(v2.X(a), v2.Y(Fa), 7, INK); dot(v2.X(b), v2.Y(Fb), 7, INK);
     T('a', v1.X(a), v1.py + v1.ph + 12, 16, INK); T('b', v1.X(b), v1.py + v1.ph + 12, 16, INK);
-    T('f', v1.px + 14, v1.py + 16, 18, INK); T('F', v2.px + 14, v2.py + 16, 18, INK);
-    var amax = 0, i; for (i = 0; i <= 200; i++) amax = Math.max(amax, Math.abs(F.F(F.x0 + span * i / 200) - F.F(F.x0)));
-    var base = 300, sc = 120 / Math.max(amax, 1e-6), bh = area * sc;
-    line(640, base, 780, base, '#94a3b8', 1.5);
-    ctx.fillStyle = col; ctx.globalAlpha = 0.45; ctx.fillRect(646, bh >= 0 ? base - bh : base, 50, Math.abs(bh)); ctx.globalAlpha = 1; ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.strokeRect(646, bh >= 0 ? base - bh : base, 50, Math.abs(bh));
-    ctx.fillStyle = GRN; ctx.fillRect(724, bh >= 0 ? base - bh : base, 50, Math.abs(bh));
-    T('Area', 671, 126, 14, col); T('under f', 671, 144, 14, col); T('Rise', 749, 126, 14, GRN); T('of F', 749, 144, 14, GRN); T('from a to b', 710, 166, 13, '#475569');
-    $('note').textContent = 'The two bars always have the same size. Where f is below its axis the area counts as negative, and F falls.';
-    $('eq').innerHTML = sp('∫ f(x) dx from a to b', col) + ' = ' + sp('F(b) − F(a)', GRN);
+    T('f', v1.px + 14, v1.py + 14, 18, INK); T('F', v2.px + 14, v2.py + 14, 18, INK);
+    var xm = (a + b) / 2, fm = F.f(xm);
+    halo('area', v1.X(xm), v1.Y(fm / 2), 16, col);
+    var xr = 664; halo('area under f', 688, v1.py + 40, 14, col, 'left'); halo('(shaded)', 688, v1.py + 58, 14, col, 'left');
+    v2.on(); v2.off(); line(v2.X(a), v2.Y(Fa), xr + 12, v2.Y(Fa), '#64748b', 2, [6, 5]); line(v2.X(b), v2.Y(Fb), xr + 12, v2.Y(Fb), '#64748b', 2, [6, 5]);
+    dot(v2.X(a), v2.Y(Fa), 7, INK); dot(v2.X(b), v2.Y(Fb), 7, INK);
+    halo('F(a)', v2.X(a) - 8, v2.Y(Fa) + (Fa <= Fb ? 16 : -16), 15, INK, 'right'); halo('F(b)', v2.X(b) + 8, v2.Y(Fb) + (Fb >= Fa ? -16 : 16), 15, INK, 'left');
+    line(xr, v2.Y(Fa), xr, v2.Y(Fb), col, 7); head(xr, v2.Y(Fb), Fb >= Fa, col);
+    halo('rise of F', xr + 20, (v2.Y(Fa) + v2.Y(Fb)) / 2 - 10, 14, col, 'left'); halo('F(b) − F(a)', xr + 20, (v2.Y(Fa) + v2.Y(Fb)) / 2 + 10, 14, col, 'left');
+    var nm = integ(F.f, a, b);
+    $('note').innerHTML = 'The shaded area under \\(f\\) is ' + hs(nm.toFixed(2), col) + ', and \\(F(b) - F(a)\\) is ' + hs(area.toFixed(2), col) + '. They are always equal. Where \\(f\\) is below its axis the area counts as negative, and \\(F\\) falls.';
   }
   tabsFor(['swave', 'cubic', 'parabola'], function (n) { st.fn = n; draw(); });
   ['a', 'b'].forEach(function (id) { $(id).oninput = function () { st[id] = parseFloat(this.value) / 1000; draw(); }; });

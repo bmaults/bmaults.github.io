@@ -25,21 +25,42 @@
   table.t th, table.t td { border: 1px solid #d1d5db; padding: 4px 12px; text-align: center; }
   input[type=text] { font: inherit; padding: 5px 8px; border: 2px solid #9ca3af; border-radius: 6px; width: 15em; max-width: 100%; }
 </style>
+<style>
+  .playbtn { font: inherit; font-weight: 600; padding: 8px 18px; border: 2px solid #166534; background: #15803d; color: #fff; border-radius: 6px; cursor: pointer; }
+  .playbtn[aria-pressed="true"] { background: #fff; color: #15803d; }
+  #eq { min-height: 2.6em; overflow-x: auto; overflow-y: hidden; line-height: 1.9; }
+  mjx-container { max-width: 100%; }
+</style>
+<script>window.MathJax = { tex: { inlineMath: [['\\(', '\\)']] }, svg: { fontCache: 'global' }, startup: { typeset: false, ready: function () { MathJax.startup.defaultReady(); MathJax.startup.promise = MathJax.startup.promise.then(function () { return MathJax.typesetPromise(); }).catch(function () {}); } } };</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var proto = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML'), tc = Object.getOwnPropertyDescriptor(Node.prototype, 'textContent');
+  function ts(el) { if (window.MathJax && MathJax.startup && MathJax.typesetPromise) { MathJax.startup.promise = MathJax.startup.promise.then(function () { MathJax.startup.document.clear(); return MathJax.typesetPromise([el]); }).catch(function () {}); } }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  document.querySelectorAll('main [id], main .readout, main .box').forEach(function (el) {
+    if (!/^(DIV|P|SPAN|TD)$/.test(el.tagName)) return;
+    var cur = null;
+    Object.defineProperty(el, 'innerHTML', { configurable: true, get: function () { return proto.get.call(el); }, set: function (h) { if (h === cur) return; cur = h; proto.set.call(el, h); ts(el); } });
+    Object.defineProperty(el, 'textContent', { configurable: true, get: function () { return tc.get.call(el); }, set: function (t) { el.innerHTML = esc(t); } });
+  });
+});
+</script>
 </head>
 <body>
 <main>
   <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../">&larr; All differential calculus demonstrations</a></nav>
   <h1>Taylor Polynomials: Approximating Functions with Polynomials</h1>
-  <p>Increase the degree and watch the Taylor polynomial (orange) hug the function (blue) near 0.</p>
-  <div class="tabs"><button type="button" class="act" id="t_si" aria-pressed="false">sin x</button><button type="button" class="act" id="t_co" aria-pressed="false">cos x</button><button type="button" class="act" id="t_ex" aria-pressed="false">eˣ</button><button type="button" class="act" id="t_ge" aria-pressed="false">1/(1 − x)</button><button type="button" class="act" id="t_ln" aria-pressed="false">ln(1 + x)</button></div>
-  <canvas id="cv" width="800" height="520" role="img" aria-label="A function in blue and its Taylor polynomial in orange. Higher degrees follow the function over a larger interval."></canvas>
-  <div class="controls"><label>Degree <input type="range" id="d" min="0" max="15" step="1" value="3"></label></div>
-  <div class="readout" id="note" aria-live="polite"></div>
+  <p>Increase the degree and watch the Taylor polynomial (orange) hug the function (blue) near 0. The polynomial of degree \(n\) about 0 is \(\displaystyle T_n(x) = \sum_{k=0}^{n} \frac{f^{(k)}(0)}{k!}\,x^k\).</p>
   <div class="readout" id="eq" style="font-size:1.05rem"></div>
+  <div class="tabs"><button type="button" class="act" id="t_si" aria-pressed="false">\(\sin x\)</button><button type="button" class="act" id="t_co" aria-pressed="false">\(\cos x\)</button><button type="button" class="act" id="t_ex" aria-pressed="false">\(e^{x}\)</button><button type="button" class="act" id="t_ge" aria-pressed="false">\(\dfrac{1}{1-x}\)</button><button type="button" class="act" id="t_ln" aria-pressed="false">\(\ln(1+x)\)</button></div>
+  <canvas id="cv" width="800" height="520" role="img" aria-label="A function in blue and its Taylor polynomial in orange. Higher degrees follow the function over a larger interval."></canvas>
+  <div class="controls"><label>Degree \(n\) <input type="range" id="d" min="0" max="15" step="1" value="3"></label></div>
+  <div class="readout" id="note" aria-live="polite"></div>
   <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
   <ol style="padding-left:1.4em">
-    <li style="margin-bottom:0.6em">Why does the polynomial stay close to sin x for larger |x| as the degree grows?</li>
-    <li style="margin-bottom:0.6em">What goes wrong for 1/(1 − x) when |x| > 1?</li>
+    <li style="margin-bottom:0.6em">Why does the polynomial stay close to \(\sin x\) for larger \(|x|\) as the degree grows?</li>
+    <li style="margin-bottom:0.6em">What goes wrong for \(\dfrac{1}{1-x}\) when \(|x| > 1\)?</li>
   </ol>
 </main>
 <script>
@@ -70,7 +91,9 @@
   function onTick(fn) { animating.push(fn); }
   function tick(ts) { var dt = ts - last; last = ts; animating.forEach(function (f) { f(dt); }); requestAnimationFrame(tick); }
   requestAnimationFrame(tick);
-  function sp(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+  function sp(t, c) { var g = sp.g || (sp.g = document.createElement('canvas').getContext('2d')); g.fillStyle = c; var h = g.fillStyle.replace('#', ''); return '\\textcolor[RGB]{' + parseInt(h.substr(0, 2), 16) + ',' + parseInt(h.substr(2, 2), 16) + ',' + parseInt(h.substr(4, 2), 16) + '}{' + t + '}'; }
+  function hs(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+  function halo(txt, x, y, size, col, al) { ctx.font = 'bold ' + (size || 16) + 'px system-ui, sans-serif'; ctx.textAlign = al || 'center'; ctx.textBaseline = 'middle'; ctx.lineWidth = 4; ctx.strokeStyle = '#fff'; ctx.lineJoin = 'round'; ctx.strokeText(txt, x, y); ctx.fillStyle = col || '#111'; ctx.fillText(txt, x, y); }
 
   var BLU = '#1f3a8a', RED = '#b91c1c', GRN = '#15803d', ORG = '#c2410c', INK = '#1f2937';
   var FN = {
@@ -136,11 +159,11 @@
 
   function fact(n) { return n < 2 ? 1 : n * fact(n - 1); }
   var T0 = {
-    t_si: { f: Math.sin, c: function (n) { return n % 2 ? [((n - 1) / 2) % 2 ? -1 : 1, fact(n)] : null; }, r: [-7, 7, -3, 3], R: 0, n: 'sin x' },
-    t_co: { f: Math.cos, c: function (n) { return n % 2 === 0 ? [(n / 2) % 2 ? -1 : 1, fact(n)] : null; }, r: [-7, 7, -3, 3], R: 0, n: 'cos x' },
-    t_ex: { f: Math.exp, c: function (n) { return [1, fact(n)]; }, r: [-4, 4, -2, 10], R: 0, n: 'eˣ' },
-    t_ge: { f: function (x) { return 1 / (1 - x); }, c: function () { return [1, 1]; }, r: [-3, 3, -4, 6], R: 1, n: '1/(1 − x)' },
-    t_ln: { f: function (x) { return x <= -1 ? NaN : Math.log(1 + x); }, c: function (n) { return n < 1 ? null : [n % 2 ? 1 : -1, n]; }, r: [-2, 4, -4, 3], R: 1, n: 'ln(1 + x)' }
+    t_si: { f: Math.sin, c: function (n) { return n % 2 ? [((n - 1) / 2) % 2 ? -1 : 1, fact(n)] : null; }, r: [-7, 7, -3, 3], R: 0, n: '\\sin x' },
+    t_co: { f: Math.cos, c: function (n) { return n % 2 === 0 ? [(n / 2) % 2 ? -1 : 1, fact(n)] : null; }, r: [-7, 7, -3, 3], R: 0, n: '\\cos x' },
+    t_ex: { f: Math.exp, c: function (n) { return [1, fact(n)]; }, r: [-4, 4, -2, 10], R: 0, n: 'e^{x}' },
+    t_ge: { f: function (x) { return 1 / (1 - x); }, c: function () { return [1, 1]; }, r: [-3, 3, -4, 6], R: 1, n: '\\dfrac{1}{1-x}' },
+    t_ln: { f: function (x) { return x <= -1 ? NaN : Math.log(1 + x); }, c: function (n) { return n < 1 ? null : [n % 2 ? 1 : -1, n]; }, r: [-2, 4, -4, 3], R: 1, n: '\\ln(1+x)' }
   };
   var cur = 't_si', deg = 3;
   function draw() {
@@ -149,9 +172,9 @@
       line(v.X(1), v.py, v.X(1), v.py + v.ph, '#dc2626', 1.5, [6, 5]); line(v.X(-1), v.py, v.X(-1), v.py + v.ph, '#dc2626', 1.5, [6, 5]); T('outside the radius of convergence', v.X(1) + 8, v.py + 20, 13, '#dc2626', 'left'); }
     v.axes(); plot(v, o.f, BLU, 4);
     plot(v, function (x) { var s = 0, k, c; for (k = 0; k <= deg; k++) { c = o.c(k); if (c) s += c[0] * Math.pow(x, k) / c[1]; } return s; }, ORG, 3);
-    for (n = 0; n <= deg; n++) { var c = o.c(n); if (c) terms.push((c[0] < 0 ? '− ' : (terms.length ? '+ ' : '')) + (n === 0 ? '1' : (c[1] === 1 ? '' : '') + 'x' + (n > 1 ? '<sup>' + n + '</sup>' : '')) + (c[1] > 1 ? (n === 0 ? '' : '/' + c[1]) : '')); }
-    $('note').textContent = o.R ? 'The series only converges for |x| < 1. Outside that interval, higher degree makes the polynomial worse, not better.' : 'Each new term improves the fit over a wider interval around 0.';
-    $('eq').innerHTML = sp('T', ORG) + '<sub>' + deg + '</sub>(x) = ' + (terms.length ? terms.join(' ') : '0') + ' &nbsp;&nbsp; approximating &nbsp; ' + sp(o.n, BLU);
+    for (n = 0; n <= deg; n++) { var c = o.c(n); if (c) { var core = n === 0 ? '1' : n === 1 ? 'x' : 'x^{' + n + '}'; terms.push((c[0] < 0 ? '- ' : (terms.length ? '+ ' : '')) + (c[1] > 1 && n > 0 ? '\\frac{' + core + '}{' + c[1] + '}' : core)); } }
+    $('note').innerHTML = o.R ? 'The series only converges for \\(|x| < 1\\). Outside that interval, higher degree makes the polynomial worse, not better.' : 'Each new term improves the fit over a wider interval around 0.';
+    $('eq').innerHTML = '\\(' + sp('T_{' + deg + '}(x)', ORG) + ' = ' + (terms.length ? terms.join(' ') : '0') + '\\) &nbsp;&nbsp; approximating &nbsp; \\(' + sp(o.n, BLU) + '\\)';
   }
   $('d').oninput = function () { deg = parseInt(this.value, 10); draw(); };
   tabBtns(['t_si', 't_co', 't_ex', 't_ge', 't_ln'], function (id) { cur = id; draw(); }, 't_si');

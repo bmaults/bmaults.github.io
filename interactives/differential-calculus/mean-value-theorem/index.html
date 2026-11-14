@@ -25,19 +25,41 @@
   table.t th, table.t td { border: 1px solid #d1d5db; padding: 4px 12px; text-align: center; }
   input[type=text] { font: inherit; padding: 5px 8px; border: 2px solid #9ca3af; border-radius: 6px; width: 15em; max-width: 100%; }
 </style>
+<style>
+  .playbtn { font: inherit; font-weight: 600; padding: 8px 18px; border: 2px solid #166534; background: #15803d; color: #fff; border-radius: 6px; cursor: pointer; }
+  .playbtn[aria-pressed="true"] { background: #fff; color: #15803d; }
+  #eq { min-height: 2.6em; overflow-x: auto; overflow-y: hidden; line-height: 1.9; }
+  mjx-container { max-width: 100%; }
+</style>
+<script>window.MathJax = { tex: { inlineMath: [['\\(', '\\)']] }, svg: { fontCache: 'global' }, startup: { typeset: false, ready: function () { MathJax.startup.defaultReady(); MathJax.startup.promise = MathJax.startup.promise.then(function () { return MathJax.typesetPromise(); }).catch(function () {}); } } };</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var proto = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML'), tc = Object.getOwnPropertyDescriptor(Node.prototype, 'textContent');
+  function ts(el) { if (window.MathJax && MathJax.startup && MathJax.typesetPromise) { MathJax.startup.promise = MathJax.startup.promise.then(function () { MathJax.startup.document.clear(); return MathJax.typesetPromise([el]); }).catch(function () {}); } }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  document.querySelectorAll('main [id], main .readout, main .box').forEach(function (el) {
+    if (!/^(DIV|P|SPAN|TD)$/.test(el.tagName)) return;
+    var cur = null;
+    Object.defineProperty(el, 'innerHTML', { configurable: true, get: function () { return proto.get.call(el); }, set: function (h) { if (h === cur) return; cur = h; proto.set.call(el, h); ts(el); } });
+    Object.defineProperty(el, 'textContent', { configurable: true, get: function () { return tc.get.call(el); }, set: function (t) { el.innerHTML = esc(t); } });
+  });
+});
+</script>
 </head>
 <body>
 <main>
   <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../">&larr; All differential calculus demonstrations</a></nav>
   <h1>The Mean Value Theorem: A Tangent Line Parallel to the Secant Line</h1>
-  <p>If a smooth curve goes from the point at a to the point at b, somewhere in between the tangent line is parallel to the secant line joining the two ends.</p>
+  <p>If a smooth curve goes from the point at \(a\) to the point at \(b\), somewhere in between the tangent line is parallel to the secant line joining the two ends.</p>
+  <div class="readout" id="eq" style="font-size:1.15rem">\(\displaystyle f^{\prime}(c) = \frac{f(b) - f(a)}{b - a}\) for some \(c\) between \(a\) and \(b\).</div>
   <div class="tabs" role="group" aria-label="Choose a function"><button type="button" id="t-cubic" aria-pressed="true">Cubic</button><button type="button" id="t-parabola" aria-pressed="false">Parabola</button><button type="button" id="t-wave" aria-pressed="false">Sine wave</button></div>
   <canvas id="cv" width="800" height="520" role="img" aria-label="A curve between two endpoints joined by a secant line. A tangent line at a point c can be moved until it is parallel to the secant line."></canvas>
   <div class="controls">
-    <label>Left end a <input type="range" id="a" min="0" max="1000" step="1" value="120"></label>
-    <label>Right end b <input type="range" id="b" min="0" max="1000" step="1" value="850"></label>
+    <label>Left end \(a\) <input type="range" id="a" min="0" max="1000" step="1" value="120"></label>
+    <label>Right end \(b\) <input type="range" id="b" min="0" max="1000" step="1" value="850"></label>
     <label>Move the tangent point <input type="range" id="c" min="0" max="1000" step="1" value="250"></label>
-    <label><input type="checkbox" id="anim"> Play the animation</label>
+    <div><button type="button" class="playbtn" id="anim" aria-pressed="false">&#9654; Play the animation</button><script>(function(){var b=document.getElementById("anim"),on=false;function paint(){b.setAttribute("aria-pressed",on);b.textContent=(on?"\u23F8 Pause the animation":"\u25B6 Play the animation");}Object.defineProperty(b,"checked",{get:function(){return on;},set:function(v){on=!!v;paint();}});b.addEventListener("click",function(){on=!on;paint();b.dispatchEvent(new Event("change"));});paint();})();</script></div>
   </div>
   <div class="readout" id="note" aria-live="polite"></div>
   <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
@@ -74,7 +96,9 @@
   function onTick(fn) { animating.push(fn); }
   function tick(ts) { var dt = ts - last; last = ts; animating.forEach(function (f) { f(dt); }); requestAnimationFrame(tick); }
   requestAnimationFrame(tick);
-  function sp(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+  function sp(t, c) { var g = sp.g || (sp.g = document.createElement('canvas').getContext('2d')); g.fillStyle = c; var h = g.fillStyle.replace('#', ''); return '\\textcolor[RGB]{' + parseInt(h.substr(0, 2), 16) + ',' + parseInt(h.substr(2, 2), 16) + ',' + parseInt(h.substr(4, 2), 16) + '}{' + t + '}'; }
+  function hs(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+  function halo(txt, x, y, size, col, al) { ctx.font = 'bold ' + (size || 16) + 'px system-ui, sans-serif'; ctx.textAlign = al || 'center'; ctx.textBaseline = 'middle'; ctx.lineWidth = 4; ctx.strokeStyle = '#fff'; ctx.lineJoin = 'round'; ctx.strokeText(txt, x, y); ctx.fillStyle = col || '#111'; ctx.fillText(txt, x, y); }
 
   var BLU = '#1f3a8a', RED = '#b91c1c', GRN = '#15803d', ORG = '#c2410c', INK = '#1f2937';
   var FN = {
@@ -133,7 +157,7 @@
     v.slope(c, F.f(c), dc, par ? GRN : ORG, 3.5, null, 1.6);
     dot(X(a), Y(fa), 7, BLU); dot(X(b), Y(fb), 7, BLU); dot(X(c), Y(F.f(c)), 7, par ? GRN : ORG);
     T('a', X(a), v.py + v.ph + 14, 18, BLU); T('b', X(b), v.py + v.ph + 14, 18, BLU);
-    $('note').innerHTML = par ? sp('Parallel.', GRN) + ' The tangent at this point has the same slope as the secant line. A point like this always exists between a and b.' : 'Move the tangent point until the orange tangent line is parallel to the blue secant line. The green dashed lines show where that happens.';
+    $('note').innerHTML = par ? hs('Parallel.', GRN) + ' The tangent at this point has the same slope as the secant line. A point like this always exists between \\(a\\) and \\(b\\).' : 'Move the tangent point until the orange tangent line is parallel to the blue secant line. The green dashed lines show where that happens.';
   }
   tabsFor(['cubic', 'parabola', 'wave'], function (n) { st.fn = n; draw(); });
   ['a', 'b', 'c'].forEach(function (id) { $(id).oninput = function () { st[id] = parseFloat(this.value) / 1000; draw(); }; });

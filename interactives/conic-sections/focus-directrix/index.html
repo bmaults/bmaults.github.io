@@ -20,47 +20,68 @@
   .legend span { display: inline-block; margin-right: 14px; }
   .sw { display: inline-block; width: 22px; height: 0; border-top: 4px solid; vertical-align: middle; margin-right: 5px; }
 </style>
+<style>
+  .playbtn { font: inherit; font-weight: 600; padding: 8px 18px; border: 2px solid #166534; background: #15803d; color: #fff; border-radius: 6px; cursor: pointer; }
+  .playbtn[aria-pressed="true"] { background: #fff; color: #15803d; }
+  #eq { min-height: 2.6em; overflow-x: auto; overflow-y: hidden; line-height: 1.9; }
+  mjx-container { max-width: 100%; }
+</style>
+<script>window.MathJax = { tex: { inlineMath: [['\\(', '\\)']] }, svg: { fontCache: 'global' }, startup: { typeset: false, ready: function () { MathJax.startup.defaultReady(); MathJax.startup.promise = MathJax.startup.promise.then(function () { return MathJax.typesetPromise(); }).catch(function () {}); } } };</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var proto = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML'), tc = Object.getOwnPropertyDescriptor(Node.prototype, 'textContent');
+  function ts(el) { if (window.MathJax && MathJax.startup && MathJax.typesetPromise) { MathJax.startup.promise = MathJax.startup.promise.then(function () { MathJax.startup.document.clear(); return MathJax.typesetPromise([el]); }).catch(function () {}); } }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  document.querySelectorAll('main [id], main .readout, main .box').forEach(function (el) {
+    if (!/^(DIV|P|SPAN|TD)$/.test(el.tagName)) return;
+    var cur = null;
+    Object.defineProperty(el, 'innerHTML', { configurable: true, get: function () { return proto.get.call(el); }, set: function (h) { if (h === cur) return; cur = h; proto.set.call(el, h); ts(el); } });
+    Object.defineProperty(el, 'textContent', { configurable: true, get: function () { return tc.get.call(el); }, set: function (t) { el.innerHTML = esc(t); } });
+  });
+});
+</script>
 </head>
 <body>
 <main>
   <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../" style="color:#1f3a8a">&larr; All conic section demonstrations</a></nav>
   <h1>The Focus and Directrix Definition of the Conics</h1>
-  <p>A conic section is the set of points P for which the distance to a fixed point F (the focus) is a constant multiple e of the distance to a fixed line (the directrix): PF = e · PD, where D is the point of the directrix closest to P. The number e is the eccentricity. Drag the point P along the curve, and change e to see all of the conics appear from one definition.</p>
+  <p>A conic section is the set of points \(P\) for which the distance to a fixed point \(F\) (the focus) is a constant multiple \(e\) of the distance to a fixed line (the directrix): \(PF = e \cdot PD\), where \(D\) is the point of the directrix closest to \(P\). The number \(e\) is the eccentricity. Drag the point \(P\) along the curve, and change \(e\) to see all of the conics appear from one definition.</p>
+  <div class="readout" id="eq"></div>
 
   <div class="tabs" role="group" aria-label="Jump to a value of e">
-    <button type="button" id="j-circle">Nearly a circle (e = 0.02)</button>
-    <button type="button" id="j-ellipse">Ellipse (e = 0.6)</button>
-    <button type="button" id="j-parabola">Parabola (e = 1)</button>
-    <button type="button" id="j-hyperbola">Hyperbola (e = 1.8)</button>
+    <button type="button" id="j-circle">Nearly a circle (\(e = 0.02\))</button>
+    <button type="button" id="j-ellipse">Ellipse (\(e = 0.6\))</button>
+    <button type="button" id="j-parabola">Parabola (\(e = 1\))</button>
+    <button type="button" id="j-hyperbola">Hyperbola (\(e = 1.8\))</button>
   </div>
 
   <canvas id="cv" width="800" height="560" tabindex="0" role="img" aria-label="A conic section with its focus, its directrix, and a movable point P. Segments show the distance from P to the focus and from P to the directrix."></canvas>
 
   <div class="controls">
-    <label>Eccentricity e: <output id="eOut"></output>
+    <label>Eccentricity \(e\): <output id="eOut"></output>
       <input type="range" id="e" min="0.02" max="3" step="0.01" value="0.6"></label>
-    <label>Position of P on the curve: <output id="thOut"></output>
+    <label>Position of \(P\) on the curve: <output id="thOut"></output>
       <input type="range" id="th" min="-3.14" max="3.14" step="0.01" value="1.1"></label>
     <label><input type="checkbox" id="second"> Show the second focus and directrix (ellipse only)</label>
   </div>
 
   <p class="legend" aria-hidden="true">
-    <span><i class="sw" style="border-color:#b91c1c"></i>PF, distance to the focus</span>
-    <span><i class="sw" style="border-color:#0f766e"></i>PD, distance to the directrix</span>
+    <span><i class="sw" style="border-color:#b91c1c"></i>\(PF\), distance to the focus</span>
+    <span><i class="sw" style="border-color:#0f766e"></i>\(PD\), distance to the directrix</span>
     <span><i class="sw" style="border-color:#6b7280;border-top-style:dashed"></i>directrix</span>
   </p>
 
-  <div class="readout" id="eq"></div>
   <div class="readout" id="info" aria-live="polite"></div>
   <p id="note"></p>
 
-  <p>In polar coordinates with the focus at the origin, the curve is r = ℓ / (1 + e cos θ), where ℓ is half the width of the curve measured through the focus (here ℓ = 3). The directrix is the line x = ℓ / e. When e = 0 the directrix is infinitely far away and the curve is a circle. When e is greater than 1, the curve has two branches, and the ratio PF / PD is equal to e on both of them.</p>
+  <p>In polar coordinates with the focus at the origin, the curve is \(\displaystyle r = \frac{\ell}{1 + e\cos\theta}\), where \(\ell\) is half the width of the curve measured through the focus (here \(\ell = 3\)). The directrix is the line \(x = \ell / e\). When \(e = 0\) the directrix is infinitely far away and the curve is a circle. When \(e\) is greater than 1, the curve has two branches, and the ratio \(PF / PD\) is equal to \(e\) on both of them.</p>
 
   <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
   <ol style="padding-left:1.4em">
-    <li style="margin-bottom:0.6em">Set e = 1 and drag P around the parabola. What is true about PF and PD at every point? Use this to explain, in your own words, why the points of a parabola are exactly the points equally far from the focus and the directrix.</li>
-    <li style="margin-bottom:0.6em">Move e slowly from 0.02 up to 0.99. What happens to the directrix, and what happens to the ellipse? Why does it make sense that a circle has no directrix?</li>
-    <li style="margin-bottom:0.6em">Pass through e = 1 and keep going. Describe what changes in the shape, and where the second branch appears. Check that PF / PD is still e on the second branch, and explain why the second branch has to exist.</li>
+    <li style="margin-bottom:0.6em">Set \(e = 1\) and drag \(P\) around the parabola. What is true about \(PF\) and \(PD\) at every point? Use this to explain, in your own words, why the points of a parabola are exactly the points equally far from the focus and the directrix.</li>
+    <li style="margin-bottom:0.6em">Move \(e\) slowly from 0.02 up to 0.99. What happens to the directrix, and what happens to the ellipse? Why does it make sense that a circle has no directrix?</li>
+    <li style="margin-bottom:0.6em">Pass through \(e = 1\) and keep going. Describe what changes in the shape, and where the second branch appears. Check that \(PF / PD\) is still \(e\) on the second branch, and explain why the second branch has to exist.</li>
     <li style="margin-bottom:0.6em">An ellipse has two foci, so by symmetry it should also have two directrices. Turn on the second focus and directrix. Where are they, and is the ratio of distances the same for them?</li>
     <li style="margin-bottom:0.6em">For an ellipse, the readout gives the closest and farthest distances from the focus to the curve. Use them to find a and e with a = (r<sub>min</sub> + r<sub>max</sub>) / 2 and e = (r<sub>max</sub> − r<sub>min</sub>) / (r<sub>max</sub> + r<sub>min</sub>), and check your answer against the slider. How does this connect to the closest and farthest distances of a planet from the sun?</li>
   </ol>
@@ -130,15 +151,15 @@
     dot(P[0], P[1], 7, '#c2410c', 'P', 9, -9);
     var type = e < 0.995 ? (e < 0.05 ? 'nearly a circle' : 'ellipse') : e < 1.005 ? 'parabola' : 'hyperbola';
     $('eOut').textContent = f2(e); $('thOut').textContent = Math.round(st.th * 180 / Math.PI) + '°';
-    $('eq').textContent = 'PF = ' + f3(PF) + '    PD = ' + f3(PD) + '    PF / PD = ' + f3(PF / PD) + '    e = ' + f2(e);
+    $('eq').textContent = '\\(PF = ' + f3(PF) + '\\quad PD = ' + f3(PD) + '\\quad \\dfrac{PF}{PD} = ' + f3(PF / PD) + '\\quad e = ' + f2(e) + '\\)';
     var extra = '';
     if (e < 1) extra = ' Closest distance from the focus to the curve: ' + f3(L / (1 + e)) + '. Farthest: ' + f3(L / (1 - e)) + '.';
     $('info').textContent = 'The curve is ' + (type === 'nearly a circle' ? 'nearly a circle' : 'a' + (type === 'ellipse' ? 'n ' : ' ') + type) + '.' + extra;
     var notes = {
-      'nearly a circle': 'As e gets close to 0, the directrix moves off to infinity and the ellipse becomes a circle with F at the center.',
-      ellipse: 'For e less than 1, the focus is closer to P than the directrix is, so the curve closes up into an ellipse.',
-      parabola: 'When e = 1, every point is exactly as far from the focus as from the directrix.',
-      hyperbola: 'For e greater than 1, the focus is farther from P than the directrix is. The curve has two branches, and P can be moved to either one.'
+      'nearly a circle': 'As \\(e\\) gets close to 0, the directrix moves off to infinity and the ellipse becomes a circle with F at the center.',
+      ellipse: 'For \\(e\\) less than 1, the focus is closer to P than the directrix is, so the curve closes up into an ellipse.',
+      parabola: 'When \\(e = 1\\), every point is exactly as far from the focus as from the directrix.',
+      hyperbola: 'For \\(e\\) greater than 1, the focus is farther from P than the directrix is. The curve has two branches, and P can be moved to either one.'
     };
     $('note').textContent = notes[type];
     $('e').value = e; $('th').value = st.th;

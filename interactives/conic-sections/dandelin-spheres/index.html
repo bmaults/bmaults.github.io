@@ -30,6 +30,27 @@
   "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
 } }
 </script>
+<style>
+  .playbtn { font: inherit; font-weight: 600; padding: 8px 18px; border: 2px solid #166534; background: #15803d; color: #fff; border-radius: 6px; cursor: pointer; }
+  .playbtn[aria-pressed="true"] { background: #fff; color: #15803d; }
+  #eq { min-height: 2.6em; overflow-x: auto; overflow-y: hidden; line-height: 1.9; }
+  mjx-container { max-width: 100%; }
+</style>
+<script>window.MathJax = { tex: { inlineMath: [['\\(', '\\)']] }, svg: { fontCache: 'global' }, startup: { typeset: false, ready: function () { MathJax.startup.defaultReady(); MathJax.startup.promise = MathJax.startup.promise.then(function () { return MathJax.typesetPromise(); }).catch(function () {}); } } };</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var proto = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML'), tc = Object.getOwnPropertyDescriptor(Node.prototype, 'textContent');
+  function ts(el) { if (window.MathJax && MathJax.startup && MathJax.typesetPromise) { MathJax.startup.promise = MathJax.startup.promise.then(function () { MathJax.startup.document.clear(); return MathJax.typesetPromise([el]); }).catch(function () {}); } }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  document.querySelectorAll('main [id], main .readout, main .box').forEach(function (el) {
+    if (!/^(DIV|P|SPAN|TD)$/.test(el.tagName)) return;
+    var cur = null;
+    Object.defineProperty(el, 'innerHTML', { configurable: true, get: function () { return proto.get.call(el); }, set: function (h) { if (h === cur) return; cur = h; proto.set.call(el, h); ts(el); } });
+    Object.defineProperty(el, 'textContent', { configurable: true, get: function () { return tc.get.call(el); }, set: function (t) { el.innerHTML = esc(t); } });
+  });
+});
+</script>
 </head>
 <body>
 <main>
@@ -50,7 +71,7 @@
       <input type="range" id="t" min="0" max="45" step="1" value="30"></label>
     <label>Distance of the plane from the apex: <output id="kOut"></output>
       <input type="range" id="k" min="0.6" max="1.1" step="0.05" value="0.9"></label>
-    <label>Point P on the curve: <output id="uOut"></output>
+    <label>Point \(P\) on the curve: <output id="uOut"></output>
       <input type="range" id="u" min="-100" max="100" step="1" value="35"></label>
     <label><input type="checkbox" id="showPlane" checked> Show the cutting plane</label>
     <label><input type="checkbox" id="showSph" checked> Show the spheres</label>
@@ -62,8 +83,8 @@
   <p id="why"></p>
   <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
   <ol style="padding-left:1.4em">
-    <li style="margin-bottom:0.6em">Why are the two tangent segments from P to the same sphere equal in length? Use this to explain why PF₁ + PF₂ is the same for every point P on the ellipse.</li>
-    <li style="margin-bottom:0.6em">Move P around the ellipse. The distances PF₁ and PF₂ both change, but their sum does not. Explain, in your own words, why the length of the cone’s edge between the two circles cannot change.</li>
+    <li style="margin-bottom:0.6em">Why are the two tangent segments from \(P\) to the same sphere equal in length? Use this to explain why \(PF_1 + PF_2\) is the same for every point \(P\) on the ellipse.</li>
+    <li style="margin-bottom:0.6em">Move \(P\) around the ellipse. The distances \(PF_1\) and \(PF_2\) both change, but their sum does not. Explain, in your own words, why the length of the cone’s edge between the two circles cannot change.</li>
     <li style="margin-bottom:0.6em">Set the tilt of the ellipse to 0. Where are the two foci, and why? What curve is this?</li>
     <li style="margin-bottom:0.6em">In the ellipse, increase the tilt toward 45°. What happens to the larger sphere and to the second focus? What would happen if you kept going until the plane is parallel to the edge of the cone?</li>
     <li style="margin-bottom:0.6em">For the hyperbola, the two spheres are in opposite halves of the cone. Use this to explain why we get a difference of distances instead of a sum.</li>
@@ -215,18 +236,18 @@ function update() {
     const dB = P.distanceTo(B.F);
     tube(g(A.s), P, GREEN); tube(P, g(B.s), PURPLE);
     dashed(P, A.F, GREEN); dashed(P, B.F, PURPLE);
-    info = 'PF₁ = ' + f2(dA) + ' and PF₂ = ' + f2(dB) + ', so PF₁ + PF₂ = ' + f2(dA + dB) +
-      '. The piece of the cone’s straight edge between the green circle and the purple circle has length ' + f2(B.s - A.s) + '. The sum is the same for every point P on the curve.';
-    why = 'The segment from P along the cone to the green circle and the dashed segment from P to F₁ are both tangent segments from P to the green sphere, so they have the same length. The same is true for the purple sphere and F₂. Add them: PF₁ + PF₂ is the length of the cone’s straight edge between the two circles. That length does not depend on where P is, so the sum is constant. A curve whose distances to two fixed points add up to a constant is an ellipse.';
-    legend = 'F₁ and F₂ are the points where the green and purple spheres touch the plane. The red curve is the ellipse.';
+    info = '\\(PF_1\\) = ' + f2(dA) + ' and \\(PF_2\\) = ' + f2(dB) + ', so \\(PF_1 + PF_2\\) = ' + f2(dA + dB) +
+      '. The piece of the cone’s straight edge between the green circle and the purple circle has length ' + f2(B.s - A.s) + '. The sum is the same for every point \\(P\\) on the curve.';
+    why = 'The segment from \\(P\\) along the cone to the green circle and the dashed segment from \\(P\\) to \\(F_1\\) are both tangent segments from \\(P\\) to the green sphere, so they have the same length. The same is true for the purple sphere and \\(F\\)₂. Add them: \\(PF_1 + PF_2\\) is the length of the cone’s straight edge between the two circles. That length does not depend on where \\(P\\) is, so the sum is constant. A curve whose distances to two fixed points add up to a constant is an ellipse.';
+    legend = '\\(F_1\\) and \\(F_2\\) are the points where the green and purple spheres touch the plane. The red curve is the ellipse.';
   } else if (st.mode === 'hyperbola') {
     const dB = P.distanceTo(B.F);
     tube(g(A.s), P, GREEN); tube(g(-B.s), P, PURPLE);
     dashed(P, A.F, GREEN); dashed(P, B.F, PURPLE);
-    info = 'PF₁ = ' + f2(dA) + ' and PF₂ = ' + f2(dB) + ', so PF₂ − PF₁ = ' + f2(dB - dA) +
-      '. The piece of the cone’s straight edge between the green circle and the purple circle, passing through the apex, has length ' + f2(A.s + B.s) + '. The difference is the same for every point P on this branch.';
-    why = 'The green sphere is in the upper half of the cone and the purple sphere is in the lower half. Tangent segments from P to the green sphere have equal length, so PF₁ is the distance from P to the green circle along the cone. In the same way PF₂ is the distance from P to the purple circle, measured along the straight edge through the apex. Their difference is the length of the edge between the two circles, which is constant. A curve where the difference of distances to two fixed points is constant is a hyperbola. Only the upper branch is used for P; the lower branch works the same way.';
-    legend = 'F₁ and F₂ are the points where the green and purple spheres touch the plane. The two red curves are the two branches of the hyperbola.';
+    info = '\\(PF_1\\) = ' + f2(dA) + ' and \\(PF_2\\) = ' + f2(dB) + ', so \\(PF_2 - PF_1\\) = ' + f2(dB - dA) +
+      '. The piece of the cone’s straight edge between the green circle and the purple circle, passing through the apex, has length ' + f2(A.s + B.s) + '. The difference is the same for every point \\(P\\) on this branch.';
+    why = 'The green sphere is in the upper half of the cone and the purple sphere is in the lower half. Tangent segments from \\(P\\) to the green sphere have equal length, so \\(PF_1\\) is the distance from \\(P\\) to the green circle along the cone. In the same way \\(PF_2\\) is the distance from \\(P\\) to the purple circle, measured along the straight edge through the apex. Their difference is the length of the edge between the two circles, which is constant. A curve where the difference of distances to two fixed points is constant is a hyperbola. Only the upper branch is used for \\(P\\); the lower branch works the same way.';
+    legend = '\\(F_1\\) and \\(F_2\\) are the points where the green and purple spheres touch the plane. The two red curves are the two branches of the hyperbola.';
   } else {
     tube(g(A.s), P, GREEN); dashed(P, A.F, GREEN);
     const xd = (ct * A.ty - k) / sn, Q = new V3(xd, A.ty, P.z);
@@ -234,9 +255,9 @@ function update() {
     tube(P, Q, 0xea580c, 0.035);
     label('directrix', '#b45309', new V3(xd, A.ty, 5.4));
     const dD = Math.hypot(P.x - xd, P.y - A.ty);
-    info = 'PF = ' + f2(dA) + ' and the distance from P to the directrix is ' + f2(dD) + '. They are equal for every point P on the parabola.';
-    why = 'There is only one sphere. The segment from P along the cone to the green circle and the dashed segment from P to F are tangent segments from P to the sphere, so they have the same length. The green circle lies in a plane perpendicular to the axis, and that plane meets the cutting plane in a line, the directrix. The distance from P to the green circle along the cone equals the distance from P to the directrix, because the cutting plane is parallel to the edge of the cone here. So PF equals the distance to the directrix, which is the definition of a parabola.';
-    legend = 'F is the point where the green sphere touches the plane. The brown line is the directrix, and the orange segment is the shortest path from P to it. The second sphere would be infinitely large, so a parabola has only one focus.';
+    info = '\\(PF\\) = ' + f2(dA) + ' and the distance from \\(P\\) to the directrix is ' + f2(dD) + '. They are equal for every point \\(P\\) on the parabola.';
+    why = 'There is only one sphere. The segment from \\(P\\) along the cone to the green circle and the dashed segment from \\(P\\) to \\(F\\) are tangent segments from \\(P\\) to the sphere, so they have the same length. The green circle lies in a plane perpendicular to the axis, and that plane meets the cutting plane in a line, the directrix. The distance from \\(P\\) to the green circle along the cone equals the distance from \\(P\\) to the directrix, because the cutting plane is parallel to the edge of the cone here. So \\(PF\\) equals the distance to the directrix, which is the definition of a parabola.';
+    legend = '\\(F\\) is the point where the green sphere touches the plane. The brown line is the directrix, and the orange segment is the shortest path from \\(P\\) to it. The second sphere would be infinitely large, so a parabola has only one focus.';
   }
   $('info').textContent = info; $('why').textContent = why;
   $('legend').innerHTML = '<span class="sw" style="background:#16a34a"></span>green sphere &nbsp; ' +

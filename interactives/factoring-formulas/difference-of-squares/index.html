@@ -25,25 +25,46 @@
   table.t th, table.t td { border: 1px solid #d1d5db; padding: 4px 12px; text-align: center; }
   input[type=text] { font: inherit; padding: 5px 8px; border: 2px solid #9ca3af; border-radius: 6px; width: 15em; max-width: 100%; }
 </style>
+<style>
+  .playbtn { font: inherit; font-weight: 600; padding: 8px 18px; border: 2px solid #166534; background: #15803d; color: #fff; border-radius: 6px; cursor: pointer; }
+  .playbtn[aria-pressed="true"] { background: #fff; color: #15803d; }
+  #eq { min-height: 2.6em; overflow-x: auto; overflow-y: hidden; line-height: 1.9; }
+  mjx-container { max-width: 100%; }
+</style>
+<script>window.MathJax = { tex: { inlineMath: [['\\(', '\\)']] }, svg: { fontCache: 'global' }, startup: { typeset: false, ready: function () { MathJax.startup.defaultReady(); MathJax.startup.promise = MathJax.startup.promise.then(function () { return MathJax.typesetPromise(); }).catch(function () {}); } } };</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var proto = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML'), tc = Object.getOwnPropertyDescriptor(Node.prototype, 'textContent');
+  function ts(el) { if (window.MathJax && MathJax.startup && MathJax.typesetPromise) { MathJax.startup.promise = MathJax.startup.promise.then(function () { MathJax.startup.document.clear(); return MathJax.typesetPromise([el]); }).catch(function () {}); } }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  document.querySelectorAll('main [id], main .readout, main .box').forEach(function (el) {
+    if (!/^(DIV|P|SPAN|TD)$/.test(el.tagName)) return;
+    var cur = null;
+    Object.defineProperty(el, 'innerHTML', { configurable: true, get: function () { return proto.get.call(el); }, set: function (h) { if (h === cur) return; cur = h; proto.set.call(el, h); ts(el); } });
+    Object.defineProperty(el, 'textContent', { configurable: true, get: function () { return tc.get.call(el); }, set: function (t) { el.innerHTML = esc(t); } });
+  });
+});
+</script>
 </head>
 <body>
 <main>
   <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../">&larr; All factoring formula demonstrations</a></nav>
-  <h1>The Difference of Squares: Why a² − b² = (a − b)(a + b)</h1>
-  <p>Cut a small square out of the corner of a larger square. Then cut the L-shape that is left into two pieces and slide them together.</p>
+  <h1>The Difference of Squares: Why \(a^2 - b^2 = (a - b)(a + b)\)</h1>
+  <p>Cut a small square out of the corner of a larger square. Then cut the L-shape that is left into two pieces and slide them together. The picture shows why \(a^2 - b^2 = (a + b)(a - b)\).</p>
+  <div class="readout" id="eq" style="font-size:1.15rem"></div>
   <canvas id="cv" width="800" height="520" role="img" aria-label="An L-shaped region is cut into two rectangles and rearranged into one rectangle."></canvas>
   <div class="controls">
     <label>Cut and slide <input type="range" id="t" min="0" max="1000" step="1" value="0"></label>
-    <label>a <input type="range" id="a" min="2" max="10" step="0.5" value="7"></label>
-    <label>b <input type="range" id="b" min="0.5" max="9.5" step="0.5" value="3"></label>
-    <label><input type="checkbox" id="anim"> Play the animation</label>
+    <label>\(a\) <input type=\"range\" id="a" min="2" max="10" step="0.5" value="7"></label>
+    <label>\(b\) <input type=\"range\" id="b" min="0.5" max="9.5" step="0.5" value="3"></label>
+    <div><button type="button" class="playbtn" id="anim" aria-pressed="false">&#9654; Play the animation</button><script>(function(){var b=document.getElementById("anim"),on=false;function paint(){b.setAttribute("aria-pressed",on);b.textContent=(on?"\u23F8 Pause the animation":"\u25B6 Play the animation");}Object.defineProperty(b,"checked",{get:function(){return on;},set:function(v){on=!!v;paint();}});b.addEventListener("click",function(){on=!on;paint();b.dispatchEvent(new Event("change"));});paint();})();</script></div>
   </div>
-  <div class="readout" id="eq" style="font-size:1.15rem"></div>
   <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
   <ol style="padding-left:1.4em">
     <li style="margin-bottom:0.6em">Why does the area stay the same when the pieces are rearranged? What are the sides of the final rectangle?</li>
     <li style="margin-bottom:0.6em">Which piece did we turn, and why does it fit exactly?</li>
-    <li style="margin-bottom:0.6em">Why is there no similar picture for a² + b²?</li>
+    <li style="margin-bottom:0.6em">Why is there no similar picture for \(a^2 + b^2\)?</li>
   </ol>
 </main>
 <script>
@@ -74,7 +95,9 @@
   function onTick(fn) { animating.push(fn); }
   function tick(ts) { var dt = ts - last; last = ts; animating.forEach(function (f) { f(dt); }); requestAnimationFrame(tick); }
   requestAnimationFrame(tick);
-  function sp(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+  function sp(t, c) { var g = sp.g || (sp.g = document.createElement('canvas').getContext('2d')); g.fillStyle = c; var h = g.fillStyle.replace('#', ''); return '\\textcolor[RGB]{' + parseInt(h.substr(0, 2), 16) + ',' + parseInt(h.substr(2, 2), 16) + ',' + parseInt(h.substr(4, 2), 16) + '}{' + t + '}'; }
+  function hs(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+  function halo(txt, x, y, size, col, al) { ctx.font = 'bold ' + (size || 16) + 'px system-ui, sans-serif'; ctx.textAlign = al || 'center'; ctx.textBaseline = 'middle'; ctx.lineWidth = 4; ctx.strokeStyle = '#fff'; ctx.lineJoin = 'round'; ctx.strokeText(txt, x, y); ctx.fillStyle = col || '#111'; ctx.fillText(txt, x, y); }
 
   var st = { a: 7, b: 3, t: 0 };
   function draw() {
@@ -95,7 +118,7 @@
       T('a − b', px(0) - 36, py((a - b) / 2), 16); T('b', px(a + b / 2), py(0) + 18, 18); T('a − b', px(a + b) + 36, py((a - b) / 2), 16);
       T('Length a + b, height a − b', W / 2, 30, 20, '#1f3a8a');
     } else { T('a − b', px(0) - 36, py((a - b) / 2), 16); }
-    $('eq').innerHTML = sp('a² − b²', '#1f3a8a') + ' = (a + b)(a − b)';
+    $('eq').innerHTML = '\\(' + sp('a^2 - b^2', '#1f3a8a') + ' = (a + b)(a - b)\\)';
     $('t').value = Math.round(t * 1000);
   }
   $('t').oninput = function () { st.t = parseFloat(this.value) / 1000; draw(); };

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Improper Integrals: When an Infinite Area Is Finite</title>
+<title>Improper Integrals: Convergence and Divergence of 1/x^p</title>
 <meta name="description" content="An interactive picture of improper integrals of 1 over x to the power p. See when the area under the curve levels off and when it grows without bound.">
 <style>
   body { font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; color: #1a1a1a; margin: 0; background: #fff; line-height: 1.45; }
@@ -25,28 +25,49 @@
   table.t th, table.t td { border: 1px solid #d1d5db; padding: 4px 12px; text-align: center; }
   input[type=text] { font: inherit; padding: 5px 8px; border: 2px solid #9ca3af; border-radius: 6px; width: 15em; max-width: 100%; }
 </style>
+<style>
+  .playbtn { font: inherit; font-weight: 600; padding: 8px 18px; border: 2px solid #166534; background: #15803d; color: #fff; border-radius: 6px; cursor: pointer; }
+  .playbtn[aria-pressed="true"] { background: #fff; color: #15803d; }
+  #eq { min-height: 2.6em; overflow-x: auto; overflow-y: hidden; line-height: 1.9; }
+  mjx-container { max-width: 100%; }
+</style>
+<script>window.MathJax = { tex: { inlineMath: [['\\(', '\\)']] }, svg: { fontCache: 'global' }, startup: { typeset: false, ready: function () { MathJax.startup.defaultReady(); MathJax.startup.promise = MathJax.startup.promise.then(function () { return MathJax.typesetPromise(); }).catch(function () {}); } } };</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var proto = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML'), tc = Object.getOwnPropertyDescriptor(Node.prototype, 'textContent');
+  function ts(el) { if (window.MathJax && MathJax.startup && MathJax.typesetPromise) { MathJax.startup.promise = MathJax.startup.promise.then(function () { MathJax.startup.document.clear(); return MathJax.typesetPromise([el]); }).catch(function () {}); } }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  document.querySelectorAll('main [id], main .readout, main .box').forEach(function (el) {
+    if (!/^(DIV|P|SPAN|TD)$/.test(el.tagName)) return;
+    var cur = null;
+    Object.defineProperty(el, 'innerHTML', { configurable: true, get: function () { return proto.get.call(el); }, set: function (h) { if (h === cur) return; cur = h; proto.set.call(el, h); ts(el); } });
+    Object.defineProperty(el, 'textContent', { configurable: true, get: function () { return tc.get.call(el); }, set: function (t) { el.innerHTML = esc(t); } });
+  });
+});
+</script>
 </head>
 <body>
 <main>
   <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../">&larr; All integral calculus demonstrations</a></nav>
-  <h1>Improper Integrals: When an Infinite Area Is Finite</h1>
-  <p>Can an area that goes on forever, or up to a point where the function blows up, still be finite? It depends on how fast the curve shrinks.</p>
+  <h1>Improper Integrals: Convergence and Divergence of \(\displaystyle\int \frac{dx}{x^{p}}\)</h1>
+  <p>Can an area that goes on forever, or up to a point where the function blows up, still be finite? It depends on how fast the curve shrinks. The rule is the p-test: \(\displaystyle\int_1^{\infty} \frac{dx}{x^p}\) converges exactly when \(p > 1\), and \(\displaystyle\int_0^{1} \frac{dx}{x^p}\) converges exactly when \(p < 1\).</p>
+  <div class="readout" id="eq" style="font-size:1.1rem"></div>
   <div class="tabs" role="group" aria-label="Type of improper integral">
     <button type="button" id="k-inf" aria-pressed="true">Out to infinity</button>
     <button type="button" id="k-unb" aria-pressed="false">Up to a point where f blows up</button>
   </div>
   <canvas id="cv" width="800" height="520" role="img" aria-label="Top: the graph of one over x to the power p with area shaded. Bottom: how that area grows as the shaded region extends toward infinity or toward the point where the function blows up. The area either levels off or grows without bound."></canvas>
   <div class="controls">
-    <label>Power p <input type="range" id="p" min="20" max="300" step="5" value="200"></label>
+    <label>Power \(p\) <input type="range" id="p" min="20" max="300" step="5" value="200"></label>
     <label id="uLab">Extend the region <input type="range" id="u" min="0" max="1000" step="1" value="500"></label>
-    <label><input type="checkbox" id="anim"> Play the animation</label>
+    <div><button type="button" class="playbtn" id="anim" aria-pressed="false">&#9654; Play the animation</button><script>(function(){var b=document.getElementById("anim"),on=false;function paint(){b.setAttribute("aria-pressed",on);b.textContent=(on?"\u23F8 Pause the animation":"\u25B6 Play the animation");}Object.defineProperty(b,"checked",{get:function(){return on;},set:function(v){on=!!v;paint();}});b.addEventListener("click",function(){on=!on;paint();b.dispatchEvent(new Event("change"));});paint();})();</script></div>
   </div>
   <div class="readout" id="note" aria-live="polite"></div>
-  <div class="readout" id="eq" style="font-size:1.1rem"></div>
   <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
   <ol style="padding-left:1.4em">
-    <li style="margin-bottom:0.6em">What happens right at p = 1? Does the area level off?</li>
-    <li style="margin-bottom:0.6em">Why does a larger p make the curve shrink faster, and why does that matter for the area?</li>
+    <li style="margin-bottom:0.6em">What happens right at \(p = 1\)? Does the area level off?</li>
+    <li style="margin-bottom:0.6em">Why does a larger \(p\) make the curve shrink faster, and why does that matter for the area?</li>
   </ol>
 </main>
 <script>
@@ -77,7 +98,9 @@
   function onTick(fn) { animating.push(fn); }
   function tick(ts) { var dt = ts - last; last = ts; animating.forEach(function (f) { f(dt); }); requestAnimationFrame(tick); }
   requestAnimationFrame(tick);
-  function sp(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+  function sp(t, c) { var g = sp.g || (sp.g = document.createElement('canvas').getContext('2d')); g.fillStyle = c; var h = g.fillStyle.replace('#', ''); return '\\textcolor[RGB]{' + parseInt(h.substr(0, 2), 16) + ',' + parseInt(h.substr(2, 2), 16) + ',' + parseInt(h.substr(4, 2), 16) + '}{' + t + '}'; }
+  function hs(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+  function halo(txt, x, y, size, col, al) { ctx.font = 'bold ' + (size || 16) + 'px system-ui, sans-serif'; ctx.textAlign = al || 'center'; ctx.textBaseline = 'middle'; ctx.lineWidth = 4; ctx.strokeStyle = '#fff'; ctx.lineJoin = 'round'; ctx.strokeText(txt, x, y); ctx.fillStyle = col || '#111'; ctx.fillText(txt, x, y); }
 
   var BLU = '#1f3a8a', RED = '#b91c1c', GRN = '#15803d', ORG = '#c2410c', INK = '#1f2937';
   var FN = {
@@ -124,8 +147,20 @@
   var FP = {
     rise: { f: function (x) { return 0.12 * x * x + 0.5; }, F: function (x) { return 0.04 * x * x * x + 0.5 * x; }, x0: 0, x1: 5, y0: 0, y1: 4 },
     hump: { f: function (x) { return -0.5 * (x - 2) * (x - 2) + 2.3; }, F: function (x) { return -Math.pow(x - 2, 3) / 6 + 2.3 * x; }, x0: 0, x1: 4, y0: 0, y1: 3 },
-    wave: { f: function (x) { return 1 + 0.8 * Math.sin(x); }, F: function (x) { return x - 0.8 * Math.cos(x); }, x0: 0, x1: 7, y0: 0, y1: 2.2 }
+    wave: { f: function (x) { return 1 + 0.8 * Math.sin(x); }, F: function (x) { return x - 0.8 * Math.cos(x); }, x0: 0, x1: 7, y0: 0, y1: 2.2 },
+    wiggly: { f: function (x) { return 1.6 + Math.sin(x) + 0.4 * Math.cos(2.5 * x); }, F: function (x) { return 1.6 * x - Math.cos(x) + 0.16 * Math.sin(2.5 * x); }, x0: 0, x1: 7, y0: 0, y1: 3.2 },
+    steps: { f: function (x) { return x < 1.5 ? 1 : x < 3 ? 2.5 : x < 4.5 ? 1.5 : 3; },
+      F: function (x) { var c = [0, 1.5, 3, 4.5, 6], h = [1, 2.5, 1.5, 3], s = 0, i; for (i = 0; i < 4; i++) s += h[i] * Math.max(0, Math.min(x, c[i + 1]) - c[i]); return s; }, x0: 0, x1: 6, y0: 0, y1: 3.4, jumps: [1.5, 3, 4.5] },
+    saw: { f: function (x) { return 0.4 + 1.2 * (x - 2 * Math.floor(x / 2)); },
+      F: function (x) { var k = Math.floor(x / 2), r = x - 2 * k; return 3.2 * k + 0.4 * r + 0.6 * r * r; }, x0: 0, x1: 6, y0: 0, y1: 3, jumps: [2, 4] },
+    mixed: { f: function (x) { return x < 2 ? 0.5 + 0.8 * x : x < 4 ? 3.2 - 0.6 * (x - 3) * (x - 3) : 1.2; },
+      F: function (x) { if (x < 2) return 0.5 * x + 0.4 * x * x; if (x < 4) return 2.6 + 3.2 * (x - 2) - 0.2 * (Math.pow(x - 3, 3) + 1); return 8.6 + 1.2 * (x - 4); }, x0: 0, x1: 5, y0: 0, y1: 3.6, jumps: [2, 4] }
   };
+  function ijCurve(v, F, col, w) {
+    var js = F.jumps || [], pts = [F.x0].concat(js, [F.x1]), i;
+    for (i = 0; i < pts.length - 1; i++) v.curve(F.f, col, w, pts[i] + (i ? 1e-6 : 0), pts[i + 1] - (i < pts.length - 2 ? 1e-6 : 0));
+    js.forEach(function (j) { ctx.beginPath(); ctx.arc(v.X(j), v.Y(F.f(j - 1e-6)), 5, 0, 7); ctx.fillStyle = '#fff'; ctx.fill(); ctx.strokeStyle = col; ctx.lineWidth = 2.5; ctx.stroke(); dot(v.X(j), v.Y(F.f(j)), 5, col); });
+  }
   var FS = {
     swave: { f: function (x) { return 1.5 * Math.sin(x); }, F: function (x) { return -1.5 * Math.cos(x); }, x0: 0, x1: 6.8, y0: -2.2, y1: 2.2 },
     cubic: { f: function (x) { return (x * x * x - 4 * x) / 4; }, F: function (x) { return x * x * x * x / 16 - x * x / 2; }, x0: -3, x1: 3, y0: -4, y1: 4 },
@@ -161,7 +196,7 @@
       v1.axes(); v2.axes();
       v1.on(); fillArea(v1, f, 1, x, 'rgba(31,58,138,0.30)', 'rgba(31,58,138,0.30)'); v1.off(); v1.curve(f, INK, 3.5);
       v2.curve(Af, '#cbd5e1', 3); v2.curve(Af, BLU, 4, 1, x);
-      if (lim !== null) { v2.on(); line(v2.X(1), v2.Y(lim), v2.X(T0), v2.Y(lim), GRN, 2.5, [8, 6]); v2.off(); }
+      if (lim !== null) { v2.on(); line(v2.X(1), v2.Y(lim), v2.X(T0), v2.Y(lim), GRN, 2.5, [8, 6]); v2.off(); halo('limit of the area = ' + lim.toFixed(2), v2.X(T0) - 8, v2.Y(lim) - 14, 15, GRN, 'right'); }
       dot(v2.X(x), v2.Y(Af(x)), 7, BLU); line(v1.X(x), v1.py, v1.X(x), v2.py + v2.ph, '#94a3b8', 1.5, [5, 5]);
       T('The graph goes on to the right', v1.px + 700, v1.py + 18, 13, '#475569', 'right');
     } else {
@@ -172,15 +207,15 @@
       v1.axes(); v2.axes();
       v1.on(); fillArea(v1, f, s, 1, 'rgba(31,58,138,0.30)', 'rgba(31,58,138,0.30)'); v1.off(); v1.curve(f, INK, 3.5, 0.0004, 1);
       v2.curve(Af, '#cbd5e1', 3); v2.curve(Af, BLU, 4, 0, st.u);
-      if (lim !== null) { v2.on(); line(v2.X(0), v2.Y(lim), v2.X(1), v2.Y(lim), GRN, 2.5, [8, 6]); v2.off(); }
+      if (lim !== null) { v2.on(); line(v2.X(0), v2.Y(lim), v2.X(1), v2.Y(lim), GRN, 2.5, [8, 6]); v2.off(); halo('limit of the area = ' + lim.toFixed(2), v2.X(1) - 8, v2.Y(lim) - 14, 15, GRN, 'right'); }
       dot(v2.X(st.u), v2.Y(Af(st.u)), 7, BLU); line(v1.X(s), v1.py, v1.X(s), v1.py + v1.ph, '#94a3b8', 1.5, [5, 5]);
       T('The shaded region starts closer and closer to 0', v1.px + 700, v1.py + 18, 13, '#475569', 'right');
       T('left edge of the shaded region moves toward 0 →', v2.px + 700, v2.py + v2.ph - 12, 13, '#475569', 'right');
     }
     T('f', v1.px + 14, v1.py + 16, 18, INK); T('area so far', v2.px + 56, v2.py + 16, 15, BLU);
     var ptxt = p.toFixed(2);
-    $('note').innerHTML = conv ? sp('Converges.', GRN) + ' The area levels off at a finite value (the green dashed line).' : sp('Diverges.', RED) + ' The area keeps growing and never levels off.';
-    $('eq').innerHTML = (inf ? '∫ from 1 to ∞ of 1/x<sup>p</sup> dx' : '∫ from 0 to 1 of 1/x<sup>p</sup> dx') + ' &nbsp; with ' + sp('p = ' + ptxt, BLU) + ' &nbsp;' + (conv ? sp('converges', GRN) : sp('diverges', RED));
+    $('note').innerHTML = conv ? hs('Converges.', GRN) + ' The area so far levels off at a finite value, the limit of the area, marked by the green dashed line on the lower graph.' : hs('Diverges.', RED) + ' The area so far keeps growing and never levels off, so there is no limit and no green line.';
+    $('eq').innerHTML = '\\(\\displaystyle ' + (inf ? '\\int_1^{\\infty}' : '\\int_0^{1}') + ' \\frac{1}{x^{p}}\\,dx\\)' + ' &nbsp; with \\(' + sp('p = ' + ptxt, BLU) + '\\): &nbsp;' + (conv ? hs('converges', GRN) : hs('diverges', RED));
   }
   function setKind(k) { st.k = k; setTabs(['k-inf', 'k-unb'], 'k-' + k); st.p = k === 'inf' ? 2 : 0.5; $('p').value = Math.round(st.p * 100); draw(); }
   $('k-inf').onclick = function () { setKind('inf'); }; $('k-unb').onclick = function () { setKind('unb'); };
