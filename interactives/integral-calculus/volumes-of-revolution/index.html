@@ -228,7 +228,7 @@ document.addEventListener('DOMContentLoaded', function () {
   $('n').oninput = function () { st.n = parseInt(this.value, 10); draw(); };
   $('s').oninput = function () { st.s = parseFloat(this.value) / 1000; draw(); };
   $('th').oninput = function () { st.th = parseFloat(this.value); draw(); };
-  onTick(function (dt) { if ($('anim').checked) { if (st.th >= 360) { st.hold += dt; if (st.hold > 1200) { st.th = 0; st.hold = 0; } } else st.th = Math.min(360, st.th + dt * 0.07); $('th').value = Math.round(st.th); draw(); } });
+  onTick(function (dt) { if ($('anim').checked) { if (st.fin) { st.fin = false; st.th = 0; } st.th = Math.min(360, st.th + dt * 0.07); if (st.th >= 360) { st.fin = true; $('anim').checked = false; } $('th').value = Math.round(st.th); draw(); } });
   draw();
 
 })();

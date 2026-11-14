@@ -141,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function () {
     return '<div class="tabs" role="group" aria-label="Choose a function">' + list.map(function (n, i) { return '<button type="button" id="t-' + n + '" aria-pressed="' + (i === 0 ? 'true' : 'false') + '">' + labels[n] + '</button>'; }).join('') + '</div>';
   }
 
-  function wirePause(st) { $('pause').onclick = function () { st.pause = !st.pause; this.textContent = st.pause ? 'Resume' : 'Pause'; }; }
+  function wirePause(st) { $('pause').onclick = function () { if (st.done) { st.done = false; st.pause = false; this.textContent = 'Pause'; if (typeof reset === 'function') reset(); return; } st.pause = !st.pause; this.textContent = st.pause ? 'Resume' : 'Pause'; }; }
 
   var W0 = 2, Tw = 12, st = { th0: 60, b: 0, t: 0, a: 0, w: 0, p: 0, q: 0, ha: [], pause: false, hold: 0 };
   function reset() { var r = st.th0 * Math.PI / 180; st.t = 0; st.a = r; st.w = 0; st.p = r; st.q = 0; st.ha = [[0, r, 0, r, 0]]; st.hold = 0; }
@@ -180,7 +180,7 @@ document.addEventListener('DOMContentLoaded', function () {
   onTick(function (dt) {
     if (!st.pause) {
       var rem = Math.min(dt, 50) / 1000, h = 1 / 240;
-      if (st.t >= Tw) { st.hold += rem; if (st.hold > 1.5) reset(); }
+      if (st.t >= Tw) { st.hold += rem; if (st.hold > 1.5 && !st.done) { st.done = true; st.pause = true; $('pause').textContent = 'Play again'; } }
       else { while (rem > 1e-9) { var s = Math.min(h, rem); step(s); rem -= s; } var l = st.ha[st.ha.length - 1]; if (st.t - l[0] > 1 / 50) st.ha.push([st.t, st.a, st.w, st.p, st.q]); }
     }
     draw();

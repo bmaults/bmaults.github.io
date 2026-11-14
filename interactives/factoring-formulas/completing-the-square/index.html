@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function () {
   $('t').oninput = function () { st.t = parseFloat(this.value) / 1000; draw(); };
   $('x').oninput = function () { st.x = parseFloat(this.value); draw(); };
   $('b').oninput = function () { st.b = parseFloat(this.value); draw(); };
-  onTick(function (dt) { if ($('anim').checked) { st.t += dt / 4500; if (st.t > 1.25) st.t = 0; st.t = Math.min(st.t, 1); draw(); } });
+  onTick(function (dt) { if ($('anim').checked) { if (st.fin) { st.t = 0; st.fin = false; } st.t += dt / 4500; if (st.t >= 1) { st.fin = true; $('anim').checked = false; } st.t = Math.min(st.t, 1); draw(); } });
   draw();
 
 })();

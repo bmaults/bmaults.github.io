@@ -213,7 +213,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var mIds = ['m-left', 'm-mid', 'm-right', 'm-trap'];
   mIds.forEach(function (id) { $(id).onclick = function () { st.m = id.slice(2); setTabs(mIds, id); draw(); }; });
   $('n').oninput = function () { st.n = parseInt(this.value, 10); st.t = st.n; draw(); };
-  onTick(function (dt) { if ($('anim').checked) { st.t += st.dir * dt / 140; if (st.t >= 82) st.dir = -1; if (st.t <= 0.5) st.dir = 1; st.n = Math.max(1, Math.min(80, Math.round(st.t))); $('n').value = st.n; draw(); } });
+  onTick(function (dt) { if ($('anim').checked) { if (st.fin) { st.fin = false; st.dir = -st.dir; } st.t += st.dir * dt / 140; if (st.t >= 82 || st.t <= 0.5) { st.fin = true; $('anim').checked = false; } st.n = Math.max(1, Math.min(80, Math.round(st.t))); $('n').value = st.n; draw(); } });
   draw();
 
 })();

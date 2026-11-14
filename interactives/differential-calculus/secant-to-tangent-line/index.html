@@ -162,7 +162,7 @@ document.addEventListener('DOMContentLoaded', function () {
   $('t').oninput = function () { st.t = parseFloat(this.value) / 1000; draw(); };
   $('a').oninput = function () { st.a = parseFloat(this.value) / 100; draw(); };
   $('side').onchange = draw;
-  onTick(function (dt) { if ($('anim').checked) { st.t += st.dir * dt / 3500; if (st.t >= 1.25) st.dir = -1; if (st.t <= -0.25) st.dir = 1; st.t = Math.max(0, Math.min(1, st.t)); $('t').value = Math.round(st.t * 1000); draw(); } });
+  onTick(function (dt) { if ($('anim').checked) { if (st.fin) { st.fin = false; st.dir = -st.dir; } st.t += st.dir * dt / 3500; if (st.t >= 1 || st.t <= 0) { st.fin = true; $('anim').checked = false; } st.t = Math.max(0, Math.min(1, st.t)); $('t').value = Math.round(st.t * 1000); draw(); } });
   draw();
 
 })();

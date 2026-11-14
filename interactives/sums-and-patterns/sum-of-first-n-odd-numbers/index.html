@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', function () {
     onTick(function (dt) {
       var need = false;
       if (st.prog < 1) { st.prog = Math.min(1, st.prog + dt / 600); need = true; }
-      if ($('anim').checked) { st.e += st.dir * dt / 2500; if (st.e >= 1.4) st.dir = -1; if (st.e <= -0.4) st.dir = 1; need = true; }
+      if ($('anim').checked) { if (st.fin) { st.fin = false; st.dir = -st.dir; } st.e += st.dir * dt / 2500; if (st.e >= 1 || st.e <= 0) { st.fin = true; $('anim').checked = false; } need = true; }
       st.e = Math.max(0, Math.min(1, st.e)); $('u').value = Math.round(st.e * 1000);
       if (need) draw();
     });

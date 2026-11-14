@@ -163,7 +163,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function fromPointer(ev) { var r = cv.getBoundingClientRect(), sx = (ev.clientX - r.left) * W / r.width, F = FN[st.fn], s = (sx - 40) / 720; st.s = Math.max(0, Math.min(1, s)); $('x').value = Math.round(st.s * 1000); draw(); }
   var down = false; cv.addEventListener('pointerdown', function (e) { down = true; cv.setPointerCapture(e.pointerId); fromPointer(e); });
   cv.addEventListener('pointermove', function (e) { if (down) fromPointer(e); }); cv.addEventListener('pointerup', function () { down = false; });
-  onTick(function (dt) { if ($('anim').checked) { st.s += st.dir * dt / 9000; if (st.s >= 1.05) st.dir = -1; if (st.s <= -0.05) st.dir = 1; st.s = Math.max(0, Math.min(1, st.s)); $('x').value = Math.round(st.s * 1000); draw(); } });
+  onTick(function (dt) { if ($('anim').checked) { if (st.fin) { st.fin = false; st.dir = -st.dir; } st.s += st.dir * dt / 9000; if (st.s >= 1 || st.s <= 0) { st.fin = true; $('anim').checked = false; } st.s = Math.max(0, Math.min(1, st.s)); $('x').value = Math.round(st.s * 1000); draw(); } });
   draw();
 
 })();

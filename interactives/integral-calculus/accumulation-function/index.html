@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', function () {
   tabsFor(['swave', 'cubic', 'parabola'], function (n) { st.fn = n; draw(); });
   $('x').oninput = function () { st.s = parseFloat(this.value) / 1000; draw(); };
   ptr(0, function (sx) { st.s = Math.max(0, Math.min(1, (sx - 40) / 720)); $('x').value = Math.round(st.s * 1000); draw(); });
-  onTick(function (dt) { if ($('anim').checked) { st.s += st.dir * dt / 9000; if (st.s >= 1.05) st.dir = -1; if (st.s <= -0.05) st.dir = 1; st.s = Math.max(0, Math.min(1, st.s)); $('x').value = Math.round(st.s * 1000); draw(); } });
+  onTick(function (dt) { if ($('anim').checked) { if (st.fin) { st.fin = false; st.dir = -st.dir; } st.s += st.dir * dt / 9000; if (st.s >= 1 || st.s <= 0) { st.fin = true; $('anim').checked = false; } st.s = Math.max(0, Math.min(1, st.s)); $('x').value = Math.round(st.s * 1000); draw(); } });
   draw();
 
 })();

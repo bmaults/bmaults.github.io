@@ -220,7 +220,7 @@ document.addEventListener('DOMContentLoaded', function () {
   $('m-trap').onclick = function () { st.m = 'trap'; setTabs(['m-trap', 'm-simp'], 'm-trap'); draw(); };
   $('m-simp').onclick = function () { st.m = 'simp'; setTabs(['m-trap', 'm-simp'], 'm-simp'); draw(); };
   $('n').oninput = function () { st.n = parseInt(this.value, 10); st.t = st.n; draw(); };
-  onTick(function (dt) { if ($('anim').checked) { st.t += st.dir * dt / 120; if (st.t >= 42) st.dir = -1; if (st.t <= 1) st.dir = 1; st.n = Math.max(2, Math.min(40, 2 * Math.round(st.t / 2))); $('n').value = st.n; draw(); } });
+  onTick(function (dt) { if ($('anim').checked) { if (st.fin) { st.fin = false; st.dir = -st.dir; } st.t += st.dir * dt / 120; if (st.t >= 42 || st.t <= 1) { st.fin = true; $('anim').checked = false; } st.n = Math.max(2, Math.min(40, 2 * Math.round(st.t / 2))); $('n').value = st.n; draw(); } });
   draw();
 
 })();

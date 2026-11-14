@@ -161,7 +161,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   tabsFor(['cubic', 'parabola', 'wave'], function (n) { st.fn = n; draw(); });
   ['a', 'b', 'c'].forEach(function (id) { $(id).oninput = function () { st[id] = parseFloat(this.value) / 1000; draw(); }; });
-  onTick(function (dt) { if ($('anim').checked) { st.c += st.dir * dt / 6000; if (st.c >= 1.05) st.dir = -1; if (st.c <= -0.05) st.dir = 1; st.c = Math.max(0, Math.min(1, st.c)); $('c').value = Math.round(st.c * 1000); draw(); } });
+  onTick(function (dt) { if ($('anim').checked) { if (st.fin) { st.fin = false; st.dir = -st.dir; } st.c += st.dir * dt / 6000; if (st.c >= 1 || st.c <= 0) { st.fin = true; $('anim').checked = false; } st.c = Math.max(0, Math.min(1, st.c)); $('c').value = Math.round(st.c * 1000); draw(); } });
   draw();
 
 })();

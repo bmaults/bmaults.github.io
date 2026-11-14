@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', function () {
   $('t').oninput = function () { st.t = parseFloat(this.value) / 1000; draw(); };
   $('a').oninput = function () { st.a = parseFloat(this.value); draw(); };
   $('b').oninput = function () { st.b = parseFloat(this.value); draw(); };
-  onTick(function (dt) { if ($('anim').checked) { st.t += dt / 4000; if (st.t > 1.3) st.t = 0; st.t = Math.min(st.t, 1); draw(); } });
+  onTick(function (dt) { if ($('anim').checked) { if (st.fin) { st.t = 0; st.fin = false; } st.t += dt / 4000; if (st.t >= 1) { st.fin = true; $('anim').checked = false; } st.t = Math.min(st.t, 1); draw(); } });
   draw();
 
 })();

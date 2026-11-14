@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   tabsFor(['quad', 'cosx'], function (n) { st.fn = n; $('x0').value = 900; reset(); });
   $('x0').oninput = reset; $('next').onclick = step; $('reset').onclick = reset;
-  onTick(function (dt) { if ($('anim').checked) { st.timer += dt; if (st.timer > 1300) { st.timer = 0; if (!step()) { if (st.timer === 0) st.timer = -1200; reset(); } } } });
+  onTick(function (dt) { if ($('anim').checked) { if (st.fin) { st.fin = false; reset(); } st.timer += dt; if (st.timer > 1300) { st.timer = 0; if (!step()) { st.fin = true; $('anim').checked = false; } } } });
   reset();
 
 })();
