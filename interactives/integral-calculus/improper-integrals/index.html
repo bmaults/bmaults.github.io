@@ -221,7 +221,7 @@ document.addEventListener('DOMContentLoaded', function () {
   $('k-inf').onclick = function () { setKind('inf'); }; $('k-unb').onclick = function () { setKind('unb'); };
   $('p').oninput = function () { st.p = parseFloat(this.value) / 100; draw(); };
   $('u').oninput = function () { st.u = parseFloat(this.value) / 1000; draw(); };
-  onTick(function (dt) { if ($('anim').checked) { st.u += st.dir * dt / 5000; if (st.u >= 1.2) st.dir = -1; if (st.u <= -0.2) st.dir = 1; st.u = Math.max(0, Math.min(1, st.u)); $('u').value = Math.round(st.u * 1000); draw(); } });
+  onTick(function (dt) { if ($('anim').checked) { if (st.fin) { st.fin = false; st.dir = -st.dir; } st.u += st.dir * dt / 5000; if (st.u >= 1 || st.u <= 0) { st.fin = true; $('anim').checked = false; } st.u = Math.max(0, Math.min(1, st.u)); $('u').value = Math.round(st.u * 1000); draw(); } });
   draw();
 
 })();

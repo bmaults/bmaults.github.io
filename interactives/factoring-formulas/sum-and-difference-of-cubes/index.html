@@ -215,7 +215,7 @@ document.addEventListener('DOMContentLoaded', function () {
   $('t-dif').onclick = function () { mode(false); }; $('t-sum').onclick = function () { mode(true); };
   $('e').oninput = function () { st.e = parseFloat(this.value) / 1000; draw(); };
   $('step').oninput = function () { st.step = parseFloat(this.value) / 1000; draw(); };
-  onTick(function (dt) { if (st.sum && $('anim').checked) { st.step += dt / 7000; if (st.step > 1.25) st.step = 0; st.step = Math.min(st.step, 1); $('step').value = Math.round(st.step * 1000); draw(); } });
+  onTick(function (dt) { if (st.sum && $('anim').checked) { if (st.fin) { st.step = 0; st.fin = false; } st.step += dt / 7000; if (st.step >= 1) { st.fin = true; $('anim').checked = false; } st.step = Math.min(st.step, 1); $('step').value = Math.round(st.step * 1000); draw(); } });
   $('b').oninput = function () { st.b = parseFloat(this.value); draw(); };
   draw();
 

@@ -161,7 +161,7 @@ document.addEventListener('DOMContentLoaded', function () {
   tabsFor(['wave', 'cubic', 'corner'], function (n) { st.fn = n; if (n === 'corner') { st.a = 0; $('a').value = 0; } draw(); });
   $('z').oninput = function () { st.z = parseFloat(this.value) / 1000; draw(); };
   $('a').oninput = function () { st.a = parseFloat(this.value) / 100; draw(); };
-  onTick(function (dt) { if ($('anim').checked) { st.z += st.dir * dt / 5000; if (st.z >= 1.25) st.dir = -1; if (st.z <= -0.25) st.dir = 1; st.z = Math.max(0, Math.min(1, st.z)); $('z').value = Math.round(st.z * 1000); draw(); } });
+  onTick(function (dt) { if ($('anim').checked) { if (st.fin) { st.fin = false; st.dir = -st.dir; } st.z += st.dir * dt / 5000; if (st.z >= 1 || st.z <= 0) { st.fin = true; $('anim').checked = false; } st.z = Math.max(0, Math.min(1, st.z)); $('z').value = Math.round(st.z * 1000); draw(); } });
   draw();
 
 })();

@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', function () {
     return '<div class="tabs" role="group" aria-label="Choose a function">' + list.map(function (n, i) { return '<button type="button" id="t-' + n + '" aria-pressed="' + (i === 0 ? 'true' : 'false') + '">' + labels[n] + '</button>'; }).join('') + '</div>';
   }
 
-  function wirePause(st) { $('pause').onclick = function () { st.pause = !st.pause; this.textContent = st.pause ? 'Resume' : 'Pause'; }; }
+  function wirePause(st) { $('pause').onclick = function () { if (st.done) { st.done = false; st.pause = false; this.textContent = 'Pause'; if (typeof reset === 'function') reset(); return; } st.pause = !st.pause; this.textContent = st.pause ? 'Resume' : 'Pause'; }; }
 
   var st = { A: 0.7, w: 2, t: 0, pause: false }, Tw = 10, cy = 255, S = 130, cx = 270, gx = 440, gw = 330;
   function draw() {
