@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Complex Numbers as Geometry: Sums, Products, Powers, and Roots of Unity</title>
+<meta name="description" content="Drag two complex numbers in the plane and watch their sum, product, and quotient. See De Moivre's theorem as a spiral and the nth roots as the vertices of a regular polygon.">
+<style>
+  body { font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; color: #1a1a1a; margin: 0; background: #fff; line-height: 1.45; }
+  main { max-width: 860px; margin: 0 auto; padding: 12px 14px 24px; }
+  h1 { font-size: 1.5rem; margin: 0.2em 0 0.4em; }
+  p { margin: 0.4em 0 0.8em; }
+  a { color: #1f3a8a; }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+  .tabs button, button.act { font: inherit; padding: 7px 14px; border: 2px solid #1f3a8a; background: #fff; color: #1f3a8a; border-radius: 6px; cursor: pointer; }
+  .tabs button[aria-pressed="true"] { background: #1f3a8a; color: #fff; }
+  button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+  canvas { width: 100%; height: auto; display: block; border: 1px solid #9ca3af; border-radius: 6px; background: #fff; }
+  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px 22px; margin: 12px 0; }
+  .controls label { display: block; font-size: 0.95rem; }
+  .controls input[type=range] { width: 100%; }
+  .readout { background: #f3f4f6; border-radius: 6px; padding: 8px 12px; margin: 8px 0; font-size: 1rem; }
+  .box { border: 1px solid #d1d5db; border-radius: 8px; padding: 10px 14px; margin: 12px 0; background: #f8fafc; }
+  table.t { border-collapse: collapse; margin: 6px 0; }
+  table.t th, table.t td { border: 1px solid #d1d5db; padding: 4px 12px; text-align: center; }
+  input[type=text] { font: inherit; padding: 5px 8px; border: 2px solid #9ca3af; border-radius: 6px; width: 15em; max-width: 100%; }
+</style>
+</head>
+<body>
+<main>
+  <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../">&larr; All algebra and precalculus demonstrations</a></nav>
+  <h1>Complex Numbers as Geometry: Sums, Products, Powers, and Roots of Unity</h1>
+  <p>Drag the points <b style="color:#1e3a8a">z</b> and <b style="color:#c2410c">w</b> around the plane. Each tab shows what an operation does geometrically.</p>
+  <div class="tabs"><button type="button" class="act" id="m_add" aria-pressed="false">Add</button><button type="button" class="act" id="m_mul" aria-pressed="false">Multiply</button><button type="button" class="act" id="m_div" aria-pressed="false">Divide</button><button type="button" class="act" id="m_pow" aria-pressed="false">Powers</button><button type="button" class="act" id="m_root" aria-pressed="false">Roots</button></div>
+  <canvas id="cv" width="800" height="520" role="img" aria-label="The complex plane with draggable points z and w. Depending on the tab, the picture shows their sum as a parallelogram, their product and quotient with angle arcs, the powers of z along a spiral, or the nth roots of w as the vertices of a regular polygon."></canvas>
+  <div class="controls"><label id="nl">Exponent or number of roots n <input type="range" id="n" min="2" max="12" step="1" value="5"></label></div>
+  <div class="readout" id="note" aria-live="polite"></div>
+  <div class="readout" id="eq" style="font-size:1.1rem"></div>
+  <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
+  <ol style="padding-left:1.4em">
+    <li style="margin-bottom:0.6em">Where must w be so that multiplying by w rotates z by 90° and leaves its length alone?</li>
+    <li style="margin-bottom:0.6em">For what z do the powers of z stay on a circle? What do they do when |z| is larger or smaller than 1?</li>
+  </ol>
+</main>
+<script>
+(function () {
+  var cv = document.getElementById('cv'), ctx = cv ? cv.getContext('2d') : null, W = 800, H = 520;
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  if (cv) { cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+  function $(id) { return document.getElementById(id); }
+  function fmt(n) { return String(+n.toFixed(2)).replace('-', '\u2212'); }
+  function sgn(n) { return (n < 0 ? ' − ' : ' + ') + fmt(Math.abs(n)); }
+  function ease(u) { u = Math.max(0, Math.min(1, u)); return u * u * (3 - 2 * u); }
+  function R(x, y, w, h, fill, stroke, lw) {
+    ctx.fillStyle = fill; ctx.fillRect(x, y, w, h);
+    if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw || 2; ctx.strokeRect(x, y, w, h); }
+  }
+  function T(txt, x, y, size, col, align) {
+    ctx.font = 'bold ' + (size || 16) + 'px system-ui, sans-serif'; ctx.fillStyle = col || '#111';
+    ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle'; ctx.fillText(txt, x, y);
+  }
+  function lbl(t, x, y, w, h, col) { if (w > 38 && h > 24) T(t, x + w / 2, y + h / 2, Math.min(24, Math.max(12, Math.min(w, h) / 3)), col); }
+  function clear() { ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H); }
+  function dashRect(x, y, w, h, col, fill) {
+    if (fill) { ctx.fillStyle = fill; ctx.fillRect(x, y, w, h); }
+    ctx.save(); ctx.setLineDash([6, 5]); ctx.strokeStyle = col; ctx.lineWidth = 2.5; ctx.strokeRect(x, y, w, h); ctx.restore();
+  }
+  function setTabs(ids, on) { ids.forEach(function (id) { $(id).setAttribute('aria-pressed', id === on ? 'true' : 'false'); }); }
+  var animating = [], last = 0;
+  function onTick(fn) { animating.push(fn); }
+  function tick(ts) { var dt = ts - last; last = ts; animating.forEach(function (f) { f(dt); }); requestAnimationFrame(tick); }
+  requestAnimationFrame(tick);
+  function sp(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+
+  var BLU = '#1f3a8a', RED = '#b91c1c', GRN = '#15803d', ORG = '#c2410c', INK = '#1f2937';
+  var FN = {
+    parabola: { f: function (x) { return 0.25 * x * x - 1; }, d: function (x) { return 0.5 * x; }, x0: -4, x1: 4, y0: -1.6, y1: 3.4 },
+    cubic: { f: function (x) { return (x * x * x - 4 * x) / 4; }, d: function (x) { return (3 * x * x - 4) / 4; }, x0: -3, x1: 3, y0: -4, y1: 4 },
+    wave: { f: function (x) { return 1.5 * Math.sin(x); }, d: function (x) { return 1.5 * Math.cos(x); }, x0: -4.5, x1: 4.5, y0: -2.4, y1: 2.4 },
+    corner: { f: function (x) { return 0.6 * Math.abs(x) - 1; }, d: function (x) { return x > 0 ? 0.6 : -0.6; }, x0: -4, x1: 4, y0: -1.6, y1: 3 }
+  };
+  function line(ax, ay, bx, by, col, w, dash) { ctx.save(); ctx.strokeStyle = col; ctx.lineWidth = w || 2; if (dash) ctx.setLineDash(dash); ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke(); ctx.restore(); }
+  function dot(x, y, r, col) { ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fillStyle = col; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke(); }
+  function View(px, py, pw, ph, x0, x1, y0, y1) {
+    var me = this; this.px = px; this.py = py; this.pw = pw; this.ph = ph; this.x0 = x0; this.x1 = x1; this.y0 = y0; this.y1 = y1;
+    this.X = function (x) { return px + (x - x0) / (x1 - x0) * pw; };
+    this.Y = function (y) { return py + ph - (y - y0) / (y1 - y0) * ph; };
+    this.invX = function (sx) { return x0 + (sx - px) / pw * (x1 - x0); };
+    this.on = function () { ctx.save(); ctx.beginPath(); ctx.rect(px, py, pw, ph); ctx.clip(); };
+    this.off = function () { ctx.restore(); };
+    this.axes = function () {
+      ctx.save(); ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1.5; ctx.strokeRect(px, py, pw, ph);
+      if (y0 < 0 && y1 > 0) line(px, me.Y(0), px + pw, me.Y(0), '#94a3b8', 1.5);
+      if (x0 < 0 && x1 > 0) line(me.X(0), py, me.X(0), py + ph, '#94a3b8', 1.5);
+      ctx.restore();
+    };
+    this.curve = function (fn, col, w, a, b) {
+      var i, n = 500, lo = a === undefined ? x0 : a, hi = b === undefined ? x1 : b;
+      me.on(); ctx.strokeStyle = col; ctx.lineWidth = w || 3; ctx.lineJoin = 'round'; ctx.beginPath();
+      for (i = 0; i <= n; i++) { var x = lo + (hi - lo) * i / n, y = fn(x); if (i) ctx.lineTo(me.X(x), me.Y(y)); else ctx.moveTo(me.X(x), me.Y(y)); }
+      ctx.stroke(); me.off();
+    };
+    this.slope = function (x, y, m, col, w, dash, half) {
+      var lo = half === undefined ? x0 : x - half, hi = half === undefined ? x1 : x + half;
+      me.on(); line(me.X(lo), me.Y(y + m * (lo - x)), me.X(hi), me.Y(y + m * (hi - x)), col, w, dash); me.off();
+    };
+  }
+  function tabsFor(names, onPick) {
+    var ids = names.map(function (n) { return 't-' + n; });
+    names.forEach(function (n) { $('t-' + n).onclick = function () { setTabs(ids, 't-' + n); onPick(n); }; });
+  }
+  function fnTabs(list) {
+    var labels = { parabola: 'Parabola', cubic: 'Cubic', wave: 'Sine wave', corner: 'Corner (absolute value)' };
+    return '<div class="tabs" role="group" aria-label="Choose a function">' + list.map(function (n, i) { return '<button type="button" id="t-' + n + '" aria-pressed="' + (i === 0 ? 'true' : 'false') + '">' + labels[n] + '</button>'; }).join('') + '</div>';
+  }
+
+  function tabBtns(ids, cb, def) {
+    ids.forEach(function (id) { $(id).onclick = function () {
+      ids.forEach(function (j) { var on = j === id; $(j).setAttribute('aria-pressed', on); $(j).style.background = on ? '#1e3a8a' : ''; $(j).style.color = on ? '#fff' : ''; });
+      cb(id); }; });
+    $(def).onclick();
+  }
+  function clipTo(v, f) { ctx.save(); ctx.beginPath(); ctx.rect(v.px, v.py, v.pw, v.ph); ctx.clip(); f(); ctx.restore(); }
+  function plot(v, fn, col, w, dash) {
+    var N = 600, pen = false, i, x, y;
+    clipTo(v, function () {
+      ctx.strokeStyle = col; ctx.lineWidth = w; ctx.setLineDash(dash || []); ctx.beginPath();
+      for (i = 0; i <= N; i++) {
+        x = v.x0 + (v.x1 - v.x0) * i / N; y = fn(x);
+        if (!isFinite(y) || Math.abs(y) > 1e3) { pen = false; continue; }
+        if (pen) ctx.lineTo(v.X(x), v.Y(y)); else { ctx.moveTo(v.X(x), v.Y(y)); pen = true; }
+      }
+      ctx.stroke();
+    });
+  }
+
+  var S = 70, ox = 400, oy = 262, mode = 'add', z = [1.6, 1.1], w = [1, -1.6], drag = -1, n = 5;
+  function P(c) { return [ox + S * c[0], oy - S * c[1]]; }
+  function mul(a, b) { return [a[0] * b[0] - a[1] * b[1], a[0] * b[1] + a[1] * b[0]]; }
+  function arg(a) { return Math.atan2(a[1], a[0]); }
+  function mod(a) { return Math.hypot(a[0], a[1]); }
+  function f2(x) { return x.toFixed(2); }
+  function dg(a) { return (a * 180 / Math.PI).toFixed(0) + '°'; }
+  function arrow(c, col, wd) {
+    var p = P(c), a = Math.atan2(p[1] - oy, p[0] - ox); line(ox, oy, p[0], p[1], col, wd);
+    line(p[0], p[1], p[0] - 12 * Math.cos(a - 0.4), p[1] - 12 * Math.sin(a - 0.4), col, wd); line(p[0], p[1], p[0] - 12 * Math.cos(a + 0.4), p[1] - 12 * Math.sin(a + 0.4), col, wd);
+  }
+  function pt(c, col, name, drag) { var p = P(c); if (drag) { ctx.beginPath(); ctx.arc(p[0], p[1], 14, 0, 7); ctx.fillStyle = col; ctx.globalAlpha = 0.15; ctx.fill(); ctx.globalAlpha = 1; } dot(p[0], p[1], 7, col); T(name, p[0] + 16, p[1] - 14, 17, col); }
+  function arc(th, r, col) { ctx.strokeStyle = col; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(ox, oy, r, 0, -th, th > 0); ctx.stroke(); }
+  function active() { return mode === 'm_pow' ? [z] : mode === 'm_root' ? [w] : [z, w]; }
+  function draw() {
+    clear(); var i, p, q;
+    for (i = -5; i <= 5; i++) { line(ox + S * i, 10, ox + S * i, 515, '#eef2f7', 1); } for (i = -3; i <= 3; i++) { line(20, oy - S * i, 780, oy - S * i, '#eef2f7', 1); }
+    line(20, oy, 780, oy, '#94a3b8', 1.5); line(ox, 10, ox, 515, '#94a3b8', 1.5); T('real', 765, oy - 10, 13, '#64748b', 'right'); T('imaginary', ox + 8, 22, 13, '#64748b', 'left');
+    ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 1.5; ctx.setLineDash([5, 5]); ctx.beginPath(); ctx.arc(ox, oy, S, 0, 7); ctx.stroke(); ctx.setLineDash([]);
+    var note = '', eq = '';
+    ctx.save(); ctx.beginPath(); ctx.rect(0, 0, 800, 520); ctx.clip();
+    if (mode === 'm_add') {
+      var s = [z[0] + w[0], z[1] + w[1]], a = P(z), b = P(w), c = P(s);
+      line(a[0], a[1], c[0], c[1], '#c2410c', 2, [6, 5]); line(b[0], b[1], c[0], c[1], '#1e3a8a', 2, [6, 5]);
+      arrow(z, BLU, 3); arrow(w, ORG, 3); arrow(s, GRN, 4); pt(s, GRN, 'z + w', false);
+      note = 'Adding complex numbers is vector addition. The three points and the origin form a parallelogram.';
+      eq = sp('z', BLU) + ' + ' + sp('w', ORG) + ' = ' + f2(s[0]) + (s[1] < 0 ? ' − ' : ' + ') + f2(Math.abs(s[1])) + 'i';
+    } else if (mode === 'm_mul' || mode === 'm_div') {
+      var m = mode === 'm_mul', r;
+      if (m) r = mul(z, w); else { var d = w[0] * w[0] + w[1] * w[1]; r = [(z[0] * w[0] + z[1] * w[1]) / d, (z[1] * w[0] - z[0] * w[1]) / d]; }
+      arc(arg(z), 34, BLU); arc(arg(w), 46, ORG); arc(arg(r), 58, GRN);
+      arrow(z, BLU, 3); arrow(w, ORG, 3); arrow(r, GRN, 4); pt(r, GRN, m ? 'z·w' : 'z/w', false);
+      note = m ? 'The product has length |z||w|, and its angle is the sum of the two angles. Multiplying by w rotates by arg w and scales by |w|.' : 'The quotient has length |z|/|w|, and its angle is the difference of the two angles. Dividing by w undoes a rotation and a scaling.';
+      eq = m ? '|z||w| = ' + f2(mod(z)) + ' · ' + f2(mod(w)) + ' = ' + f2(mod(r)) + ' &nbsp; and &nbsp; arg z + arg w = ' + dg(arg(z)) + ' + ' + dg(arg(w)) + ' ≡ ' + dg(arg(r)) + ' (mod 360°)'
+        : '|z|/|w| = ' + f2(mod(z)) + ' / ' + f2(mod(w)) + ' = ' + f2(mod(r)) + ' &nbsp; and &nbsp; arg z − arg w = ' + dg(arg(z)) + ' − ' + dg(arg(w)) + ' ≡ ' + dg(arg(r)) + ' (mod 360°)';
+    } else if (mode === 'm_pow') {
+      var cur = [1, 0], prev = P(cur), k;
+      for (k = 1; k <= n; k++) { cur = mul(cur, z); q = P(cur); line(prev[0], prev[1], q[0], q[1], '#94a3b8', 2, [5, 4]); prev = q; }
+      cur = [1, 0];
+      for (k = 1; k <= n; k++) { cur = mul(cur, z); q = P(cur); if (k > 1) { dot(q[0], q[1], 5, k === n ? GRN : '#64748b'); T('z' + (k === n ? '^' + n : k === 2 ? '²' : k === 3 ? '³' : '^' + k), q[0] + 14, q[1] - 12, 14, k === n ? GRN : '#64748b'); } }
+      arrow(z, BLU, 3);
+      note = 'Each power rotates by the angle of z and scales by the length of z, so the powers spiral. If |z| = 1, they stay on the unit circle.';
+      eq = 'De Moivre: &nbsp; |z<sup>' + n + '</sup>| = ' + f2(Math.pow(mod(z), n)) + ' = |z|<sup>' + n + '</sup>, &nbsp; arg z<sup>' + n + '</sup> ≡ ' + n + ' · ' + dg(arg(z)) + ' (mod 360°)';
+    } else {
+      var rr = Math.pow(mod(w), 1 / n), th = arg(w) / n, pts = [], k2;
+      for (k2 = 0; k2 < n; k2++) pts.push(P([rr * Math.cos(th + 2 * Math.PI * k2 / n), rr * Math.sin(th + 2 * Math.PI * k2 / n)]));
+      ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(ox, oy, S * rr, 0, 7); ctx.stroke();
+      ctx.fillStyle = 'rgba(21,128,61,0.08)'; ctx.strokeStyle = GRN; ctx.lineWidth = 2.5; ctx.beginPath(); pts.forEach(function (a, k) { if (k) ctx.lineTo(a[0], a[1]); else ctx.moveTo(a[0], a[1]); }); ctx.closePath(); ctx.fill(); ctx.stroke();
+      pts.forEach(function (a) { line(ox, oy, a[0], a[1], '#cbd5e1', 1.2); dot(a[0], a[1], 6, GRN); });
+      note = 'The n roots of w are the vertices of a regular n-gon centered at the origin. Drag w to rotate and resize the polygon. Put w at 1 to see the roots of unity.';
+      eq = 'n = ' + n + ': &nbsp; each root has length |w|<sup>1/n</sup> = ' + f2(rr) + ', &nbsp; and neighboring roots are ' + (360 / n).toFixed(1) + '° apart';
+    }
+    ctx.restore();
+    if (mode === 'm_pow') pt(z, BLU, 'z', drag === 0); else if (mode === 'm_root') pt(w, ORG, 'w', drag === 0); else { pt(z, BLU, 'z', drag === 0); pt(w, ORG, 'w', drag === 1); }
+    $('note').textContent = note; $('eq').innerHTML = eq;
+  }
+  function pos(e) { var r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * cv.width / r.width, (e.clientY - r.top) * cv.height / r.height]; }
+  cv.style.touchAction = 'none';
+  cv.onpointerdown = function (e) { var p = pos(e), best = 1e9; drag = -1; active().forEach(function (c, i) { var q = P(c), d = Math.hypot(q[0] - p[0], q[1] - p[1]); if (d < 40 && d < best) { best = d; drag = i; } }); if (drag >= 0) cv.setPointerCapture(e.pointerId); draw(); };
+  cv.onpointermove = function (e) { if (drag < 0) return; var p = pos(e), c = active()[drag]; c[0] = Math.max(-5.4, Math.min(5.4, (p[0] - ox) / S)); c[1] = Math.max(-3.6, Math.min(3.6, (oy - p[1]) / S)); draw(); };
+  cv.onpointerup = function () { drag = -1; draw(); };
+  $('n').oninput = function () { n = parseInt(this.value, 10); draw(); };
+  tabBtns(['m_add', 'm_mul', 'm_div', 'm_pow', 'm_root'], function (id) {
+    mode = id; $('nl').style.display = (id === 'm_pow' || id === 'm_root') ? '' : 'none';
+    if (id === 'm_pow') { z = [0.95, 0.5]; n = 6; $('n').value = 6; $('n').min = 2; } if (id === 'm_root') { w = [1, 0]; n = 5; $('n').value = 5; }
+    if (id === 'm_add' || id === 'm_mul' || id === 'm_div') { z = [1.6, 1.1]; w = [id === 'm_div' ? 1.2 : 1, id === 'm_div' ? 0.7 : -1.6]; }
+    draw(); }, 'm_add');
+
+})();
+</script>
+</body>
+</html>
