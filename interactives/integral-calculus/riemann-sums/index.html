@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Riemann Sums: Approximating the Area Under a Curve with Rectangles</title>
+<meta name="description" content="An interactive picture of Riemann sums. Left, right, midpoint, and trapezoid approximations of the area under a curve improve as the number of rectangles grows.">
+<style>
+  body { font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; color: #1a1a1a; margin: 0; background: #fff; line-height: 1.45; }
+  main { max-width: 860px; margin: 0 auto; padding: 12px 14px 24px; }
+  h1 { font-size: 1.5rem; margin: 0.2em 0 0.4em; }
+  p { margin: 0.4em 0 0.8em; }
+  a { color: #1f3a8a; }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+  .tabs button, button.act { font: inherit; padding: 7px 14px; border: 2px solid #1f3a8a; background: #fff; color: #1f3a8a; border-radius: 6px; cursor: pointer; }
+  .tabs button[aria-pressed="true"] { background: #1f3a8a; color: #fff; }
+  button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+  canvas { width: 100%; height: auto; display: block; border: 1px solid #9ca3af; border-radius: 6px; background: #fff; }
+  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px 22px; margin: 12px 0; }
+  .controls label { display: block; font-size: 0.95rem; }
+  .controls input[type=range] { width: 100%; }
+  .readout { background: #f3f4f6; border-radius: 6px; padding: 8px 12px; margin: 8px 0; font-size: 1rem; }
+  .box { border: 1px solid #d1d5db; border-radius: 8px; padding: 10px 14px; margin: 12px 0; background: #f8fafc; }
+  table.t { border-collapse: collapse; margin: 6px 0; }
+  table.t th, table.t td { border: 1px solid #d1d5db; padding: 4px 12px; text-align: center; }
+  input[type=text] { font: inherit; padding: 5px 8px; border: 2px solid #9ca3af; border-radius: 6px; width: 15em; max-width: 100%; }
+</style>
+</head>
+<body>
+<main>
+  <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../">&larr; All integral calculus demonstrations</a></nav>
+  <h1>Riemann Sums: Approximating the Area Under a Curve with Rectangles</h1>
+  <p>The area under a curve can be approximated by rectangles. More, thinner rectangles give a better approximation.</p>
+  <div class="tabs" role="group" aria-label="Choose a function"><button type="button" id="t-rise" aria-pressed="true">Rising curve</button><button type="button" id="t-hump" aria-pressed="false">Hump</button><button type="button" id="t-wave" aria-pressed="false">Wave</button></div>
+  <div class="tabs" role="group" aria-label="Where to measure the height of each rectangle">
+    <button type="button" id="m-left" aria-pressed="true">Left endpoints</button>
+    <button type="button" id="m-mid" aria-pressed="false">Midpoints</button>
+    <button type="button" id="m-right" aria-pressed="false">Right endpoints</button>
+    <button type="button" id="m-trap" aria-pressed="false">Trapezoids</button>
+  </div>
+  <canvas id="cv" width="800" height="520" role="img" aria-label="A curve with rectangles under it approximating the area. A bar below compares the total area of the rectangles with the exact area under the curve."></canvas>
+  <div class="controls">
+    <label>Number of rectangles <input type="range" id="n" min="1" max="80" step="1" value="5"></label>
+    <label><input type="checkbox" id="anim"> Play the animation</label>
+  </div>
+  <div class="readout" id="note" aria-live="polite"></div>
+  <div class="readout" id="eq" style="font-size:1.1rem"></div>
+  <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
+  <ol style="padding-left:1.4em">
+    <li style="margin-bottom:0.6em">Which endpoints give an underestimate for the rising curve? Which give an overestimate?</li>
+    <li style="margin-bottom:0.6em">Why do midpoints and trapezoids usually do better than endpoints?</li>
+  </ol>
+</main>
+<script>
+(function () {
+  var cv = document.getElementById('cv'), ctx = cv ? cv.getContext('2d') : null, W = 800, H = 520;
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  if (cv) { cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+  function $(id) { return document.getElementById(id); }
+  function fmt(n) { return String(+n.toFixed(2)).replace('-', '\u2212'); }
+  function sgn(n) { return (n < 0 ? ' − ' : ' + ') + fmt(Math.abs(n)); }
+  function ease(u) { u = Math.max(0, Math.min(1, u)); return u * u * (3 - 2 * u); }
+  function R(x, y, w, h, fill, stroke, lw) {
+    ctx.fillStyle = fill; ctx.fillRect(x, y, w, h);
+    if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw || 2; ctx.strokeRect(x, y, w, h); }
+  }
+  function T(txt, x, y, size, col, align) {
+    ctx.font = 'bold ' + (size || 16) + 'px system-ui, sans-serif'; ctx.fillStyle = col || '#111';
+    ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle'; ctx.fillText(txt, x, y);
+  }
+  function lbl(t, x, y, w, h, col) { if (w > 38 && h > 24) T(t, x + w / 2, y + h / 2, Math.min(24, Math.max(12, Math.min(w, h) / 3)), col); }
+  function clear() { ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H); }
+  function dashRect(x, y, w, h, col, fill) {
+    if (fill) { ctx.fillStyle = fill; ctx.fillRect(x, y, w, h); }
+    ctx.save(); ctx.setLineDash([6, 5]); ctx.strokeStyle = col; ctx.lineWidth = 2.5; ctx.strokeRect(x, y, w, h); ctx.restore();
+  }
+  function setTabs(ids, on) { ids.forEach(function (id) { $(id).setAttribute('aria-pressed', id === on ? 'true' : 'false'); }); }
+  var animating = [], last = 0;
+  function onTick(fn) { animating.push(fn); }
+  function tick(ts) { var dt = ts - last; last = ts; animating.forEach(function (f) { f(dt); }); requestAnimationFrame(tick); }
+  requestAnimationFrame(tick);
+  function sp(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+
+  var BLU = '#1f3a8a', RED = '#b91c1c', GRN = '#15803d', ORG = '#c2410c', INK = '#1f2937';
+  var FN = {
+    parabola: { f: function (x) { return 0.25 * x * x - 1; }, d: function (x) { return 0.5 * x; }, x0: -4, x1: 4, y0: -1.6, y1: 3.4 },
+    cubic: { f: function (x) { return (x * x * x - 4 * x) / 4; }, d: function (x) { return (3 * x * x - 4) / 4; }, x0: -3, x1: 3, y0: -4, y1: 4 },
+    wave: { f: function (x) { return 1.5 * Math.sin(x); }, d: function (x) { return 1.5 * Math.cos(x); }, x0: -4.5, x1: 4.5, y0: -2.4, y1: 2.4 },
+    corner: { f: function (x) { return 0.6 * Math.abs(x) - 1; }, d: function (x) { return x > 0 ? 0.6 : -0.6; }, x0: -4, x1: 4, y0: -1.6, y1: 3 }
+  };
+  function line(ax, ay, bx, by, col, w, dash) { ctx.save(); ctx.strokeStyle = col; ctx.lineWidth = w || 2; if (dash) ctx.setLineDash(dash); ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke(); ctx.restore(); }
+  function dot(x, y, r, col) { ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fillStyle = col; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke(); }
+  function View(px, py, pw, ph, x0, x1, y0, y1) {
+    var me = this; this.px = px; this.py = py; this.pw = pw; this.ph = ph; this.x0 = x0; this.x1 = x1; this.y0 = y0; this.y1 = y1;
+    this.X = function (x) { return px + (x - x0) / (x1 - x0) * pw; };
+    this.Y = function (y) { return py + ph - (y - y0) / (y1 - y0) * ph; };
+    this.invX = function (sx) { return x0 + (sx - px) / pw * (x1 - x0); };
+    this.on = function () { ctx.save(); ctx.beginPath(); ctx.rect(px, py, pw, ph); ctx.clip(); };
+    this.off = function () { ctx.restore(); };
+    this.axes = function () {
+      ctx.save(); ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1.5; ctx.strokeRect(px, py, pw, ph);
+      if (y0 < 0 && y1 > 0) line(px, me.Y(0), px + pw, me.Y(0), '#94a3b8', 1.5);
+      if (x0 < 0 && x1 > 0) line(me.X(0), py, me.X(0), py + ph, '#94a3b8', 1.5);
+      ctx.restore();
+    };
+    this.curve = function (fn, col, w, a, b) {
+      var i, n = 500, lo = a === undefined ? x0 : a, hi = b === undefined ? x1 : b;
+      me.on(); ctx.strokeStyle = col; ctx.lineWidth = w || 3; ctx.lineJoin = 'round'; ctx.beginPath();
+      for (i = 0; i <= n; i++) { var x = lo + (hi - lo) * i / n, y = fn(x); if (i) ctx.lineTo(me.X(x), me.Y(y)); else ctx.moveTo(me.X(x), me.Y(y)); }
+      ctx.stroke(); me.off();
+    };
+    this.slope = function (x, y, m, col, w, dash, half) {
+      var lo = half === undefined ? x0 : x - half, hi = half === undefined ? x1 : x + half;
+      me.on(); line(me.X(lo), me.Y(y + m * (lo - x)), me.X(hi), me.Y(y + m * (hi - x)), col, w, dash); me.off();
+    };
+  }
+  function tabsFor(names, onPick) {
+    var ids = names.map(function (n) { return 't-' + n; });
+    names.forEach(function (n) { $('t-' + n).onclick = function () { setTabs(ids, 't-' + n); onPick(n); }; });
+  }
+  function fnTabs(list) {
+    var labels = { parabola: 'Parabola', cubic: 'Cubic', wave: 'Sine wave', corner: 'Corner (absolute value)' };
+    return '<div class="tabs" role="group" aria-label="Choose a function">' + list.map(function (n, i) { return '<button type="button" id="t-' + n + '" aria-pressed="' + (i === 0 ? 'true' : 'false') + '">' + labels[n] + '</button>'; }).join('') + '</div>';
+  }
+
+  var FP = {
+    rise: { f: function (x) { return 0.12 * x * x + 0.5; }, F: function (x) { return 0.04 * x * x * x + 0.5 * x; }, x0: 0, x1: 5, y0: 0, y1: 4 },
+    hump: { f: function (x) { return -0.5 * (x - 2) * (x - 2) + 2.3; }, F: function (x) { return -Math.pow(x - 2, 3) / 6 + 2.3 * x; }, x0: 0, x1: 4, y0: 0, y1: 3 },
+    wave: { f: function (x) { return 1 + 0.8 * Math.sin(x); }, F: function (x) { return x - 0.8 * Math.cos(x); }, x0: 0, x1: 7, y0: 0, y1: 2.2 }
+  };
+  var FS = {
+    swave: { f: function (x) { return 1.5 * Math.sin(x); }, F: function (x) { return -1.5 * Math.cos(x); }, x0: 0, x1: 6.8, y0: -2.2, y1: 2.2 },
+    cubic: { f: function (x) { return (x * x * x - 4 * x) / 4; }, F: function (x) { return x * x * x * x / 16 - x * x / 2; }, x0: -3, x1: 3, y0: -4, y1: 4 },
+    parabola: { f: function (x) { return 0.25 * x * x - 1; }, F: function (x) { return x * x * x / 12 - x; }, x0: -4, x1: 4, y0: -1.6, y1: 3.4 }
+  };
+  function integ(f, a, b) { var n = 600, h = (b - a) / n, s = f(a) + f(b), i; for (i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2); return s * h / 3; }
+  function range(fn, a, b) { var lo = 1e9, hi = -1e9, i; for (i = 0; i <= 300; i++) { var y = fn(a + (b - a) * i / 300); lo = Math.min(lo, y); hi = Math.max(hi, y); } var p = (hi - lo) * 0.12; return [lo - p, hi + p]; }
+  function fillArea(v, f, a, b, pos, neg, base) {
+    var n = 240, i, bs = base === undefined ? 0 : base;
+    for (i = 0; i < n; i++) {
+      var xa = a + (b - a) * i / n, xb = a + (b - a) * (i + 1) / n, ym = f((xa + xb) / 2);
+      ctx.fillStyle = ym >= bs ? pos : neg; ctx.beginPath();
+      ctx.moveTo(v.X(xa), v.Y(bs)); ctx.lineTo(v.X(xa), v.Y(f(xa))); ctx.lineTo(v.X(xb), v.Y(f(xb))); ctx.lineTo(v.X(xb), v.Y(bs)); ctx.closePath(); ctx.fill();
+    }
+  }
+  function ptr(down, set) {
+    var on = false;
+    function go(e) { var r = cv.getBoundingClientRect(); set((e.clientX - r.left) * W / r.width); }
+    cv.addEventListener('pointerdown', function (e) { on = true; cv.setPointerCapture(e.pointerId); go(e); });
+    cv.addEventListener('pointermove', function (e) { if (on) go(e); }); cv.addEventListener('pointerup', function () { on = false; });
+  }
+
+  var st = { fn: 'rise', m: 'left', n: 5, t: 5, dir: 1 };
+  function draw() {
+    clear();
+    var F = FP[st.fn], v = new View(40, 20, 720, 380, F.x0, F.x1, F.y0, F.y1), n = st.n, dx = (F.x1 - F.x0) / n, i, sum = 0, ex = integ(F.f, F.x0, F.x1);
+    v.axes();
+    for (i = 0; i < n; i++) {
+      var xa = F.x0 + i * dx, xb = xa + dx, xs = st.m === 'left' ? xa : st.m === 'right' ? xb : (xa + xb) / 2;
+      ctx.fillStyle = 'rgba(31,58,138,0.28)'; ctx.strokeStyle = BLU; ctx.lineWidth = n > 40 ? 0.6 : 1.5;
+      ctx.beginPath();
+      if (st.m === 'trap') { ctx.moveTo(v.X(xa), v.Y(0)); ctx.lineTo(v.X(xa), v.Y(F.f(xa))); ctx.lineTo(v.X(xb), v.Y(F.f(xb))); ctx.lineTo(v.X(xb), v.Y(0)); sum += (F.f(xa) + F.f(xb)) / 2 * dx; }
+      else { ctx.rect(v.X(xa), v.Y(F.f(xs)), v.X(xb) - v.X(xa), v.Y(0) - v.Y(F.f(xs))); sum += F.f(xs) * dx; }
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+    }
+    v.curve(F.f, INK, 3.5);
+    var bx = 40, bw = 720, sc = bw / (1.3 * ex), by = 452;
+    T('Total area of the rectangles', bx, by - 18, 15, BLU, 'left');
+    ctx.fillStyle = BLU; ctx.fillRect(bx, by, Math.min(bw, sum * sc), 22);
+    var ex2 = bx + ex * sc; line(ex2, by - 8, ex2, by + 32, GRN, 3);
+    T('Exact area under the curve', ex2, by + 48, 15, GRN);
+    var d = Math.abs(sum - ex) / ex;
+    $('note').textContent = d < 0.012 ? 'The rectangles and the curve now almost match. The sum and the exact area agree.' : st.m === 'trap' ? 'Trapezoids follow the curve more closely than rectangles with the same number of pieces.' : 'Compare the blue bar with the green mark. The gap shrinks as the number of rectangles grows.';
+    $('eq').innerHTML = sp('Riemann sum', BLU) + ' → ' + sp('∫ f(x) dx', GRN) + ' &nbsp;as the number of rectangles → ∞';
+  }
+  tabsFor(['rise', 'hump', 'wave'], function (n) { st.fn = n; draw(); });
+  var mIds = ['m-left', 'm-mid', 'm-right', 'm-trap'];
+  mIds.forEach(function (id) { $(id).onclick = function () { st.m = id.slice(2); setTabs(mIds, id); draw(); }; });
+  $('n').oninput = function () { st.n = parseInt(this.value, 10); st.t = st.n; draw(); };
+  onTick(function (dt) { if ($('anim').checked) { st.t += st.dir * dt / 140; if (st.t >= 82) st.dir = -1; if (st.t <= 0.5) st.dir = 1; st.n = Math.max(1, Math.min(80, Math.round(st.t))); $('n').value = st.n; draw(); } });
+  draw();
+
+})();
+</script>
+</body>
+</html>
