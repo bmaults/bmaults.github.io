@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Pendulum: Exact Motion Versus the Small-Angle Approximation</title>
+<meta name="description" content="An interactive swinging pendulum compared with its small-angle approximation. See the angle over time and the phase portrait, with optional damping.">
+<style>
+  body { font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; color: #1a1a1a; margin: 0; background: #fff; line-height: 1.45; }
+  main { max-width: 860px; margin: 0 auto; padding: 12px 14px 24px; }
+  h1 { font-size: 1.5rem; margin: 0.2em 0 0.4em; }
+  p { margin: 0.4em 0 0.8em; }
+  a { color: #1f3a8a; }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+  .tabs button, button.act { font: inherit; padding: 7px 14px; border: 2px solid #1f3a8a; background: #fff; color: #1f3a8a; border-radius: 6px; cursor: pointer; }
+  .tabs button[aria-pressed="true"] { background: #1f3a8a; color: #fff; }
+  button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+  canvas { width: 100%; height: auto; display: block; border: 1px solid #9ca3af; border-radius: 6px; background: #fff; }
+  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px 22px; margin: 12px 0; }
+  .controls label { display: block; font-size: 0.95rem; }
+  .controls input[type=range] { width: 100%; }
+  .readout { background: #f3f4f6; border-radius: 6px; padding: 8px 12px; margin: 8px 0; font-size: 1rem; }
+  .box { border: 1px solid #d1d5db; border-radius: 8px; padding: 10px 14px; margin: 12px 0; background: #f8fafc; }
+  table.t { border-collapse: collapse; margin: 6px 0; }
+  table.t th, table.t td { border: 1px solid #d1d5db; padding: 4px 12px; text-align: center; }
+  input[type=text] { font: inherit; padding: 5px 8px; border: 2px solid #9ca3af; border-radius: 6px; width: 15em; max-width: 100%; }
+</style>
+</head>
+<body>
+<main>
+  <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../">&larr; All differential equations demonstrations</a></nav>
+  <h1>The Pendulum: Exact Motion Versus the Small-Angle Approximation</h1>
+  <p>A pendulum obeys a differential equation that is hard to solve exactly. For small swings it behaves like a simple harmonic oscillator. How small is small?</p>
+  <canvas id="cv" width="800" height="520" role="img" aria-label="A swinging pendulum next to a graph of its angle over time and a phase portrait. The real pendulum is compared with its small-angle approximation."></canvas>
+  <div class="controls">
+    <label>Starting angle <input type="range" id="th0" min="5" max="170" step="1" value="60"></label>
+    <label>Damping <input type="range" id="b" min="0" max="1" step="0.02" value="0"></label>
+    <label><input type="checkbox" id="lin" checked> Show the small-angle approximation</label>
+  </div>
+  <div class="tabs"><button type="button" class="act" id="rel">Release again</button><button type="button" class="act" id="pause" aria-pressed="false">Pause</button></div>
+  <div class="readout" id="note" aria-live="polite"></div>
+  <div class="readout" id="eq" style="font-size:1.1rem"></div>
+  <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
+  <ol style="padding-left:1.4em">
+    <li style="margin-bottom:0.6em">At what starting angle can you first see the real pendulum fall behind the approximation?</li>
+    <li style="margin-bottom:0.6em">What does the curve through the top of the phase portrait mean physically?</li>
+  </ol>
+</main>
+<script>
+(function () {
+  var cv = document.getElementById('cv'), ctx = cv ? cv.getContext('2d') : null, W = 800, H = 520;
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  if (cv) { cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+  function $(id) { return document.getElementById(id); }
+  function fmt(n) { return String(+n.toFixed(2)).replace('-', '\u2212'); }
+  function sgn(n) { return (n < 0 ? ' − ' : ' + ') + fmt(Math.abs(n)); }
+  function ease(u) { u = Math.max(0, Math.min(1, u)); return u * u * (3 - 2 * u); }
+  function R(x, y, w, h, fill, stroke, lw) {
+    ctx.fillStyle = fill; ctx.fillRect(x, y, w, h);
+    if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw || 2; ctx.strokeRect(x, y, w, h); }
+  }
+  function T(txt, x, y, size, col, align) {
+    ctx.font = 'bold ' + (size || 16) + 'px system-ui, sans-serif'; ctx.fillStyle = col || '#111';
+    ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle'; ctx.fillText(txt, x, y);
+  }
+  function lbl(t, x, y, w, h, col) { if (w > 38 && h > 24) T(t, x + w / 2, y + h / 2, Math.min(24, Math.max(12, Math.min(w, h) / 3)), col); }
+  function clear() { ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H); }
+  function dashRect(x, y, w, h, col, fill) {
+    if (fill) { ctx.fillStyle = fill; ctx.fillRect(x, y, w, h); }
+    ctx.save(); ctx.setLineDash([6, 5]); ctx.strokeStyle = col; ctx.lineWidth = 2.5; ctx.strokeRect(x, y, w, h); ctx.restore();
+  }
+  function setTabs(ids, on) { ids.forEach(function (id) { $(id).setAttribute('aria-pressed', id === on ? 'true' : 'false'); }); }
+  var animating = [], last = 0;
+  function onTick(fn) { animating.push(fn); }
+  function tick(ts) { var dt = ts - last; last = ts; animating.forEach(function (f) { f(dt); }); requestAnimationFrame(tick); }
+  requestAnimationFrame(tick);
+  function sp(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+
+  var BLU = '#1f3a8a', RED = '#b91c1c', GRN = '#15803d', ORG = '#c2410c', INK = '#1f2937';
+  var FN = {
+    parabola: { f: function (x) { return 0.25 * x * x - 1; }, d: function (x) { return 0.5 * x; }, x0: -4, x1: 4, y0: -1.6, y1: 3.4 },
+    cubic: { f: function (x) { return (x * x * x - 4 * x) / 4; }, d: function (x) { return (3 * x * x - 4) / 4; }, x0: -3, x1: 3, y0: -4, y1: 4 },
+    wave: { f: function (x) { return 1.5 * Math.sin(x); }, d: function (x) { return 1.5 * Math.cos(x); }, x0: -4.5, x1: 4.5, y0: -2.4, y1: 2.4 },
+    corner: { f: function (x) { return 0.6 * Math.abs(x) - 1; }, d: function (x) { return x > 0 ? 0.6 : -0.6; }, x0: -4, x1: 4, y0: -1.6, y1: 3 }
+  };
+  function line(ax, ay, bx, by, col, w, dash) { ctx.save(); ctx.strokeStyle = col; ctx.lineWidth = w || 2; if (dash) ctx.setLineDash(dash); ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke(); ctx.restore(); }
+  function dot(x, y, r, col) { ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fillStyle = col; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke(); }
+  function View(px, py, pw, ph, x0, x1, y0, y1) {
+    var me = this; this.px = px; this.py = py; this.pw = pw; this.ph = ph; this.x0 = x0; this.x1 = x1; this.y0 = y0; this.y1 = y1;
+    this.X = function (x) { return px + (x - x0) / (x1 - x0) * pw; };
+    this.Y = function (y) { return py + ph - (y - y0) / (y1 - y0) * ph; };
+    this.invX = function (sx) { return x0 + (sx - px) / pw * (x1 - x0); };
+    this.on = function () { ctx.save(); ctx.beginPath(); ctx.rect(px, py, pw, ph); ctx.clip(); };
+    this.off = function () { ctx.restore(); };
+    this.axes = function () {
+      ctx.save(); ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1.5; ctx.strokeRect(px, py, pw, ph);
+      if (y0 < 0 && y1 > 0) line(px, me.Y(0), px + pw, me.Y(0), '#94a3b8', 1.5);
+      if (x0 < 0 && x1 > 0) line(me.X(0), py, me.X(0), py + ph, '#94a3b8', 1.5);
+      ctx.restore();
+    };
+    this.curve = function (fn, col, w, a, b) {
+      var i, n = 500, lo = a === undefined ? x0 : a, hi = b === undefined ? x1 : b;
+      me.on(); ctx.strokeStyle = col; ctx.lineWidth = w || 3; ctx.lineJoin = 'round'; ctx.beginPath();
+      for (i = 0; i <= n; i++) { var x = lo + (hi - lo) * i / n, y = fn(x); if (i) ctx.lineTo(me.X(x), me.Y(y)); else ctx.moveTo(me.X(x), me.Y(y)); }
+      ctx.stroke(); me.off();
+    };
+    this.slope = function (x, y, m, col, w, dash, half) {
+      var lo = half === undefined ? x0 : x - half, hi = half === undefined ? x1 : x + half;
+      me.on(); line(me.X(lo), me.Y(y + m * (lo - x)), me.X(hi), me.Y(y + m * (hi - x)), col, w, dash); me.off();
+    };
+  }
+  function tabsFor(names, onPick) {
+    var ids = names.map(function (n) { return 't-' + n; });
+    names.forEach(function (n) { $('t-' + n).onclick = function () { setTabs(ids, 't-' + n); onPick(n); }; });
+  }
+  function fnTabs(list) {
+    var labels = { parabola: 'Parabola', cubic: 'Cubic', wave: 'Sine wave', corner: 'Corner (absolute value)' };
+    return '<div class="tabs" role="group" aria-label="Choose a function">' + list.map(function (n, i) { return '<button type="button" id="t-' + n + '" aria-pressed="' + (i === 0 ? 'true' : 'false') + '">' + labels[n] + '</button>'; }).join('') + '</div>';
+  }
+
+  function wirePause(st) { $('pause').onclick = function () { st.pause = !st.pause; this.textContent = st.pause ? 'Resume' : 'Pause'; }; }
+
+  var W0 = 2, Tw = 12, st = { th0: 60, b: 0, t: 0, a: 0, w: 0, p: 0, q: 0, ha: [], pause: false, hold: 0 };
+  function reset() { var r = st.th0 * Math.PI / 180; st.t = 0; st.a = r; st.w = 0; st.p = r; st.q = 0; st.ha = [[0, r, 0, r, 0]]; st.hold = 0; }
+  function step(h) {
+    function fa(a, w) { return -W0 * W0 * Math.sin(a) - st.b * w; } function fl(a, w) { return -W0 * W0 * a - st.b * w; }
+    function rk(f, a, w) {
+      var k1a = w, k1w = f(a, w), k2a = w + h / 2 * k1w, k2w = f(a + h / 2 * k1a, w + h / 2 * k1w), k3a = w + h / 2 * k2w, k3w = f(a + h / 2 * k2a, w + h / 2 * k2w), k4a = w + h * k3w, k4w = f(a + h * k3a, w + h * k3w);
+      return [a + h / 6 * (k1a + 2 * k2a + 2 * k3a + k4a), w + h / 6 * (k1w + 2 * k2w + 2 * k3w + k4w)];
+    }
+    var r1 = rk(fa, st.a, st.w), r2 = rk(fl, st.p, st.q); st.a = r1[0]; st.w = r1[1]; st.p = r2[0]; st.q = r2[1]; st.t += h;
+  }
+  function draw() {
+    clear();
+    var px = 165, py = 150, L = 125, lin = $('lin').checked;
+    line(80, py, 250, py, '#94a3b8', 6); line(px, py, px, py + L + 30, '#cbd5e1', 1.5, [5, 5]);
+    function bob(a, col, alpha, dash) { var bx = px + L * Math.sin(a), by = py + L * Math.cos(a); ctx.save(); ctx.globalAlpha = alpha; line(px, py, bx, by, col, 3, dash); ctx.beginPath(); ctx.arc(bx, by, 14, 0, 7); ctx.fillStyle = col; ctx.fill(); ctx.restore(); }
+    if (lin) bob(st.p, ORG, 0.6, [7, 5]);
+    bob(st.a, BLU, 1);
+    var v1 = new View(330, 24, 440, 230, 0, Tw, -Math.PI, Math.PI), v2 = new View(330, 290, 440, 215, -Math.PI, Math.PI, -4.4, 4.4);
+    v1.axes(); v2.axes();
+    v2.curve(function (x) { return 2 * W0 * Math.cos(x / 2); }, '#cbd5e1', 2); v2.curve(function (x) { return -2 * W0 * Math.cos(x / 2); }, '#cbd5e1', 2);
+    function path(v, kx, ky, col, w) { v.on(); ctx.strokeStyle = col; ctx.lineWidth = w; ctx.beginPath(); st.ha.forEach(function (h, k) { var X = v.X(kx(h)), Y = v.Y(ky(h)); if (k) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); }); ctx.stroke(); v.off(); }
+    if (lin) { path(v1, function (h) { return h[0]; }, function (h) { return h[3]; }, ORG, 2.5); path(v2, function (h) { return h[3]; }, function (h) { return h[4]; }, ORG, 2); }
+    path(v1, function (h) { return h[0]; }, function (h) { return h[1]; }, BLU, 3); path(v2, function (h) { return h[1]; }, function (h) { return h[2]; }, BLU, 2.5);
+    dot(v1.X(Math.min(st.t, Tw)), v1.Y(st.a), 6, BLU); dot(v2.X(st.a), v2.Y(st.w), 6, BLU);
+    if (lin) { dot(v1.X(Math.min(st.t, Tw)), v1.Y(st.p), 5, ORG); dot(v2.X(st.p), v2.Y(st.q), 5, ORG); }
+    T('angle over time', v1.px + 66, v1.py + 14, 14, INK); T('time →', v1.px + v1.pw - 34, v1.Y(0) - 12, 13, '#64748b');
+    T('phase portrait (angle, angular velocity)', v2.px + 130, v2.py + 14, 14, INK);
+    T('the curve through the top is the boundary between swinging and spinning', v2.px + 220, v2.py + v2.ph - 12, 12, '#94a3b8');
+    var big = st.th0 > 40;
+    $('note').textContent = st.b > 0.01 ? 'With damping, the swings die out and the phase portrait spirals in to the rest position.' : !lin ? 'The blue pendulum is the real one.' : big ? 'For a large starting angle, the real pendulum (blue) swings more slowly than the small-angle approximation (orange), so they drift apart.' : 'For a small starting angle the real pendulum (blue) and the small-angle approximation (orange) stay almost together.';
+    $('eq').innerHTML = sp('θ″ = −(g/L) sin θ', BLU) + ' &nbsp;&nbsp; versus &nbsp;&nbsp; ' + sp('θ″ = −(g/L) θ', ORG);
+  }
+  $('th0').oninput = function () { st.th0 = parseFloat(this.value); reset(); }; $('b').oninput = function () { st.b = parseFloat(this.value); reset(); };
+  $('lin').onchange = draw; $('rel').onclick = reset; wirePause(st);
+  onTick(function (dt) {
+    if (!st.pause) {
+      var rem = Math.min(dt, 50) / 1000, h = 1 / 240;
+      if (st.t >= Tw) { st.hold += rem; if (st.hold > 1.5) reset(); }
+      else { while (rem > 1e-9) { var s = Math.min(h, rem); step(s); rem -= s; } var l = st.ha[st.ha.length - 1]; if (st.t - l[0] > 1 / 50) st.ha.push([st.t, st.a, st.w, st.p, st.q]); }
+    }
+    draw();
+  });
+  reset(); draw();
+
+})();
+</script>
+</body>
+</html>

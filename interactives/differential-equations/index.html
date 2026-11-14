@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Differential Equations: Visual Demonstrations</title>
+<meta name="description" content="Free interactive demonstrations of differential equations and oscillations: damped spring-mass systems, simple harmonic motion, and the nonlinear pendulum.">
+<style>
+  :root { --text: #1a1a1a; --muted: #4b5563; --rule: #d1d5db; --link: #1f3a8a; --card: #f8fafc; }
+  * { box-sizing: border-box; }
+  body { margin: 0; color: var(--text); background: #fff; font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; line-height: 1.55; }
+  a { color: var(--link); }
+  a:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+  .skip { position: absolute; left: -9999px; top: 0; padding: 8px 12px; background: #fff; border: 2px solid #000; z-index: 10; }
+  .skip:focus { left: 8px; top: 8px; }
+  header, main, footer { max-width: 860px; margin: 0 auto; padding: 0 16px; }
+  header { padding-top: 28px; }
+  h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 0.4em; }
+  h2 { font-size: 1.3rem; margin: 1.8em 0 0.4em; padding-bottom: 0.2em; border-bottom: 1px solid var(--rule); }
+  p { margin: 0.5em 0 0.9em; }
+  .lede { font-size: 1.1rem; color: var(--muted); }
+  table { border-collapse: collapse; width: 100%; margin: 0.8em 0 1.2em; font-size: 0.97rem; }
+  th, td { text-align: left; padding: 7px 10px; border: 1px solid var(--rule); vertical-align: top; }
+  th { background: #f3f4f6; }
+  ul.demos { list-style: none; padding: 0; margin: 0.6em 0; display: grid; gap: 12px; }
+  ul.demos li { background: var(--card); border: 1px solid var(--rule); border-radius: 8px; padding: 12px 16px; }
+  ul.demos h3 { font-size: 1.1rem; margin: 0 0 0.2em; }
+  ul.demos p { margin: 0.2em 0; }
+  .tag { color: var(--muted); font-size: 0.9rem; }
+  footer { color: var(--muted); font-size: 0.92rem; padding-top: 24px; padding-bottom: 40px; }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the demonstrations</a>
+<header>
+  <nav aria-label="Breadcrumb" style="font-size:0.95rem;margin-bottom:10px"><a href="../">&larr; All interactive demonstrations</a></nav>
+  <h1>Differential Equations</h1>
+  <p class="lede">Interactive simulations of oscillating systems. Change the parameters and watch the motion, the graph, and the phase portrait.</p>
+</header>
+<main id="main">
+  <h2>Oscillations</h2>
+  <ul class="demos">
+    <li>
+      <h3><a href="damped-spring-mass-system/">Spring-Mass System with Damping</a></h3>
+      <p>Underdamped, critically damped, and overdamped motion, with the phase portrait.</p>
+    </li>
+    <li>
+      <h3><a href="simple-harmonic-motion/">Simple Harmonic Motion</a></h3>
+      <p>A spring, a point on a circle, and a sine wave share the same height.</p>
+    </li>
+    <li>
+      <h3><a href="pendulum/">The Pendulum</a></h3>
+      <p>Compare the real pendulum with its small-angle approximation.</p>
+    </li>
+  </ul>
+</main>
+<footer>
+  <p>Created by <a href="../../">Bevin Maultsby</a>, Teaching Professor of Mathematics at NC State University, with help from Claude.</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spring-Mass System with Damping: Underdamped, Critically Damped, and Overdamped</title>
+<meta name="description" content="An interactive spring-mass-damper system. Change the stiffness, damping, and mass to see underdamped, critically damped, and overdamped motion with the position graph and phase portrait.">
+<style>
+  body { font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; color: #1a1a1a; margin: 0; background: #fff; line-height: 1.45; }
+  main { max-width: 860px; margin: 0 auto; padding: 12px 14px 24px; }
+  h1 { font-size: 1.5rem; margin: 0.2em 0 0.4em; }
+  p { margin: 0.4em 0 0.8em; }
+  a { color: #1f3a8a; }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+  .tabs button, button.act { font: inherit; padding: 7px 14px; border: 2px solid #1f3a8a; background: #fff; color: #1f3a8a; border-radius: 6px; cursor: pointer; }
+  .tabs button[aria-pressed="true"] { background: #1f3a8a; color: #fff; }
+  button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+  canvas { width: 100%; height: auto; display: block; border: 1px solid #9ca3af; border-radius: 6px; background: #fff; }
+  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px 22px; margin: 12px 0; }
+  .controls label { display: block; font-size: 0.95rem; }
+  .controls input[type=range] { width: 100%; }
+  .readout { background: #f3f4f6; border-radius: 6px; padding: 8px 12px; margin: 8px 0; font-size: 1rem; }
+  .box { border: 1px solid #d1d5db; border-radius: 8px; padding: 10px 14px; margin: 12px 0; background: #f8fafc; }
+  table.t { border-collapse: collapse; margin: 6px 0; }
+  table.t th, table.t td { border: 1px solid #d1d5db; padding: 4px 12px; text-align: center; }
+  input[type=text] { font: inherit; padding: 5px 8px; border: 2px solid #9ca3af; border-radius: 6px; width: 15em; max-width: 100%; }
+</style>
+</head>
+<body>
+<main>
+  <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../">&larr; All differential equations demonstrations</a></nav>
+  <h1>Spring-Mass System with Damping: Underdamped, Critically Damped, and Overdamped</h1>
+  <p>A mass on a spring with a damper. Change the stiffness, the damping, and the mass, and watch how the motion and its phase portrait change.</p>
+  <div class="tabs"><button type="button" class="act" id="rel">Release again</button><button type="button" class="act" id="pause" aria-pressed="false">Pause</button></div>
+  <canvas id="cv" width="800" height="520" role="img" aria-label="A mass attached to a wall by a spring and a damper. Below it, a graph of the position of the mass over time and a phase portrait of position against velocity."></canvas>
+  <div class="controls">
+    <label>Spring stiffness <input type="range" id="k" min="2" max="30" step="0.5" value="8"></label>
+    <label>Damping <input type="range" id="c" min="0" max="14" step="0.1" value="0.8"></label>
+    <label>Mass <input type="range" id="m" min="0.5" max="3" step="0.1" value="1"></label>
+    <label>Starting displacement <input type="range" id="x0" min="0.2" max="1" step="0.05" value="1"></label>
+  </div>
+  <div class="readout" id="note" aria-live="polite"></div>
+  <div class="readout" id="eq" style="font-size:1.1rem"></div>
+  <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
+  <ol style="padding-left:1.4em">
+    <li style="margin-bottom:0.6em">What happens to the motion as you increase the damping from zero? Find the damping where it just stops oscillating.</li>
+    <li style="margin-bottom:0.6em">How does the phase portrait change when the system goes from underdamped to overdamped?</li>
+  </ol>
+</main>
+<script>
+(function () {
+  var cv = document.getElementById('cv'), ctx = cv ? cv.getContext('2d') : null, W = 800, H = 520;
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  if (cv) { cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+  function $(id) { return document.getElementById(id); }
+  function fmt(n) { return String(+n.toFixed(2)).replace('-', '\u2212'); }
+  function sgn(n) { return (n < 0 ? ' − ' : ' + ') + fmt(Math.abs(n)); }
+  function ease(u) { u = Math.max(0, Math.min(1, u)); return u * u * (3 - 2 * u); }
+  function R(x, y, w, h, fill, stroke, lw) {
+    ctx.fillStyle = fill; ctx.fillRect(x, y, w, h);
+    if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw || 2; ctx.strokeRect(x, y, w, h); }
+  }
+  function T(txt, x, y, size, col, align) {
+    ctx.font = 'bold ' + (size || 16) + 'px system-ui, sans-serif'; ctx.fillStyle = col || '#111';
+    ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle'; ctx.fillText(txt, x, y);
+  }
+  function lbl(t, x, y, w, h, col) { if (w > 38 && h > 24) T(t, x + w / 2, y + h / 2, Math.min(24, Math.max(12, Math.min(w, h) / 3)), col); }
+  function clear() { ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H); }
+  function dashRect(x, y, w, h, col, fill) {
+    if (fill) { ctx.fillStyle = fill; ctx.fillRect(x, y, w, h); }
+    ctx.save(); ctx.setLineDash([6, 5]); ctx.strokeStyle = col; ctx.lineWidth = 2.5; ctx.strokeRect(x, y, w, h); ctx.restore();
+  }
+  function setTabs(ids, on) { ids.forEach(function (id) { $(id).setAttribute('aria-pressed', id === on ? 'true' : 'false'); }); }
+  var animating = [], last = 0;
+  function onTick(fn) { animating.push(fn); }
+  function tick(ts) { var dt = ts - last; last = ts; animating.forEach(function (f) { f(dt); }); requestAnimationFrame(tick); }
+  requestAnimationFrame(tick);
+  function sp(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+
+  var BLU = '#1f3a8a', RED = '#b91c1c', GRN = '#15803d', ORG = '#c2410c', INK = '#1f2937';
+  var FN = {
+    parabola: { f: function (x) { return 0.25 * x * x - 1; }, d: function (x) { return 0.5 * x; }, x0: -4, x1: 4, y0: -1.6, y1: 3.4 },
+    cubic: { f: function (x) { return (x * x * x - 4 * x) / 4; }, d: function (x) { return (3 * x * x - 4) / 4; }, x0: -3, x1: 3, y0: -4, y1: 4 },
+    wave: { f: function (x) { return 1.5 * Math.sin(x); }, d: function (x) { return 1.5 * Math.cos(x); }, x0: -4.5, x1: 4.5, y0: -2.4, y1: 2.4 },
+    corner: { f: function (x) { return 0.6 * Math.abs(x) - 1; }, d: function (x) { return x > 0 ? 0.6 : -0.6; }, x0: -4, x1: 4, y0: -1.6, y1: 3 }
+  };
+  function line(ax, ay, bx, by, col, w, dash) { ctx.save(); ctx.strokeStyle = col; ctx.lineWidth = w || 2; if (dash) ctx.setLineDash(dash); ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke(); ctx.restore(); }
+  function dot(x, y, r, col) { ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fillStyle = col; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke(); }
+  function View(px, py, pw, ph, x0, x1, y0, y1) {
+    var me = this; this.px = px; this.py = py; this.pw = pw; this.ph = ph; this.x0 = x0; this.x1 = x1; this.y0 = y0; this.y1 = y1;
+    this.X = function (x) { return px + (x - x0) / (x1 - x0) * pw; };
+    this.Y = function (y) { return py + ph - (y - y0) / (y1 - y0) * ph; };
+    this.invX = function (sx) { return x0 + (sx - px) / pw * (x1 - x0); };
+    this.on = function () { ctx.save(); ctx.beginPath(); ctx.rect(px, py, pw, ph); ctx.clip(); };
+    this.off = function () { ctx.restore(); };
+    this.axes = function () {
+      ctx.save(); ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1.5; ctx.strokeRect(px, py, pw, ph);
+      if (y0 < 0 && y1 > 0) line(px, me.Y(0), px + pw, me.Y(0), '#94a3b8', 1.5);
+      if (x0 < 0 && x1 > 0) line(me.X(0), py, me.X(0), py + ph, '#94a3b8', 1.5);
+      ctx.restore();
+    };
+    this.curve = function (fn, col, w, a, b) {
+      var i, n = 500, lo = a === undefined ? x0 : a, hi = b === undefined ? x1 : b;
+      me.on(); ctx.strokeStyle = col; ctx.lineWidth = w || 3; ctx.lineJoin = 'round'; ctx.beginPath();
+      for (i = 0; i <= n; i++) { var x = lo + (hi - lo) * i / n, y = fn(x); if (i) ctx.lineTo(me.X(x), me.Y(y)); else ctx.moveTo(me.X(x), me.Y(y)); }
+      ctx.stroke(); me.off();
+    };
+    this.slope = function (x, y, m, col, w, dash, half) {
+      var lo = half === undefined ? x0 : x - half, hi = half === undefined ? x1 : x + half;
+      me.on(); line(me.X(lo), me.Y(y + m * (lo - x)), me.X(hi), me.Y(y + m * (hi - x)), col, w, dash); me.off();
+    };
+  }
+  function tabsFor(names, onPick) {
+    var ids = names.map(function (n) { return 't-' + n; });
+    names.forEach(function (n) { $('t-' + n).onclick = function () { setTabs(ids, 't-' + n); onPick(n); }; });
+  }
+  function fnTabs(list) {
+    var labels = { parabola: 'Parabola', cubic: 'Cubic', wave: 'Sine wave', corner: 'Corner (absolute value)' };
+    return '<div class="tabs" role="group" aria-label="Choose a function">' + list.map(function (n, i) { return '<button type="button" id="t-' + n + '" aria-pressed="' + (i === 0 ? 'true' : 'false') + '">' + labels[n] + '</button>'; }).join('') + '</div>';
+  }
+
+  function wirePause(st) { $('pause').onclick = function () { st.pause = !st.pause; this.textContent = st.pause ? 'Resume' : 'Pause'; }; }
+
+  var st = { m: 1, k: 8, c: 0.8, x0: 1, t: 0, x: 1, v: 0, hist: [], pause: false, hold: 0 }, Tw = 16;
+  function reset() { st.t = 0; st.x = st.x0; st.v = 0; st.hist = [[0, st.x0, 0]]; st.hold = 0; }
+  function acc(x, v) { return (-st.k * x - st.c * v) / st.m; }
+  function step(h) {
+    var k1x = st.v, k1v = acc(st.x, st.v), k2x = st.v + h / 2 * k1v, k2v = acc(st.x + h / 2 * k1x, st.v + h / 2 * k1v);
+    var k3x = st.v + h / 2 * k2v, k3v = acc(st.x + h / 2 * k2x, st.v + h / 2 * k2v), k4x = st.v + h * k3v, k4v = acc(st.x + h * k3x, st.v + h * k3v);
+    st.x += h / 6 * (k1x + 2 * k2x + 2 * k3x + k4x); st.v += h / 6 * (k1v + 2 * k2v + 2 * k3v + k4v); st.t += h;
+  }
+  function draw() {
+    clear();
+    var y0 = 100, xe = 400, S = 170, mx = xe + st.x * S, left = mx - 30, i, w0 = Math.sqrt(st.k / st.m), zeta = st.c / (2 * Math.sqrt(st.k * st.m));
+    ctx.fillStyle = '#94a3b8'; ctx.fillRect(34, 40, 12, 120); line(34, 160, 770, 160, '#94a3b8', 3);
+    line(xe, 50, xe, 168, '#94a3b8', 1.5, [5, 5]); T('equilibrium', xe, 180, 13, '#64748b');
+    var pts = [[46, y0]], n = 10, a = 74, b = left - 24;
+    for (i = 0; i < 2 * n; i++) pts.push([a + (b - a) * (i + 0.5) / (2 * n), y0 + (i % 2 ? 15 : -15)]);
+    pts.push([b + 4, y0]); pts.push([left, y0]);
+    ctx.strokeStyle = INK; ctx.lineWidth = 2.5; ctx.beginPath(); pts.forEach(function (p, k) { if (k) ctx.lineTo(p[0], p[1]); else ctx.moveTo(p[0], p[1]); }); ctx.stroke();
+    if (st.c > 0.05) {
+      var dy = y0 + 38; ctx.strokeStyle = BLU; ctx.lineWidth = 2.5; ctx.strokeRect(46, dy - 11, 110, 22);
+      line(left, dy, 120, dy, BLU, 2.5); line(120, dy - 9, 120, dy + 9, BLU, 4);
+    }
+    ctx.fillStyle = '#fed7aa'; ctx.strokeStyle = ORG; ctx.lineWidth = 3; ctx.fillRect(left, y0 - 30, 60, 60); ctx.strokeRect(left, y0 - 30, 60, 60);
+    var v1 = new View(40, 215, 440, 285, 0, Tw, -1.15, 1.15), vm = 1.15 * st.x0 * w0, v2 = new View(530, 215, 230, 285, -1.15, 1.15, -vm, vm);
+    v1.axes(); v2.axes();
+    if (st.c > 0.05) { ctx.save(); ctx.setLineDash([6, 5]); v1.curve(function (t) { return st.x0 * Math.exp(-st.c * t / (2 * st.m)); }, '#94a3b8', 1.5); v1.curve(function (t) { return -st.x0 * Math.exp(-st.c * t / (2 * st.m)); }, '#94a3b8', 1.5); ctx.restore(); }
+    v1.on(); ctx.strokeStyle = BLU; ctx.lineWidth = 3; ctx.beginPath(); st.hist.forEach(function (p, k) { if (k) ctx.lineTo(v1.X(p[0]), v1.Y(p[1])); else ctx.moveTo(v1.X(p[0]), v1.Y(p[1])); }); ctx.stroke(); v1.off();
+    v2.on(); ctx.strokeStyle = ORG; ctx.lineWidth = 2.5; ctx.beginPath(); st.hist.forEach(function (p, k) { if (k) ctx.lineTo(v2.X(p[1]), v2.Y(p[2])); else ctx.moveTo(v2.X(p[1]), v2.Y(p[2])); }); ctx.stroke(); v2.off();
+    dot(v1.X(Math.min(st.t, Tw)), v1.Y(st.x), 6, BLU); dot(v2.X(st.x), v2.Y(st.v), 6, ORG);
+    T('position x', v1.px + 50, v1.py + 14, 14, BLU); T('time →', v1.px + v1.pw - 34, v1.py + v1.ph - 12, 13, '#64748b');
+    T('phase portrait', v2.px + 60, v2.py + 14, 14, ORG); T('x', v2.px + v2.pw - 10, v2.Y(0) - 12, 13, '#64748b'); T('velocity', v2.X(0) + 34, v2.py + 30, 13, '#64748b');
+    $('note').textContent = st.c < 0.05 ? 'No damping: the mass oscillates forever, and the phase portrait is a closed loop.' : zeta < 0.97 ? 'Underdamped: the mass oscillates while the amplitude shrinks. The phase portrait spirals in to the center.' : zeta < 1.03 ? 'Critically damped: the mass returns to rest as fast as possible without oscillating.' : 'Overdamped: the mass creeps back to rest without ever crossing the equilibrium.';
+    $('eq').innerHTML = sp('m', ORG) + ' x″ + ' + sp('c', BLU) + ' x′ + ' + sp('k', INK) + ' x = 0';
+  }
+  ['k', 'c', 'm', 'x0'].forEach(function (id) { $(id).oninput = function () { st[id] = parseFloat(this.value); reset(); }; });
+  $('rel').onclick = reset; wirePause(st);
+  onTick(function (dt) {
+    if (!st.pause) {
+      var rem = Math.min(dt, 50) / 1000, h = 1 / 240;
+      if (st.t >= Tw) { st.hold += rem; if (st.hold > 1.5) reset(); }
+      else { while (rem > 1e-9) { var s = Math.min(h, rem); step(s); rem -= s; } var l = st.hist[st.hist.length - 1]; if (st.t - l[0] > 1 / 50) st.hist.push([st.t, st.x, st.v]); }
+    }
+    draw();
+  });
+  reset(); draw();
+
+})();
+</script>
+</body>
+</html>
