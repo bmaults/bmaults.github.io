@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Double-Angle and Half-Angle Formulas from the Midpoint of a Chord</title>
+<meta name="description" content="Interactive geometric proof of sin 2A, cos 2A, and the half-angle formulas using the midpoint of a chord on the unit circle, with no complex numbers.">
+<style>
+  body { font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; color: #1a1a1a; margin: 0; background: #fff; line-height: 1.45; }
+  main { max-width: 860px; margin: 0 auto; padding: 12px 14px 24px; }
+  h1 { font-size: 1.5rem; margin: 0.2em 0 0.4em; }
+  p { margin: 0.4em 0 0.8em; }
+  a { color: #1f3a8a; }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+  .tabs button, button.act { font: inherit; padding: 7px 14px; border: 2px solid #1f3a8a; background: #fff; color: #1f3a8a; border-radius: 6px; cursor: pointer; }
+  .tabs button[aria-pressed="true"] { background: #1f3a8a; color: #fff; }
+  button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+  canvas { width: 100%; height: auto; display: block; border: 1px solid #9ca3af; border-radius: 6px; background: #fff; }
+  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px 22px; margin: 12px 0; }
+  .controls label { display: block; font-size: 0.95rem; }
+  .controls input[type=range] { width: 100%; }
+  .readout { background: #f3f4f6; border-radius: 6px; padding: 8px 12px; margin: 8px 0; font-size: 1rem; }
+  .box { border: 1px solid #d1d5db; border-radius: 8px; padding: 10px 14px; margin: 12px 0; background: #f8fafc; }
+  table.t { border-collapse: collapse; margin: 6px 0; }
+  table.t th, table.t td { border: 1px solid #d1d5db; padding: 4px 12px; text-align: center; }
+  input[type=text] { font: inherit; padding: 5px 8px; border: 2px solid #9ca3af; border-radius: 6px; width: 15em; max-width: 100%; }
+</style>
+<style>
+  .playbtn { font: inherit; font-weight: 600; padding: 8px 18px; border: 2px solid #166534; background: #15803d; color: #fff; border-radius: 6px; cursor: pointer; }
+  .playbtn[aria-pressed="true"] { background: #fff; color: #15803d; }
+  #eq { min-height: 2.6em; overflow-x: auto; overflow-y: hidden; line-height: 1.9; }
+  mjx-container { max-width: 100%; }
+</style>
+<script>window.MathJax = { tex: { inlineMath: [['\\(', '\\)']] }, svg: { fontCache: 'global' }, startup: { typeset: false, ready: function () { MathJax.startup.defaultReady(); MathJax.startup.promise = MathJax.startup.promise.then(function () { return MathJax.typesetPromise(); }).catch(function () {}); } } };</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var proto = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML'), tc = Object.getOwnPropertyDescriptor(Node.prototype, 'textContent');
+  function ts(el) { if (window.MathJax && MathJax.startup && MathJax.typesetPromise) { MathJax.startup.promise = MathJax.startup.promise.then(function () { MathJax.startup.document.clear(); return MathJax.typesetPromise([el]); }).catch(function () {}); } }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  document.querySelectorAll('main [id], main .readout, main .box').forEach(function (el) {
+    if (!/^(DIV|P|SPAN|TD)$/.test(el.tagName)) return;
+    var cur = null;
+    Object.defineProperty(el, 'innerHTML', { configurable: true, get: function () { return proto.get.call(el); }, set: function (h) { if (h === cur) return; cur = h; proto.set.call(el, h); ts(el); } });
+    Object.defineProperty(el, 'textContent', { configurable: true, get: function () { return tc.get.call(el); }, set: function (t) { el.innerHTML = esc(t); } });
+  });
+});
+</script>
+</head>
+<body>
+<main>
+  <nav aria-label="Breadcrumb" style="margin:4px 0 8px;font-size:0.95rem"><a href="../">&larr; All trigonometry demonstrations</a></nav>
+  <h1>Double-Angle and Half-Angle Formulas: \(\sin 2A\), \(\cos 2A\), and \(\sin\frac{\theta}{2}\)</h1>
+  <p>Put \(X = (1, 0)\) and \(P\) on the unit circle at angle \(2A\), and join them with a chord. By symmetry, the ray at angle \(A\) is perpendicular to the chord and cuts it in half at its midpoint \(M\). So \(OM = \cos A\) and \(MP = \sin A\), which means \(M\) has coordinates \((\cos^2 A,\ \sin A\cos A)\). The midpoint formula then gives the double-angle formulas.</p>
+  <div class="readout" id="eq" style="font-size:1.05rem"></div>
+  <div class="tabs" role="group" aria-label="Formula"><button type="button" class="act" id="f_sin" aria-pressed="false">Sine, \(\sin 2A\)</button><button type="button" class="act" id="f_cos" aria-pressed="false">Cosine, \(\cos 2A\)</button><button type="button" class="act" id="f_half" aria-pressed="false">Half-angle forms</button></div>
+  <canvas id="cv" width="800" height="520" role="img" aria-label="Unit circle with the point X at angle zero and P at angle 2A joined by a chord. The ray at angle A meets the chord at its midpoint M, with OM equal to cosine A and MP equal to sine A. The coordinates of M are cosine squared A and sine A cosine A."></canvas>
+  <div class="controls">
+    <label>Angle \(A\): <output id="aOut"></output> <input type="range" id="a" min="5" max="85" step="1" value="30"></label>
+    <div><button type="button" class="playbtn" id="anim" aria-pressed="false">&#9654; Play the animation</button><script>(function(){var b=document.getElementById("anim"),on=false;function paint(){b.setAttribute("aria-pressed",on);b.textContent=(on?"\u23F8 Pause the animation":"\u25B6 Play the animation");}Object.defineProperty(b,"checked",{get:function(){return on;},set:function(v){on=!!v;paint();}});b.addEventListener("click",function(){on=!on;paint();b.dispatchEvent(new Event("change"));});paint();})();</script></div>
+  </div>
+  <div class="readout" id="note" aria-live="polite"></div>
+  <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
+  <ol style="padding-left:1.4em">
+    <li style="margin-bottom:0.6em">Why is the ray at angle \(A\) perpendicular to the chord \(XP\)? Use the fact that \(OX\) and \(OP\) are both radii.</li>
+    <li style="margin-bottom:0.6em">Move \(A\) toward \(45^{\circ}\). What is special about \(\cos 2A\), and which form of the formula shows it most clearly?</li>
+    <li style="margin-bottom:0.6em">Where does the half-angle formula for \(\sin^2 A\) come from in the picture? Which sign would you choose for \(\sin A\) itself, and why?</li>
+  </ol>
+</main>
+<script>
+(function () {
+  var cv = document.getElementById('cv'), ctx = cv ? cv.getContext('2d') : null, W = 800, H = 520;
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  if (cv) { cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+  function $(id) { return document.getElementById(id); }
+  function fmt(n) { return String(+n.toFixed(2)).replace('-', '\u2212'); }
+  function sgn(n) { return (n < 0 ? ' − ' : ' + ') + fmt(Math.abs(n)); }
+  function ease(u) { u = Math.max(0, Math.min(1, u)); return u * u * (3 - 2 * u); }
+  function R(x, y, w, h, fill, stroke, lw) {
+    ctx.fillStyle = fill; ctx.fillRect(x, y, w, h);
+    if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw || 2; ctx.strokeRect(x, y, w, h); }
+  }
+  function T(txt, x, y, size, col, align) {
+    ctx.font = 'bold ' + (size || 16) + 'px system-ui, sans-serif'; ctx.fillStyle = col || '#111';
+    ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle'; ctx.fillText(txt, x, y);
+  }
+  function lbl(t, x, y, w, h, col) { if (w > 38 && h > 24) T(t, x + w / 2, y + h / 2, Math.min(24, Math.max(12, Math.min(w, h) / 3)), col); }
+  function clear() { ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H); }
+  function dashRect(x, y, w, h, col, fill) {
+    if (fill) { ctx.fillStyle = fill; ctx.fillRect(x, y, w, h); }
+    ctx.save(); ctx.setLineDash([6, 5]); ctx.strokeStyle = col; ctx.lineWidth = 2.5; ctx.strokeRect(x, y, w, h); ctx.restore();
+  }
+  function setTabs(ids, on) { ids.forEach(function (id) { $(id).setAttribute('aria-pressed', id === on ? 'true' : 'false'); }); }
+  var animating = [], last = 0;
+  function onTick(fn) { animating.push(fn); }
+  function tick(ts) { var dt = ts - last; last = ts; animating.forEach(function (f) { f(dt); }); requestAnimationFrame(tick); }
+  requestAnimationFrame(tick);
+  function sp(t, c) { var g = sp.g || (sp.g = document.createElement('canvas').getContext('2d')); g.fillStyle = c; var h = g.fillStyle.replace('#', ''); return '\\textcolor[RGB]{' + parseInt(h.substr(0, 2), 16) + ',' + parseInt(h.substr(2, 2), 16) + ',' + parseInt(h.substr(4, 2), 16) + '}{' + t + '}'; }
+  function hs(t, c) { return '<span style="color:' + c + ';font-weight:bold">' + t + '</span>'; }
+  function halo(txt, x, y, size, col, al) { ctx.font = 'bold ' + (size || 16) + 'px system-ui, sans-serif'; ctx.textAlign = al || 'center'; ctx.textBaseline = 'middle'; ctx.lineWidth = 4; ctx.strokeStyle = '#fff'; ctx.lineJoin = 'round'; ctx.strokeText(txt, x, y); ctx.fillStyle = col || '#111'; ctx.fillText(txt, x, y); }
+
+  var BLU = '#1f3a8a', RED = '#b91c1c', GRN = '#15803d', ORG = '#c2410c', INK = '#1f2937';
+  var FN = {
+    parabola: { f: function (x) { return 0.25 * x * x - 1; }, d: function (x) { return 0.5 * x; }, x0: -4, x1: 4, y0: -1.6, y1: 3.4 },
+    cubic: { f: function (x) { return (x * x * x - 4 * x) / 4; }, d: function (x) { return (3 * x * x - 4) / 4; }, x0: -3, x1: 3, y0: -4, y1: 4 },
+    wave: { f: function (x) { return 1.5 * Math.sin(x); }, d: function (x) { return 1.5 * Math.cos(x); }, x0: -4.5, x1: 4.5, y0: -2.4, y1: 2.4 },
+    corner: { f: function (x) { return 0.6 * Math.abs(x) - 1; }, d: function (x) { return x > 0 ? 0.6 : -0.6; }, x0: -4, x1: 4, y0: -1.6, y1: 3 }
+  };
+  function line(ax, ay, bx, by, col, w, dash) { ctx.save(); ctx.strokeStyle = col; ctx.lineWidth = w || 2; if (dash) ctx.setLineDash(dash); ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke(); ctx.restore(); }
+  function dot(x, y, r, col) { ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fillStyle = col; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke(); }
+  function View(px, py, pw, ph, x0, x1, y0, y1) {
+    var me = this; this.px = px; this.py = py; this.pw = pw; this.ph = ph; this.x0 = x0; this.x1 = x1; this.y0 = y0; this.y1 = y1;
+    this.X = function (x) { return px + (x - x0) / (x1 - x0) * pw; };
+    this.Y = function (y) { return py + ph - (y - y0) / (y1 - y0) * ph; };
+    this.invX = function (sx) { return x0 + (sx - px) / pw * (x1 - x0); };
+    this.on = function () { ctx.save(); ctx.beginPath(); ctx.rect(px, py, pw, ph); ctx.clip(); };
+    this.off = function () { ctx.restore(); };
+    this.axes = function () {
+      ctx.save(); ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1.5; ctx.strokeRect(px, py, pw, ph);
+      if (y0 < 0 && y1 > 0) line(px, me.Y(0), px + pw, me.Y(0), '#94a3b8', 1.5);
+      if (x0 < 0 && x1 > 0) line(me.X(0), py, me.X(0), py + ph, '#94a3b8', 1.5);
+      ctx.restore();
+    };
+    this.curve = function (fn, col, w, a, b) {
+      var i, n = 500, lo = a === undefined ? x0 : a, hi = b === undefined ? x1 : b;
+      me.on(); ctx.strokeStyle = col; ctx.lineWidth = w || 3; ctx.lineJoin = 'round'; ctx.beginPath();
+      for (i = 0; i <= n; i++) { var x = lo + (hi - lo) * i / n, y = fn(x); if (i) ctx.lineTo(me.X(x), me.Y(y)); else ctx.moveTo(me.X(x), me.Y(y)); }
+      ctx.stroke(); me.off();
+    };
+    this.slope = function (x, y, m, col, w, dash, half) {
+      var lo = half === undefined ? x0 : x - half, hi = half === undefined ? x1 : x + half;
+      me.on(); line(me.X(lo), me.Y(y + m * (lo - x)), me.X(hi), me.Y(y + m * (hi - x)), col, w, dash); me.off();
+    };
+  }
+  function tabsFor(names, onPick) {
+    var ids = names.map(function (n) { return 't-' + n; });
+    names.forEach(function (n) { $('t-' + n).onclick = function () { setTabs(ids, 't-' + n); onPick(n); }; });
+  }
+  function fnTabs(list) {
+    var labels = { parabola: 'Parabola', cubic: 'Cubic', wave: 'Sine wave', corner: 'Corner (absolute value)' };
+    return '<div class="tabs" role="group" aria-label="Choose a function">' + list.map(function (n, i) { return '<button type="button" id="t-' + n + '" aria-pressed="' + (i === 0 ? 'true' : 'false') + '">' + labels[n] + '</button>'; }).join('') + '</div>';
+  }
+
+  function tabBtns(ids, cb, def) {
+    ids.forEach(function (id) { $(id).onclick = function () {
+      ids.forEach(function (j) { var on = j === id; $(j).setAttribute('aria-pressed', on); $(j).style.background = on ? '#1e3a8a' : ''; $(j).style.color = on ? '#fff' : ''; });
+      cb(id); }; });
+    $(def).onclick();
+  }
+  var D2R = Math.PI / 180, ox = 290, oy = 395, RR = 270;
+  function X(x) { return ox + RR * x; }
+  function Y(y) { return oy - RR * y; }
+  function arcA(r, a0, a1, col, w) { ctx.strokeStyle = col; ctx.lineWidth = w; ctx.beginPath(); ctx.arc(ox, oy, r, -Math.max(a0, a1), -Math.min(a0, a1), false); ctx.stroke(); }
+  function poly(pts, fill) { ctx.fillStyle = fill; ctx.beginPath(); pts.forEach(function (p, k) { if (k) ctx.lineTo(X(p[0]), Y(p[1])); else ctx.moveTo(X(p[0]), Y(p[1])); }); ctx.closePath(); ctx.fill(); }
+  function seg(a, b, col, w, dash) { line(X(a[0]), Y(a[1]), X(b[0]), Y(b[1]), col, w, dash); }
+  function rightMark(vertex, d1, d2, size, col) {
+    var vx = X(vertex[0]), vy = Y(vertex[1]), a = [d1[0] * size, -d1[1] * size], b = [d2[0] * size, -d2[1] * size];
+    ctx.strokeStyle = col; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(vx + a[0], vy + a[1]); ctx.lineTo(vx + a[0] + b[0], vy + a[1] + b[1]); ctx.lineTo(vx + b[0], vy + b[1]); ctx.stroke();
+  }
+  function base() {
+    clear(); line(X(-1.08), Y(0), X(1.12), Y(0), '#94a3b8', 1.5); line(X(0), Y(0), X(0), Y(1.1), '#94a3b8', 1.5);
+    ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(ox, oy, RR, Math.PI, 2 * Math.PI); ctx.stroke();
+    T('1', X(1) + 4, Y(0) + 16, 13, '#64748b', 'left'); T('−1', X(-1) - 4, Y(0) + 16, 13, '#64748b', 'right');
+  }
+  function eqTick(p, q, col) { var mx = X((p[0] + q[0]) / 2), my = Y((p[1] + q[1]) / 2), dx = X(q[0]) - X(p[0]), dy = Y(q[1]) - Y(p[1]), L = Math.hypot(dx, dy) || 1, nx = -dy / L * 6, ny = dx / L * 6; line(mx - nx, my - ny, mx + nx, my + ny, col, 2.5); }
+
+  var st = { fn: 'sin', A: 30, fin: false };
+  function f3(x) { return (Math.abs(x) < 0.0005 ? 0 : x).toFixed(3); }
+  function draw() {
+    $('aOut').textContent = st.A + '°';
+    var A = st.A * D2R, ca = Math.cos(A), sa = Math.sin(A), c2 = Math.cos(2 * A), s2 = Math.sin(2 * A);
+    var O = [0, 0], Xp = [1, 0], P = [c2, s2], M = [ca * ca, sa * ca], S = [M[0], 0], Rr = [P[0], M[1]];
+    base();
+    poly([O, S, M], 'rgba(30,58,138,0.13)'); poly([M, Rr, P], 'rgba(194,65,12,0.15)');
+    seg(O, [ca, sa], '#94a3b8', 1.5, [6, 5]);
+    seg(Xp, P, '#475569', 3); seg(O, Xp, INK, 3); seg(O, P, INK, 3);
+    seg(O, M, BLU, 4); seg(M, P, ORG, 4); seg(M, Xp, ORG, 4);
+    seg(O, S, BLU, 2.5); seg(S, M, BLU, 2.5); seg(M, Rr, ORG, 2.5); seg(Rr, P, ORG, 2.5);
+    rightMark(M, [-ca, -sa], [-sa, ca], 11, '#475569'); rightMark(S, [-1, 0], [0, 1], 11, BLU);
+    eqTick(M, P, ORG); eqTick(M, Xp, ORG);
+    arcA(56, 0, A, BLU, 2.5); arcA(80, A, 2 * A, ORG, 2.5);
+    halo('A', X(0) + 36 * Math.cos(A / 2), Y(0) - 36 * Math.sin(A / 2), 16, BLU);
+    halo('A', X(0) + 104 * Math.cos(1.5 * A), Y(0) - 104 * Math.sin(1.5 * A), 16, ORG);
+    dot(X(P[0]), Y(P[1]), 7, INK); dot(X(M[0]), Y(M[1]), 6, '#475569'); dot(X(1), Y(0), 6, INK);
+    halo('P', X(P[0]) + (P[0] >= 0 ? 14 : -14), Y(P[1]) - 12, 17, INK); halo('M', X(M[0]) + 6 * (sa), Y(M[1]) - 16, 16, '#475569'); halo('X', X(1) + 14, Y(0) - 14, 16, INK);
+    halo('cos A', X(M[0] / 2) - sa * 22 + 22, Y(M[1] / 2) + ca * 22, 15, BLU);
+    halo('sin A', X((M[0] + P[0]) / 2) - sa * 0 - 8, Y((M[1] + P[1]) / 2) - 18, 15, ORG);
+    halo('sin A', X((M[0] + 1) / 2) + 22, Y(M[1] / 2) + 6, 15, ORG);
+    halo('1', X(P[0] / 2) - 14, Y(P[1] / 2) - 14, 15, INK);
+    halo('cos²A', X(S[0] / 2), Y(0) + 22, 14, BLU);
+    halo('sin A cos A', X(S[0]) + 10, Y(S[1] / 2), 14, BLU, 'left');
+    halo('sin²A', X((M[0] + P[0]) / 2), Y(M[1]) - 14, 14, ORG);
+    halo('sin A cos A', X(P[0]) - 8, Y((Rr[1] + P[1]) / 2), 14, ORG, 'right');
+    var vx = X(P[0]);
+    if (st.fn === 'sin') {
+      line(vx, Y(0), vx, Y(P[1]), '#64748b', 1.5, [4, 4]);
+      line(vx + 9, Y(0), vx + 9, Y(M[1]), BLU, 7); line(vx + 9, Y(M[1]), vx + 9, Y(P[1]), ORG, 7);
+      halo('sin 2A = 2 sin A cos A', 600, 40, 18, INK); halo('= ' + f3(s2), 600, 66, 15, INK);
+    } else {
+      line(vx, Y(0), vx, Y(P[1]), '#64748b', 1.5, [4, 4]);
+      line(X(0), Y(0), X(M[0]), Y(0), BLU, 7); line(X(P[0]), Y(0) + 11, X(M[0]), Y(0) + 11, ORG, 7); line(X(M[0]), Y(0) + 11, X(1), Y(0) + 11, ORG, 7);
+      line(X(M[0]), Y(0) + 4, X(M[0]), Y(0) + 18, '#fff', 3);
+      if (st.fn === 'cos') { halo('cos 2A = cos²A − sin²A', 600, 40, 18, INK); halo('= ' + f3(c2), 600, 66, 15, INK); }
+      else { halo('M is the midpoint of [cos 2A, 1]', 600, 40, 17, INK); halo('so cos²A = (1 + cos 2A) / 2', 600, 66, 15, INK); }
+    }
+    var cs = ca * ca, sn = sa * sa;
+    $('eq').innerHTML = '\\(' + sp('\\sin 2A = 2\\sin A\\cos A', ORG) + '\\) &nbsp;&nbsp; \\(' + sp('\\cos 2A = \\cos^2 A - \\sin^2 A = 2\\cos^2 A - 1 = 1 - 2\\sin^2 A', BLU) + '\\)<br>' +
+      (st.fn === 'sin' ? '\\(\\sin(' + (2 * st.A) + '^{\\circ}) = ' + f3(s2) + ' = 2 \\cdot ' + f3(sa) + ' \\cdot ' + f3(ca) + '\\)'
+      : st.fn === 'cos' ? '\\(\\cos(' + (2 * st.A) + '^{\\circ}) = ' + f3(c2) + ' = ' + f3(cs) + ' - ' + f3(sn) + '\\)'
+      : '\\(\\cos^2 A = \\dfrac{1 + \\cos 2A}{2} = ' + f3(cs) + ', \\quad \\sin^2 A = \\dfrac{1 - \\cos 2A}{2} = ' + f3(sn) + '\\)');
+    $('note').innerHTML = st.fn === 'sin'
+      ? '\\(M\\) is the midpoint of \\(XP\\), so its height is half the height of \\(P\\). But the blue triangle has hypotenuse \\(\\cos A\\) tilted by \\(A\\), so \\(M\\) has height \\(\\sin A\\cos A\\). Therefore \\(\\tfrac12\\sin 2A = \\sin A\\cos A\\). The orange triangle is congruent to the blue one, which is why the two vertical pieces are equal.'
+      : st.fn === 'cos'
+      ? 'Read along the \\(x\\)-axis. The blue triangle takes you right to \\(\\cos^2 A\\). The orange triangle goes back left by \\(\\sin^2 A\\) to reach \\(\\cos 2A\\). So \\(\\cos 2A = \\cos^2 A - \\sin^2 A\\). Using \\(\\sin^2 A = 1 - \\cos^2 A\\) or \\(\\cos^2 A = 1 - \\sin^2 A\\) gives the other two forms.'
+      : '\\(M\\) is the midpoint of \\(XP\\), so its \\(x\\)-coordinate \\(\\cos^2 A\\) is the average of \\(1\\) and \\(\\cos 2A\\). Equivalently, the two orange pieces on the axis are equal, and each is \\(\\sin^2 A\\), so \\(1 - \\cos 2A = 2\\sin^2 A\\). Solving for the squares gives the half-angle formulas, with \\(\\theta = 2A\\): \\(\\cos^2\\frac{\\theta}{2} = \\frac{1 + \\cos\\theta}{2}\\) and \\(\\sin^2\\frac{\\theta}{2} = \\frac{1 - \\cos\\theta}{2}\\).';
+  }
+  $('a').oninput = function () { st.A = parseInt(this.value, 10); draw(); };
+  tabBtns(['f_sin', 'f_cos', 'f_half'], function (id) { st.fn = id === 'f_sin' ? 'sin' : id === 'f_cos' ? 'cos' : 'half'; draw(); }, 'f_sin');
+  onTick(function (dt) { if ($('anim').checked) { if (st.fin) { st.fin = false; st.A = 5; } st.A = Math.min(85, st.A + dt * 0.02); if (st.A >= 85) { st.fin = true; $('anim').checked = false; } $('a').value = Math.round(st.A); var keep = st.A; st.A = Math.round(st.A * 10) / 10; draw(); st.A = keep; } });
+  draw();
+
+})();
+</script>
+</body>
+</html>
