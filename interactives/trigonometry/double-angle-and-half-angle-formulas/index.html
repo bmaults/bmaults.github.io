@@ -54,9 +54,9 @@ document.addEventListener('DOMContentLoaded', function () {
   <p>Put \(X = (1, 0)\) and \(P\) on the unit circle at angle \(2A\), and join them with a chord. By symmetry, the ray at angle \(A\) is perpendicular to the chord and cuts it in half at its midpoint \(M\). So \(OM = \cos A\) and \(MP = \sin A\), which means \(M\) has coordinates \((\cos^2 A,\ \sin A\cos A)\). The midpoint formula then gives the double-angle formulas.</p>
   <div class="readout" id="eq" style="font-size:1.05rem"></div>
   <div class="tabs" role="group" aria-label="Formula"><button type="button" class="act" id="f_sin" aria-pressed="false">Sine, \(\sin 2A\)</button><button type="button" class="act" id="f_cos" aria-pressed="false">Cosine, \(\cos 2A\)</button><button type="button" class="act" id="f_half" aria-pressed="false">Half-angle forms</button></div>
-  <canvas id="cv" width="800" height="520" role="img" aria-label="Unit circle with the point X at angle zero and P at angle 2A joined by a chord. The ray at angle A meets the chord at its midpoint M, with OM equal to cosine A and MP equal to sine A. The coordinates of M are cosine squared A and sine A cosine A."></canvas>
+  <canvas id="cv" width="800" height="560" role="img" aria-label="First quadrant of the unit circle with the point X at angle zero and P at angle 2A joined by a chord. The ray at angle A meets the chord at its midpoint M, with OM equal to cosine A and MP equal to sine A. The coordinates of M are cosine squared A and sine A cosine A. A ruler beside or below the circle shows the lengths that make up sine or cosine of 2A."></canvas>
   <div class="controls">
-    <label>Angle \(A\): <output id="aOut"></output> <input type="range" id="a" min="5" max="85" step="1" value="30"></label>
+    <label>Angle \(A\): <output id="aOut"></output> <input type="range" id="a" min="10" max="45" step="1" value="30"></label>
     <div><button type="button" class="playbtn" id="anim" aria-pressed="false">&#9654; Play the animation</button><script>(function(){var b=document.getElementById("anim"),on=false;function paint(){b.setAttribute("aria-pressed",on);b.textContent=(on?"\u23F8 Pause the animation":"\u25B6 Play the animation");}Object.defineProperty(b,"checked",{get:function(){return on;},set:function(v){on=!!v;paint();}});b.addEventListener("click",function(){on=!on;paint();b.dispatchEvent(new Event("change"));});paint();})();</script></div>
   </div>
   <div class="readout" id="note" aria-live="polite"></div>
@@ -147,7 +147,8 @@ document.addEventListener('DOMContentLoaded', function () {
       cb(id); }; });
     $(def).onclick();
   }
-  var D2R = Math.PI / 180, ox = 290, oy = 395, RR = 270;
+  H = 560; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  var D2R = Math.PI / 180, ox = 80, oy = 440, RR = 380;
   function X(x) { return ox + RR * x; }
   function Y(y) { return oy - RR * y; }
   function arcA(r, a0, a1, col, w) { ctx.strokeStyle = col; ctx.lineWidth = w; ctx.beginPath(); ctx.arc(ox, oy, r, -Math.max(a0, a1), -Math.min(a0, a1), false); ctx.stroke(); }
@@ -158,65 +159,67 @@ document.addEventListener('DOMContentLoaded', function () {
     ctx.strokeStyle = col; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(vx + a[0], vy + a[1]); ctx.lineTo(vx + a[0] + b[0], vy + a[1] + b[1]); ctx.lineTo(vx + b[0], vy + b[1]); ctx.stroke();
   }
   function base() {
-    clear(); line(X(-1.08), Y(0), X(1.12), Y(0), '#94a3b8', 1.5); line(X(0), Y(0), X(0), Y(1.1), '#94a3b8', 1.5);
-    ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(ox, oy, RR, Math.PI, 2 * Math.PI); ctx.stroke();
-    T('1', X(1) + 4, Y(0) + 16, 13, '#64748b', 'left'); T('−1', X(-1) - 4, Y(0) + 16, 13, '#64748b', 'right');
+    clear(); line(X(-0.04), Y(0), X(1.1), Y(0), '#94a3b8', 1.5); line(X(0), Y(0.04), X(0), Y(1.1), '#94a3b8', 1.5);
+    ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(ox, oy, RR, -Math.PI / 2, 0); ctx.stroke();
+    T('1', X(1), Y(0) + 18, 13, '#64748b', 'center'); T('1', X(0) - 8, Y(1) + 5, 13, '#64748b', 'right');
   }
   function eqTick(p, q, col) { var mx = X((p[0] + q[0]) / 2), my = Y((p[1] + q[1]) / 2), dx = X(q[0]) - X(p[0]), dy = Y(q[1]) - Y(p[1]), L = Math.hypot(dx, dy) || 1, nx = -dy / L * 6, ny = dx / L * 6; line(mx - nx, my - ny, mx + nx, my + ny, col, 2.5); }
 
   var st = { fn: 'sin', A: 30, fin: false };
   function f3(x) { return (Math.abs(x) < 0.0005 ? 0 : x).toFixed(3); }
   function draw() {
-    $('aOut').textContent = st.A + '°';
+    $('aOut').textContent = Math.round(st.A) + '°';
     var A = st.A * D2R, ca = Math.cos(A), sa = Math.sin(A), c2 = Math.cos(2 * A), s2 = Math.sin(2 * A);
     var O = [0, 0], Xp = [1, 0], P = [c2, s2], M = [ca * ca, sa * ca], S = [M[0], 0], Rr = [P[0], M[1]];
     base();
     poly([O, S, M], 'rgba(30,58,138,0.13)'); poly([M, Rr, P], 'rgba(194,65,12,0.15)');
-    seg(O, [ca, sa], '#94a3b8', 1.5, [6, 5]);
+    seg(M, [ca, sa], '#94a3b8', 1.5, [6, 5]);
     seg(Xp, P, '#475569', 3); seg(O, Xp, INK, 3); seg(O, P, INK, 3);
     seg(O, M, BLU, 4); seg(M, P, ORG, 4); seg(M, Xp, ORG, 4);
     seg(O, S, BLU, 2.5); seg(S, M, BLU, 2.5); seg(M, Rr, ORG, 2.5); seg(Rr, P, ORG, 2.5);
-    rightMark(M, [-ca, -sa], [-sa, ca], 11, '#475569'); rightMark(S, [-1, 0], [0, 1], 11, BLU);
+    rightMark(M, [-ca, -sa], [-sa, ca], 12, '#475569'); rightMark(S, [-1, 0], [0, 1], 12, BLU);
     eqTick(M, P, ORG); eqTick(M, Xp, ORG);
-    arcA(56, 0, A, BLU, 2.5); arcA(80, A, 2 * A, ORG, 2.5);
-    halo('A', X(0) + 36 * Math.cos(A / 2), Y(0) - 36 * Math.sin(A / 2), 16, BLU);
-    halo('A', X(0) + 104 * Math.cos(1.5 * A), Y(0) - 104 * Math.sin(1.5 * A), 16, ORG);
+    arcA(70, 0, A, BLU, 2.5); arcA(100, A, 2 * A, ORG, 2.5);
+    halo('A', X(0) + 48 * Math.cos(A / 2), Y(0) - 48 * Math.sin(A / 2), 16, BLU);
+    halo('A', X(0) + 124 * Math.cos(1.5 * A), Y(0) - 124 * Math.sin(1.5 * A), 16, ORG);
     dot(X(P[0]), Y(P[1]), 7, INK); dot(X(M[0]), Y(M[1]), 6, '#475569'); dot(X(1), Y(0), 6, INK);
-    halo('P', X(P[0]) + (P[0] >= 0 ? 14 : -14), Y(P[1]) - 12, 17, INK); halo('M', X(M[0]) + 6 * (sa), Y(M[1]) - 16, 16, '#475569'); halo('X', X(1) + 14, Y(0) - 14, 16, INK);
-    halo('cos A', X(M[0] / 2) - sa * 22 + 22, Y(M[1] / 2) + ca * 22, 15, BLU);
-    halo('sin A', X((M[0] + P[0]) / 2) - sa * 0 - 8, Y((M[1] + P[1]) / 2) - 18, 15, ORG);
-    halo('sin A', X((M[0] + 1) / 2) + 22, Y(M[1] / 2) + 6, 15, ORG);
-    halo('1', X(P[0] / 2) - 14, Y(P[1] / 2) - 14, 15, INK);
-    halo('cos²A', X(S[0] / 2), Y(0) + 22, 14, BLU);
-    halo('sin A cos A', X(S[0]) + 10, Y(S[1] / 2), 14, BLU, 'left');
-    halo('sin²A', X((M[0] + P[0]) / 2), Y(M[1]) - 14, 14, ORG);
-    halo('sin A cos A', X(P[0]) - 8, Y((Rr[1] + P[1]) / 2), 14, ORG, 'right');
-    var vx = X(P[0]);
+    halo('P', X(P[0]) - 16, Y(P[1]) - 8, 17, INK); halo('M', X(M[0]) + 17, Y(M[1]) + 2, 16, '#475569'); halo('X', X(1) + 6, Y(0) - 14, 16, INK);
+    halo('cos A', X(M[0] / 2) - sa * 20, Y(M[1] / 2) - ca * 20, 15, BLU);
+    halo('sin A', X((M[0] + P[0]) / 2) + ca * 24, Y((M[1] + P[1]) / 2) - sa * 24, 15, ORG);
+    halo('sin A', X((M[0] + 1) / 2) + ca * 24, Y(M[1] / 2) - sa * 24, 15, ORG);
+    halo('1', X(P[0] / 2) - s2 * 20, Y(P[1] / 2) - c2 * 20, 15, INK);
+    if (st.fn === 'sin') halo('cos²A', X(S[0] / 2), Y(0) + 22, 14, BLU);
+    halo('sin A cos A', X(S[0]) - 8, Y(M[1] / 2), 13, BLU, 'right');
     if (st.fn === 'sin') {
-      line(vx, Y(0), vx, Y(P[1]), '#64748b', 1.5, [4, 4]);
-      line(vx + 9, Y(0), vx + 9, Y(M[1]), BLU, 7); line(vx + 9, Y(M[1]), vx + 9, Y(P[1]), ORG, 7);
-      halo('sin 2A = 2 sin A cos A', 600, 40, 18, INK); halo('= ' + f3(s2), 600, 66, 15, INK);
+      var rx = X(1) + 70;
+      line(X(1.1), Y(0), rx, Y(0), '#94a3b8', 1.2, [4, 4]); line(X(M[0]), Y(M[1]), rx, Y(M[1]), '#94a3b8', 1.2, [4, 4]); line(X(P[0]), Y(P[1]), rx, Y(P[1]), '#94a3b8', 1.2, [4, 4]);
+      line(rx, Y(0), rx, Y(M[1]), BLU, 8); line(rx, Y(M[1]), rx, Y(P[1]), ORG, 8);
+      line(rx - 5, Y(M[1]), rx + 5, Y(M[1]), '#fff', 3);
+      halo('sin A cos A', rx + 20, Y(M[1] / 2), 14, BLU, 'left'); halo('sin A cos A', rx + 20, Y((M[1] + P[1]) / 2), 14, ORG, 'left');
+      halo('sin 2A = 2 sin A cos A', 520, 28, 18, INK, 'left'); halo('= ' + f3(s2), 520, 52, 15, INK, 'left');
     } else {
-      line(vx, Y(0), vx, Y(P[1]), '#64748b', 1.5, [4, 4]);
-      line(X(0), Y(0), X(M[0]), Y(0), BLU, 7); line(X(P[0]), Y(0) + 11, X(M[0]), Y(0) + 11, ORG, 7); line(X(M[0]), Y(0) + 11, X(1), Y(0) + 11, ORG, 7);
-      line(X(M[0]), Y(0) + 4, X(M[0]), Y(0) + 18, '#fff', 3);
-      if (st.fn === 'cos') { halo('cos 2A = cos²A − sin²A', 600, 40, 18, INK); halo('= ' + f3(c2), 600, 66, 15, INK); }
-      else { halo('M is the midpoint of [cos 2A, 1]', 600, 40, 17, INK); halo('so cos²A = (1 + cos 2A) / 2', 600, 66, 15, INK); }
+      var ry = Y(0) + 48;
+      line(X(0), Y(0), X(0), ry + 12, '#94a3b8', 1.2, [4, 4]); line(X(M[0]), Y(M[1]), X(M[0]), ry + 12, '#94a3b8', 1.2, [4, 4]); line(X(P[0]), Y(P[1]), X(P[0]), ry + 12, '#94a3b8', 1.2, [4, 4]); line(X(1), Y(0), X(1), ry + 12, '#94a3b8', 1.2, [4, 4]);
+      line(X(0), ry, X(M[0]), ry, BLU, 8); line(X(P[0]), ry + 9, X(M[0]), ry + 9, ORG, 8); line(X(M[0]), ry + 9, X(1), ry + 9, ORG, 8);
+      line(X(M[0]), ry + 3, X(M[0]), ry + 15, '#fff', 3);
+      halo('cos²A', X(M[0] / 2), ry + 28, 14, BLU); halo('sin²A', X((P[0] + M[0]) / 2), ry + 54, 14, ORG); halo('sin²A', X((M[0] + 1) / 2), ry + 54, 14, ORG);
+      if (st.fn === 'cos') { halo('cos 2A = cos²A − sin²A', 520, 28, 18, INK, 'left'); halo('= ' + f3(c2), 520, 52, 15, INK, 'left'); }
+      else { halo('M is the midpoint of the chord', 520, 28, 17, INK, 'left'); halo('cos²A = (1 + cos 2A) / 2', 520, 52, 15, INK, 'left'); }
     }
-    var cs = ca * ca, sn = sa * sa;
+    var cs = ca * ca, sn = sa * sa, an = Math.round(st.A);
     $('eq').innerHTML = '\\(' + sp('\\sin 2A = 2\\sin A\\cos A', ORG) + '\\) &nbsp;&nbsp; \\(' + sp('\\cos 2A = \\cos^2 A - \\sin^2 A = 2\\cos^2 A - 1 = 1 - 2\\sin^2 A', BLU) + '\\)<br>' +
-      (st.fn === 'sin' ? '\\(\\sin(' + (2 * st.A) + '^{\\circ}) = ' + f3(s2) + ' = 2 \\cdot ' + f3(sa) + ' \\cdot ' + f3(ca) + '\\)'
-      : st.fn === 'cos' ? '\\(\\cos(' + (2 * st.A) + '^{\\circ}) = ' + f3(c2) + ' = ' + f3(cs) + ' - ' + f3(sn) + '\\)'
+      (st.fn === 'sin' ? '\\(\\sin(' + (2 * an) + '^{\\circ}) = ' + f3(s2) + ' = 2 \\cdot ' + f3(sa) + ' \\cdot ' + f3(ca) + '\\)'
+      : st.fn === 'cos' ? '\\(\\cos(' + (2 * an) + '^{\\circ}) = ' + f3(c2) + ' = ' + f3(cs) + ' - ' + f3(sn) + '\\)'
       : '\\(\\cos^2 A = \\dfrac{1 + \\cos 2A}{2} = ' + f3(cs) + ', \\quad \\sin^2 A = \\dfrac{1 - \\cos 2A}{2} = ' + f3(sn) + '\\)');
     $('note').innerHTML = st.fn === 'sin'
-      ? '\\(M\\) is the midpoint of \\(XP\\), so its height is half the height of \\(P\\). But the blue triangle has hypotenuse \\(\\cos A\\) tilted by \\(A\\), so \\(M\\) has height \\(\\sin A\\cos A\\). Therefore \\(\\tfrac12\\sin 2A = \\sin A\\cos A\\). The orange triangle is congruent to the blue one, which is why the two vertical pieces are equal.'
+      ? '\\(M\\) is the midpoint of \\(XP\\), so its height is half the height of \\(P\\). The blue triangle has hypotenuse \\(\\cos A\\) tilted by \\(A\\), so \\(M\\) has height \\(\\sin A\\cos A\\). Therefore \\(\\tfrac12\\sin 2A = \\sin A\\cos A\\). On the ruler at the right, the blue and orange pieces are equal, which is why \\(P\\) is twice as high as \\(M\\).'
       : st.fn === 'cos'
       ? 'Read along the \\(x\\)-axis. The blue triangle takes you right to \\(\\cos^2 A\\). The orange triangle goes back left by \\(\\sin^2 A\\) to reach \\(\\cos 2A\\). So \\(\\cos 2A = \\cos^2 A - \\sin^2 A\\). Using \\(\\sin^2 A = 1 - \\cos^2 A\\) or \\(\\cos^2 A = 1 - \\sin^2 A\\) gives the other two forms.'
-      : '\\(M\\) is the midpoint of \\(XP\\), so its \\(x\\)-coordinate \\(\\cos^2 A\\) is the average of \\(1\\) and \\(\\cos 2A\\). Equivalently, the two orange pieces on the axis are equal, and each is \\(\\sin^2 A\\), so \\(1 - \\cos 2A = 2\\sin^2 A\\). Solving for the squares gives the half-angle formulas, with \\(\\theta = 2A\\): \\(\\cos^2\\frac{\\theta}{2} = \\frac{1 + \\cos\\theta}{2}\\) and \\(\\sin^2\\frac{\\theta}{2} = \\frac{1 - \\cos\\theta}{2}\\).';
+      : '\\(M\\) is the midpoint of \\(XP\\), so its \\(x\\)-coordinate \\(\\cos^2 A\\) is the average of \\(1\\) and \\(\\cos 2A\\). Equivalently, the two orange pieces on the ruler are equal, and each is \\(\\sin^2 A\\), so \\(1 - \\cos 2A = 2\\sin^2 A\\). Solving for the squares gives the half-angle formulas, with \\(\\theta = 2A\\): \\(\\cos^2\\frac{\\theta}{2} = \\frac{1 + \\cos\\theta}{2}\\) and \\(\\sin^2\\frac{\\theta}{2} = \\frac{1 - \\cos\\theta}{2}\\).';
   }
   $('a').oninput = function () { st.A = parseInt(this.value, 10); draw(); };
   tabBtns(['f_sin', 'f_cos', 'f_half'], function (id) { st.fn = id === 'f_sin' ? 'sin' : id === 'f_cos' ? 'cos' : 'half'; draw(); }, 'f_sin');
-  onTick(function (dt) { if ($('anim').checked) { if (st.fin) { st.fin = false; st.A = 5; } st.A = Math.min(85, st.A + dt * 0.02); if (st.A >= 85) { st.fin = true; $('anim').checked = false; } $('a').value = Math.round(st.A); var keep = st.A; st.A = Math.round(st.A * 10) / 10; draw(); st.A = keep; } });
+  onTick(function (dt) { if ($('anim').checked) { if (st.fin) { st.fin = false; st.A = 10; } st.A = Math.min(45, st.A + dt * 0.012); if (st.A >= 45) { st.fin = true; $('anim').checked = false; } $('a').value = Math.round(st.A); draw(); } });
   draw();
 
 })();
