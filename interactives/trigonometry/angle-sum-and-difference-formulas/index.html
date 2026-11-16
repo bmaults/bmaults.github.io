@@ -55,18 +55,18 @@ document.addEventListener('DOMContentLoaded', function () {
   <div class="readout" id="eq" style="font-size:1.05rem"></div>
   <div class="tabs" role="group" aria-label="Formula"><button type="button" class="act" id="f_sin" aria-pressed="false">Sine formula</button><button type="button" class="act" id="f_cos" aria-pressed="false">Cosine formula</button></div>
   <div class="tabs" role="group" aria-label="Sum or difference"><button type="button" class="act" id="m_sum" aria-pressed="false">Sum, \(A + B\)</button><button type="button" class="act" id="m_dif" aria-pressed="false">Difference, \(A - B\)</button></div>
-  <canvas id="cv" width="800" height="520" role="img" aria-label="Unit circle with a point P at angle A plus B. A right triangle with hypotenuse cosine B lies along the ray at angle A, and a second right triangle with hypotenuse sine B stands on its end. Their legs add up to the sine and cosine of A plus B."></canvas>
+  <canvas id="cv" width="800" height="560" role="img" aria-label="First quadrant of the unit circle with a point P at angle A plus B or A minus B. A right triangle with hypotenuse cosine B lies along the ray at angle A, and a second right triangle with hypotenuse sine B stands on its end. A ruler beside the circle shows how the legs add up to the sine or cosine of the combined angle."></canvas>
   <div class="controls">
-    <label>Angle \(A\): <output id="aOut"></output> <input type="range" id="a" min="5" max="85" step="1" value="35"></label>
-    <label>Angle \(B\): <output id="bOut"></output> <input type="range" id="b" min="0" max="80" step="1" value="30"></label>
+    <label>Angle \(A\): <output id="aOut"></output> <input type="range" id="a" min="25" max="65" step="1" value="35"></label>
+    <label>Angle \(B\): <output id="bOut"></output> <input type="range" id="b" min="0" max="25" step="1" value="25"></label>
     <div><button type="button" class="playbtn" id="anim" aria-pressed="false">&#9654; Play the animation</button><script>(function(){var b=document.getElementById("anim"),on=false;function paint(){b.setAttribute("aria-pressed",on);b.textContent=(on?"\u23F8 Pause the animation":"\u25B6 Play the animation");}Object.defineProperty(b,"checked",{get:function(){return on;},set:function(v){on=!!v;paint();}});b.addEventListener("click",function(){on=!on;paint();b.dispatchEvent(new Event("change"));});paint();})();</script></div>
   </div>
   <div class="readout" id="note" aria-live="polite"></div>
   <h2 style="font-size:1.15rem;margin:1.2em 0 0.3em">Questions to think about</h2>
   <ol style="padding-left:1.4em">
     <li style="margin-bottom:0.6em">What happens to the picture when \(B = 0\)? Check that both formulas still make sense.</li>
-    <li style="margin-bottom:0.6em">Set \(A + B = 90^{\circ}\). Which formula for \(\cos(A+B)\) gives zero, and what does that say about \(\tan A\tan B\)?</li>
-    <li style="margin-bottom:0.6em">In the difference picture, which leg of the orange triangle changes direction, and how does that change a plus sign into a minus sign?</li>
+    <li style="margin-bottom:0.6em">Which leg of the orange triangle changes direction when you switch from the sum to the difference, and how does that change a plus sign into a minus sign?</li>
+    <li style="margin-bottom:0.6em">Both formulas come from the same two triangles. Which two sides of the picture would you use to read off \(\tan(A+B)\)?</li>
   </ol>
 </main>
 <script>
@@ -149,7 +149,8 @@ document.addEventListener('DOMContentLoaded', function () {
       cb(id); }; });
     $(def).onclick();
   }
-  var D2R = Math.PI / 180, ox = 290, oy = 395, RR = 270;
+  H = 560; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  var D2R = Math.PI / 180, ox = 80, oy = 440, RR = 380;
   function X(x) { return ox + RR * x; }
   function Y(y) { return oy - RR * y; }
   function arcA(r, a0, a1, col, w) { ctx.strokeStyle = col; ctx.lineWidth = w; ctx.beginPath(); ctx.arc(ox, oy, r, -Math.max(a0, a1), -Math.min(a0, a1), false); ctx.stroke(); }
@@ -160,64 +161,66 @@ document.addEventListener('DOMContentLoaded', function () {
     ctx.strokeStyle = col; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(vx + a[0], vy + a[1]); ctx.lineTo(vx + a[0] + b[0], vy + a[1] + b[1]); ctx.lineTo(vx + b[0], vy + b[1]); ctx.stroke();
   }
   function base() {
-    clear(); line(X(-1.08), Y(0), X(1.12), Y(0), '#94a3b8', 1.5); line(X(0), Y(0), X(0), Y(1.1), '#94a3b8', 1.5);
-    ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(ox, oy, RR, Math.PI, 2 * Math.PI); ctx.stroke();
-    T('1', X(1) + 4, Y(0) + 16, 13, '#64748b', 'left'); T('−1', X(-1) - 4, Y(0) + 16, 13, '#64748b', 'right');
+    clear(); line(X(-0.04), Y(0), X(1.1), Y(0), '#94a3b8', 1.5); line(X(0), Y(0.04), X(0), Y(1.1), '#94a3b8', 1.5);
+    ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(ox, oy, RR, -Math.PI / 2, 0); ctx.stroke();
+    T('1', X(1), Y(0) + 18, 13, '#64748b', 'center'); T('1', X(0) - 8, Y(1) + 5, 13, '#64748b', 'right');
   }
   function eqTick(p, q, col) { var mx = X((p[0] + q[0]) / 2), my = Y((p[1] + q[1]) / 2), dx = X(q[0]) - X(p[0]), dy = Y(q[1]) - Y(p[1]), L = Math.hypot(dx, dy) || 1, nx = -dy / L * 6, ny = dx / L * 6; line(mx - nx, my - ny, mx + nx, my + ny, col, 2.5); }
 
-  var st = { fn: 'sin', mode: 'sum', A: 35, B: 30, fin: false };
+  var st = { fn: 'sin', mode: 'sum', A: 35, B: 25, fin: false };
   function f3(x) { return (Math.abs(x) < 0.0005 ? 0 : x).toFixed(3); }
-  function off(p, ang, d) { return [X(p[0]) - Math.sin(ang) * d, Y(p[1]) - Math.cos(ang) * d]; }
   function draw() {
     var s = st.mode === 'sum' ? 1 : -1;
     if (s < 0 && st.B > st.A) st.B = st.A;
     $('b').value = st.B; $('aOut').textContent = st.A + '°'; $('bOut').textContent = st.B + '°';
     var A = st.A * D2R, B = st.B * D2R, ca = Math.cos(A), sa = Math.sin(A), cb = Math.cos(B), sb = Math.sin(B);
     var O = [0, 0], Q = [cb * ca, cb * sa], P = [Q[0] - s * sb * sa, Q[1] + s * sb * ca], S = [Q[0], 0], Rr = [P[0], Q[1]], th = A + s * B, U = [ca, sa];
+    var pm = s > 0 ? '+' : '−';
     base();
     poly([O, S, Q], 'rgba(30,58,138,0.13)'); poly([Q, Rr, P], 'rgba(194,65,12,0.15)');
-    seg(O, [ca, sa], '#94a3b8', 1.5, [6, 5]);
+    seg(O, U, '#94a3b8', 1.5, [6, 5]);
     seg(O, S, BLU, 2.5); seg(S, Q, BLU, 2.5); seg(Q, Rr, ORG, 2.5); seg(Rr, P, ORG, 2.5);
     seg(O, Q, BLU, 4); seg(Q, P, ORG, 4); seg(O, P, INK, 4);
-    rightMark(S, [-1, 0], [0, 1], 11, BLU); rightMark(Q, [-ca, -sa], [-s * sa, s * ca], 11, '#475569');
-    arcA(56, 0, A, BLU, 2.5); arcA(92, Math.min(A, th), Math.max(A, th), ORG, 2.5);
-    halo('A', X(0) + 38 * Math.cos(A / 2), Y(0) - 38 * Math.sin(A / 2), 16, BLU);
-    halo('B', X(0) + 112 * Math.cos((A + th) / 2), Y(0) - 112 * Math.sin((A + th) / 2), 16, ORG);
+    rightMark(S, [-1, 0], [0, 1], 12, BLU); rightMark(Q, [-ca, -sa], [-s * sa, s * ca], 12, '#475569');
+    var ra = s > 0 ? 70 : 150, rb = s > 0 ? 110 : 100, la = s > 0 ? 46 : 174, lb = s > 0 ? 136 : 124;
+    arcA(ra, 0, A, BLU, 2.5); arcA(rb, Math.min(A, th), Math.max(A, th), ORG, 2.5);
+    halo('A', X(0) + la * Math.cos(A / 2), Y(0) - la * Math.sin(A / 2), 16, BLU);
+    halo('B', X(0) + lb * Math.cos((A + th) / 2), Y(0) - lb * Math.sin((A + th) / 2), 16, ORG);
     dot(X(P[0]), Y(P[1]), 7, INK); dot(X(Q[0]), Y(Q[1]), 5, '#475569');
-    halo('P', X(P[0]) + (P[0] >= 0 ? 14 : -14), Y(P[1]) - 12, 17, INK); halo('Q', X(Q[0]) + 14, Y(Q[1]) + 14, 15, '#475569');
+    halo('P', X(P[0]) - 16, Y(P[1]) - 8, 17, INK); halo('Q', X(Q[0]) + 14, Y(Q[1]) - 10, 15, '#475569');
     halo('cos B', X(Q[0] / 2) + s * sa * 26, Y(Q[1] / 2) + s * ca * 26, 15, BLU);
     var mq = [(Q[0] + P[0]) / 2, (Q[1] + P[1]) / 2]; halo('sin B', X(mq[0]) + s * ca * 30, Y(mq[1]) - s * sa * 30, 15, ORG);
-    var op = off([P[0] / 2, P[1] / 2], th, 20 * s); halo('1', op[0], op[1], 15, INK);
-    halo('cos A cos B', X(S[0] / 2), Y(0) + 22, 14, BLU);
-    halo('sin A cos B', X(S[0]) + 10, Y(S[1] / 2) + (s > 0 ? 0 : 0), 14, BLU, 'left');
-    halo('sin A sin B', X((Q[0] + Rr[0]) / 2), Y(Q[1]) - 16, 14, ORG);
-    halo('cos A sin B', X(Rr[0]) + (s > 0 ? -12 : 12), Y((Rr[1] + P[1]) / 2), 14, ORG, s > 0 ? 'right' : 'left');
+    halo('1', X(P[0] / 2) - Math.sin(th) * 22 * s - 0 * s, Y(P[1] / 2) - Math.cos(th) * 22 * s, 15, INK);
+    if (st.fn === 'sin') halo('cos A cos B', X(S[0] / 2), Y(0) + 22, 14, BLU);
+    halo('sin A cos B', X(S[0]) + (s > 0 ? 10 : -10), Y(Q[1] / 2), 14, BLU, s > 0 ? 'left' : 'right');
+    halo('sin A sin B', X((Q[0] + Rr[0]) / 2), Y(Q[1]) + (s > 0 ? -14 : 20), 13, ORG);
+    halo('cos A sin B', X(Rr[0]) + (s > 0 ? -10 : 10), Y((Rr[1] + P[1]) / 2), 14, ORG, s > 0 ? 'right' : 'left');
     if (st.fn === 'sin') {
-      var px = X(P[0]) + 0; line(X(P[0]), Y(0), X(P[0]), Y(P[1]), '#64748b', 1.5, [4, 4]);
-      line(px + 9, Y(0), px + 9, Y(Rr[1]), BLU, 7); line(px + 9, Y(Rr[1]), px + 9, Y(P[1]), ORG, 7);
-      halo('sin(A ' + (s > 0 ? '+' : '−') + ' B)', 600, 40, 18, INK);
-      halo('= sin A cos B ' + (s > 0 ? '+' : '−') + ' cos A sin B', 600, 66, 15, INK);
+      var rx = X(1) + 130, bx = s > 0 ? 0 : 10;
+      line(X(1.1), Y(0), rx, Y(0), '#94a3b8', 1.2, [4, 4]); line(X(Q[0]), Y(Q[1]), rx, Y(Q[1]), '#94a3b8', 1.2, [4, 4]); line(X(P[0]), Y(P[1]), rx + bx, Y(P[1]), '#94a3b8', 1.2, [4, 4]);
+      line(rx, Y(0), rx, Y(Q[1]), BLU, 8); line(rx + bx, Y(Q[1]), rx + bx, Y(P[1]), ORG, 8);
+      halo('sin A cos B', rx + 20, Y(Q[1] / 2), 14, BLU, 'left'); halo('cos A sin B', rx + 20 + bx, Y((Q[1] + P[1]) / 2) + (s > 0 ? 0 : 6), 14, ORG, 'left');
+      halo('sin(A ' + pm + ' B)', 540, 28, 18, INK, 'left'); halo('= sin A cos B ' + pm + ' cos A sin B', 540, 52, 15, INK, 'left');
     } else {
-      line(X(P[0]), Y(0), X(P[0]), Y(P[1]), '#64748b', 1.5, [4, 4]);
-      line(X(0), Y(0), X(S[0]), Y(0), BLU, 7); line(X(S[0]), Y(0) + 11, X(P[0]), Y(0) + 11, ORG, 7);
-      halo('cos(A ' + (s > 0 ? '+' : '−') + ' B)', 600, 40, 18, INK);
-      halo('= cos A cos B ' + (s > 0 ? '−' : '+') + ' sin A sin B', 600, 66, 15, INK);
-      halo('= ' + f3(P[0]), X(P[0]), Y(0) + 40, 14, INK);
+      var ry = Y(0) + 48, oyb = s > 0 ? 9 : 0;
+      line(X(S[0]), Y(0), X(S[0]), ry + 12, '#94a3b8', 1.2, [4, 4]); line(X(P[0]), Y(P[1]), X(P[0]), ry + 12, '#94a3b8', 1.2, [4, 4]); line(X(0), Y(0), X(0), ry + 12, '#94a3b8', 1.2, [4, 4]);
+      line(X(0), ry, X(S[0]), ry, BLU, 8); line(X(S[0]), ry + oyb, X(P[0]), ry + oyb, ORG, 8);
+      halo('cos A cos B', X(S[0] / 2), ry + 28, 14, BLU); halo('sin A sin B', X((S[0] + P[0]) / 2), ry + 28 + (s > 0 ? 8 : 0), 14, ORG);
+      halo('cos(A ' + pm + ' B)', 540, 28, 18, INK, 'left'); halo('= cos A cos B ' + (s > 0 ? '−' : '+') + ' sin A sin B', 540, 52, 15, INK, 'left');
     }
-    var sg = s > 0 ? '+' : '-', sg2 = s > 0 ? '-' : '+', th2 = (st.A + s * st.B);
-    var ssn = Math.sin(A) * Math.cos(B), ccn = Math.cos(A) * Math.sin(B) * s, cc1 = Math.cos(A) * Math.cos(B), cc2 = Math.sin(A) * Math.sin(B) * s;
+    var sg = s > 0 ? '+' : '-', sg2 = s > 0 ? '-' : '+';
+    var ssn = sa * cb, ccn = ca * sb, cc1 = ca * cb, cc2 = sa * sb;
     $('eq').innerHTML = '\\(\\sin(A ' + sg + ' B) = ' + sp('\\sin A\\cos B', BLU) + ' ' + sg + ' ' + sp('\\cos A\\sin B', ORG) + '\\) &nbsp;&nbsp; \\(\\cos(A ' + sg + ' B) = ' + sp('\\cos A\\cos B', BLU) + ' ' + sg2 + ' ' + sp('\\sin A\\sin B', ORG) + '\\)<br>' +
-      (st.fn === 'sin' ? '\\(\\sin(' + st.A + '^{\\circ} ' + sg + ' ' + st.B + '^{\\circ}) = ' + f3(ssn) + ' ' + sg + ' ' + f3(Math.abs(ccn)) + ' = ' + f3(Math.sin(th)) + '\\)' : '\\(\\cos(' + st.A + '^{\\circ} ' + sg + ' ' + st.B + '^{\\circ}) = ' + f3(cc1) + ' ' + sg2 + ' ' + f3(Math.abs(cc2)) + ' = ' + f3(Math.cos(th)) + '\\)');
+      (st.fn === 'sin' ? '\\(\\sin(' + st.A + '^{\\circ} ' + sg + ' ' + st.B + '^{\\circ}) = ' + f3(ssn) + ' ' + sg + ' ' + f3(ccn) + ' = ' + f3(Math.sin(th)) + '\\)' : '\\(\\cos(' + st.A + '^{\\circ} ' + sg + ' ' + st.B + '^{\\circ}) = ' + f3(cc1) + ' ' + sg2 + ' ' + f3(cc2) + ' = ' + f3(Math.cos(th)) + '\\)');
     $('note').innerHTML = st.fn === 'sin'
-      ? 'The height of \\(P\\) is \\(\\sin(A ' + sg + ' B)\\). Start with the blue triangle: its hypotenuse is \\(\\cos B\\) and it is tilted by \\(A\\), so its vertical leg is \\(\\sin A\\cos B\\). The orange triangle has hypotenuse \\(\\sin B\\) and is turned a quarter turn from the blue one, so its vertical leg is \\(\\cos A\\sin B\\). The two vertical legs ' + (s > 0 ? 'stack to reach' : 'are subtracted to reach') + ' \\(P\\).'
-      : 'The horizontal position of \\(P\\) is \\(\\cos(A ' + sg + ' B)\\). The blue triangle takes you right by \\(\\cos A\\cos B\\). The orange triangle\\u2019s horizontal leg is \\(\\sin A\\sin B\\), and it points ' + (s > 0 ? 'back to the left' : 'to the right') + ', so it is ' + (s > 0 ? 'subtracted' : 'added') + '.';
+      ? 'The height of \\(P\\) is \\(\\sin(A ' + sg + ' B)\\). The blue triangle has hypotenuse \\(\\cos B\\) and is tilted by \\(A\\), so its vertical leg is \\(\\sin A\\cos B\\). The orange triangle has hypotenuse \\(\\sin B\\) and is turned a quarter turn from the blue one, so its vertical leg is \\(\\cos A\\sin B\\). On the ruler at the right, the two vertical legs ' + (s > 0 ? 'stack to reach' : 'overlap, and the orange one is taken away, to reach') + ' the height of \\(P\\).'
+      : 'The horizontal position of \\(P\\) is \\(\\cos(A ' + sg + ' B)\\). The blue triangle takes you right by \\(\\cos A\\cos B\\). The orange triangle\\u2019s horizontal leg is \\(\\sin A\\sin B\\), and it points ' + (s > 0 ? 'back to the left' : 'to the right') + ', so it is ' + (s > 0 ? 'subtracted' : 'added') + ' on the ruler below the axis.';
   }
   $('a').oninput = function () { st.A = parseInt(this.value, 10); draw(); };
   $('b').oninput = function () { st.B = parseInt(this.value, 10); draw(); };
   tabBtns(['f_sin', 'f_cos'], function (id) { st.fn = id === 'f_sin' ? 'sin' : 'cos'; draw(); }, 'f_sin');
   tabBtns(['m_sum', 'm_dif'], function (id) { st.mode = id === 'm_sum' ? 'sum' : 'dif'; draw(); }, 'm_sum');
-  onTick(function (dt) { if ($('anim').checked) { var mx = st.mode === 'dif' ? st.A : 80; if (st.fin) { st.fin = false; st.B = 0; } st.B = Math.min(mx, st.B + dt * 0.02); if (st.B >= mx) { st.fin = true; $('anim').checked = false; } st.B = Math.round(st.B * 10) / 10; draw(); } });
+  onTick(function (dt) { if ($('anim').checked) { var mx = st.mode === 'dif' ? Math.min(25, st.A) : 25; if (st.fin) { st.fin = false; st.B = 0; } st.B = Math.min(mx, st.B + dt * 0.012); if (st.B >= mx) { st.fin = true; $('anim').checked = false; } st.B = Math.round(st.B * 10) / 10; draw(); } });
   draw();
 
 })();
